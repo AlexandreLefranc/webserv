@@ -29,14 +29,14 @@
 - send
 - recv
 
-- setsockopt
-- getsockname
+- setsockopt: [doc/examples](https://www.ibm.com/docs/en/zos/2.1.0?topic=functions-setsockopt-set-options-associated-socket)
+- getsockname: retrieve socket info (protocol/ip/port) from socket fd
+- getprotobyname: get protocol details. malloced structure
 
 - getaddrinfo: malloc a linked list
 - freeaddrinfo: free the linked list
 - gai_strerror: strerror for getaddrinfo and freeaddrinfo
 
-- getprotobyname: get protocol details. malloced structure
 - fcntl: low level fd manipulator
 
 # Notes RFC 9110
@@ -102,3 +102,10 @@ Control Data:
 ...
 
 ## 7. Routing HTTP Messages
+
+# Links
+
+- [HTTP Mozilla MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP)
+- [Socket programming github example](https://github.com/kusdavletov/socket-programming-simple-server-and-client)
+- [Socket programming Geeksforgeeks](https://www.geeksforgeeks.org/socket-programming-cc/)
+- [epoll tutorial](https://www.suchprogramming.com/epoll-in-3-easy-steps/)
