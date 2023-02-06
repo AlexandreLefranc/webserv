@@ -31,7 +31,7 @@ int	main()
 
 	// Add file_fd to monitoring list
 	struct epoll_event event;
-	event.events = EPOLLIN;
+	event.events = EPOLLIN | EPOLLOUT | EPOLLET;
 	event.data.fd = file_fd;
 	if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, file_fd, &event) < 0)
 	{
@@ -44,7 +44,7 @@ int	main()
 	int i = 0;
 	while (i < 10)
 	{
-		std::cout << "epoll_wait()" << std::endl;
+		std::cout << "epoll is waiting..." << std::endl;
 		nfds = epoll_wait(epoll_fd, &event, 1, -1);
 		std::cout << "epoll has detected some change in file" << std::endl;
 		i++;

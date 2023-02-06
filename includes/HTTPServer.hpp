@@ -6,7 +6,7 @@
 class HTTPServer
 {
 private:
-	HTTPConfig	conf;
+	// HTTPConfig	conf;
 };
 
 #endif
