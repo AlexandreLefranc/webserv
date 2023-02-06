@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 
-#define BUFF_SIZE 1024
+#define BUFF_SIZE 32
 
 static void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "")
 {
@@ -45,7 +45,7 @@ static int		epoll_init()
 	if (epoll_fd < 0)
 	{
 		std::cerr << "epoll_create1 failed\n";
-		return 1;
+		throw std::exception();
 	}
 
 	return epoll_fd;
@@ -72,7 +72,7 @@ static int		init_server()
 	if (ret < 0)
 	{
 		std::cout << "Bind failed" << std::endl;
-		return 1;
+		throw std::exception();
 	}
 
 	// Listening to addr:port is on 
@@ -80,7 +80,7 @@ static int		init_server()
 	if (ret < 0)
 	{
 		std::cout << "Listen failed" << std::endl;
-		return 1;
+		throw std::exception();
 	}
 
 	return server_fd;
@@ -98,6 +98,26 @@ static void	add_fd_to_epoll(int epoll_fd, int fd, uint32_t flags)
 	}
 }
 
+static void	accept_client_and_add_to_epoll(int epoll_fd, int server_fd)
+{
+	int					client_fd;
+	struct sockaddr_in	client_sockaddr;
+	memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
+	socklen_t			client_socklen = sizeof(client_sockaddr);
+
+	std::cout << "Accepting a client" << std::endl;
+	client_fd = accept(server_fd, reinterpret_cast<struct sockaddr*>(&client_sockaddr), &client_socklen);
+	if (client_fd < 0)
+	{
+		std::cout << "Accept failed" << std::endl;
+		throw std::exception();
+	}
+	std::cout << "Accept has accepted a connection ! client_fd = " << client_fd << std::endl << std::endl;
+	display_sockaddr_in(client_sockaddr);
+
+	add_fd_to_epoll(epoll_fd, client_fd, EPOLLIN | EPOLLET);
+}
+
 static bool	is_ready_for_reading(const struct epoll_event& event)
 {
 	if ((event.events & EPOLLIN) != 0)
@@ -105,30 +125,29 @@ static bool	is_ready_for_reading(const struct epoll_event& event)
 	return false;
 }
 
+static void	print_socket(int fd)
+{
+	char str[BUFF_SIZE];
+	memset(str, 0, BUFF_SIZE);
+	ssize_t ret = recv(fd, str, BUFF_SIZE - 1, 0);
+	str[ret] = '\0';
+	std::cout << str;
+}
+
 int		main()
 {
 	int epoll_fd = epoll_init();
 	int server_fd = init_server();
 	
-	// Add server_fd to monitor list
-	add_fd_to_epoll(epoll_fd, server_fd, EPOLLIN | EPOLLOUT | EPOLLET);
-	
-	int nfds = 0;
+	add_fd_to_epoll(epoll_fd, server_fd, EPOLLIN | EPOLLET);
+
 	struct epoll_event event;
-	int i = 0;
-	// char* str[BUFF_SIZE];
 
-	std::vector<int> client_fds;
-
-	int client_fd;
-	struct sockaddr_in	client_sockaddr;
-	memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
-	socklen_t client_socklen = sizeof(client_sockaddr);
-	while (true)
+	for (int i = 0;; i++)
 	{
 		std::cout << "----------------------------------------------------------" << std::endl;
 		std::cout << "epoll is waiting..." << i << std::endl;
-		nfds = epoll_wait(epoll_fd, &event, 1, -1);
+		int nfds = epoll_wait(epoll_fd, &event, 1, -1);
 		std::cout << "epoll has detected some change in fd" << std::endl;
 		for (int j = 0; j < nfds; j++)
 		{
@@ -136,30 +155,20 @@ int		main()
 
 			if (event.data.fd == server_fd)
 			{
-				std::cout << "Accepting a client" << std::endl;
-				client_fd = accept(server_fd, reinterpret_cast<struct sockaddr*>(&client_sockaddr), &client_socklen);
-				if (client_fd < 0)
-				{
-					std::cout << "Accept failed" << std::endl;
-					return 1;
-				}
-				std::cout << "Accept has accepted a connection ! client_fd = " << client_fd << std::endl << std::endl;
-				display_sockaddr_in(client_sockaddr);
-				client_fds.push_back(client_fd);
-
-				add_fd_to_epoll(epoll_fd, client_fd, EPOLLIN | EPOLLET);
+				accept_client_and_add_to_epoll(epoll_fd, server_fd);
 			}
 			else
 			{
-				std::cout << "Other event" << std::endl;
+				std::cout << "Event coming from a client: " << event.data.fd << std::endl;
 				if (is_ready_for_reading(event) == true)
 				{
-					std::cout << "Ici je lis mdr" << std::endl;
+					print_socket(event.data.fd);
 				}
+				if ((event.events & EPOLLOUT) != 0)
+					std::cout << "  Ready for writing" << std::endl;
+				send(event.data.fd, "GOT IT !\n", 10, 0);
 			}
 		}
-
-		i++;
 	}
 
 
