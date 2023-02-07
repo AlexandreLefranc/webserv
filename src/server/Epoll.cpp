@@ -8,15 +8,15 @@ Epoll::~Epoll()
 {
     if (initiated == true)
     {
-        std::cout << MAG << "CLOSING epoll fd" << CRESET << std::endl;
+        std::cout << MAG << "[Epoll] CLOSING fd: " << fd << CRESET << std::endl;
         close(fd);
     }
 }
 
 void    Epoll::init()
 {
-    std::cout << "Init epoll..." << std::endl;
-    std::cout << MAG << "OPENING epoll fd: " << CRESET;
+    std::cout << MAG << "[Epoll] Init..." << CRESET << std::endl;
+    std::cout << MAG << "[Epoll] OPENING fd: " << CRESET;
     fd = epoll_create1(0);
 	if (fd < 0)
 	{
@@ -32,7 +32,7 @@ void    Epoll::add_fd(int fd_to_add, uint32_t flags)
     event.events = flags;
     event.data.fd = fd_to_add;
 
-    std::cout << "Adding fd " << fd_to_add << " to Epoll" << std::endl;
+    std::cout << MAG << "[Epoll] Adding fd " << fd_to_add << CRESET << std::endl;
     if (epoll_ctl(fd, EPOLL_CTL_ADD, fd_to_add, &event) < 0)
     {
         throw std::runtime_error("epoll_ctl(EPOLL_CTL_ADD) failed");
@@ -41,7 +41,7 @@ void    Epoll::add_fd(int fd_to_add, uint32_t flags)
 
 void    Epoll::remove_fd(int fd_to_rm)
 {
-    std::cout << "Removing fd " << fd_to_rm << " from Epoll" << std::endl;
+    std::cout << MAG << "[Epoll] Removing fd " << fd_to_rm << CRESET << std::endl;
     if (epoll_ctl(fd, EPOLL_CTL_DEL, fd_to_rm, NULL) < 0)
     {
         throw std::runtime_error("epoll_ctl(EPOLL_CTL_DEL) failed");
@@ -50,7 +50,7 @@ void    Epoll::remove_fd(int fd_to_rm)
 
 void    Epoll::wait(struct epoll_event& event, int& nfds)
 {
-    std::cout << "epoll is waiting..." << std::endl;
+    std::cout << MAG << "[Epoll] Waiting..." << CRESET << std::endl;
     nfds = epoll_wait(fd, &event, 1, -1);
-    std::cout << "epoll got something !" << std::endl;
+    std::cout << MAG << "[Epoll] Event !" << CRESET << std::endl;
 }

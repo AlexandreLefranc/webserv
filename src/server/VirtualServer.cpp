@@ -9,21 +9,21 @@ VirtualServer::~VirtualServer()
 {
     if (fd != -1)
     {
-        std::cout << MAG << "CLOSING server fd" << CRESET << std::endl;
+        std::cout << GRN << "[VirtualServer] CLOSING fd: " << fd << CRESET << std::endl;
         close(fd);
     }
 }
 
 void    VirtualServer::init()
 {
-    std::cout << "Init server..." << std::endl;
-    std::cout << MAG << "OPENING server fd: " << CRESET;
+    std::cout << GRN << "[VirtualServer] Init" << CRESET << std::endl;
+    std::cout << GRN << "[VirtualServer] OPENING fd: " << CRESET;
     fd = socket(family, SOCK_STREAM, getprotobyname("tcp")->p_proto);
     if (fd == -1)
     {
         throw std::runtime_error("socket() failed");
     }
-    std::cout << MAG << fd << CRESET << std::endl;
+    std::cout << GRN << fd << CRESET << std::endl;
 
     struct sockaddr_in      sockaddr;
     memset(&sockaddr, 0, sizeof(struct sockaddr_in));
@@ -46,19 +46,21 @@ void    VirtualServer::init()
     initiated = true;
 }
 
-int VirtualServer::accept_client()
-{
-    int client_fd;
-    struct sockaddr_in  client_sockaddr;
-    memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
-    socklen_t               client_socklen = sizeof(struct sockaddr_in);
+// int VirtualServer::accept_client()
+// {
+//     int client_fd;
+//     struct sockaddr_in  client_sockaddr;
+//     memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
+//     socklen_t               client_socklen = sizeof(struct sockaddr_in);
 
-    std::cout << "Accepting a client" << std::endl;
-    client_fd = accept(fd, reinterpret_cast<struct sockaddr*>(&client_sockaddr), &client_socklen);
-    if (client_fd < 0)
-    {
-        throw std::runtime_error("accept() failed");
-    }
+//     std::cout << GRN << "[VirtualServer] Accept client" << CRESET << std::endl;
+//     std::cout << YEL << "[Client] OPENING fd: " << CRESET;
+//     client_fd = accept(fd, reinterpret_cast<struct sockaddr*>(&client_sockaddr), &client_socklen);
+//     if (client_fd < 0)
+//     {
+//         throw std::runtime_error("accept() failed");
+//     }
+//     std::cout << YEL << client_fd << CRESET << std::endl;
 
-    return client_fd;
-}
+//     return client_fd;
+// }

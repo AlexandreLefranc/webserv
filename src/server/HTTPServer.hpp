@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 
+#include "client/Client.hpp"
 #include "server/Epoll.hpp"
 #include "server/VirtualServer.hpp"
 #include "config/HTTPConfig.hpp"
@@ -17,8 +18,9 @@ private:
 
 	Epoll				_epoll;
 
-
 	VirtualServer		_server; // tmp for tests
+
+	Client				_client;
 
 	// std::map<int, VirtualServer>	_virt_servers;
 	// std::map<int, int>				_user_agents;

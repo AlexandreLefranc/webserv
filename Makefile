@@ -23,6 +23,7 @@ SRCDIR		=	src/
 SRCFILE		=	webserv.cpp
 
 CLASSFILE	=	\
+				client/Client.cpp \
 				config/HTTPConfig.cpp \
 				server/Epoll.cpp \
 				server/HTTPServer.cpp \
