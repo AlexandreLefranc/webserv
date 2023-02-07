@@ -26,6 +26,7 @@ struct  VirtualServer
     ~VirtualServer();
 
     void    init();
+    int     accept_client();
 };
 
 #endif

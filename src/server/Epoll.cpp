@@ -35,13 +35,22 @@ void    Epoll::add_fd(int fd_to_add, uint32_t flags)
     std::cout << "Adding fd " << fd_to_add << " to Epoll" << std::endl;
     if (epoll_ctl(fd, EPOLL_CTL_ADD, fd_to_add, &event) < 0)
     {
-        throw std::runtime_error("epoll_ctl() failed");
+        throw std::runtime_error("epoll_ctl(EPOLL_CTL_ADD) failed");
     }
 }
 
-void    Epoll::wait(struct epoll_event& event)
+void    Epoll::remove_fd(int fd_to_rm)
+{
+    std::cout << "Removing fd " << fd_to_rm << " from Epoll" << std::endl;
+    if (epoll_ctl(fd, EPOLL_CTL_DEL, fd_to_rm, NULL) < 0)
+    {
+        throw std::runtime_error("epoll_ctl(EPOLL_CTL_DEL) failed");
+    }
+}
+
+void    Epoll::wait(struct epoll_event& event, int& nfds)
 {
     std::cout << "epoll is waiting..." << std::endl;
-    epoll_wait(fd, &event, 1, -1);
+    nfds = epoll_wait(fd, &event, 1, -1);
     std::cout << "epoll got something !" << std::endl;
 }

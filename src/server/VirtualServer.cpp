@@ -45,3 +45,20 @@ void    VirtualServer::init()
 
     initiated = true;
 }
+
+int VirtualServer::accept_client()
+{
+    int client_fd;
+    struct sockaddr_in  client_sockaddr;
+    memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
+    socklen_t               client_socklen = sizeof(struct sockaddr_in);
+
+    std::cout << "Accepting a client" << std::endl;
+    client_fd = accept(fd, reinterpret_cast<struct sockaddr*>(&client_sockaddr), &client_socklen);
+    if (client_fd < 0)
+    {
+        throw std::runtime_error("accept() failed");
+    }
+
+    return client_fd;
+}
