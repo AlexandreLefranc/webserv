@@ -2,8 +2,10 @@
 #include <sys/socket.h> // socket, bind, listen, getsockname
 #include <unistd.h> // close
 #include <arpa/inet.h> // struct sockaddr_in
-#include <string.h> // memset
 #include <sys/epoll.h> // epoll_*
+
+#include <cstring> // memset
+#include <cerrno>
 
 #include <iostream>
 #include <vector>
@@ -127,9 +129,15 @@ static bool	is_ready_for_reading(const struct epoll_event& event)
 
 static void	print_socket(int fd)
 {
+	std::cout << "Reading socket: ";
 	char str[BUFF_SIZE];
-	memset(str, 0, BUFF_SIZE);
 	ssize_t ret = recv(fd, str, BUFF_SIZE - 1, 0);
+	std::cout << ret << " bytes" << std::endl;
+	if (ret < 0)
+	{
+		std::cerr << "recv failed" << std::endl;
+		throw std::exception();
+	}
 	str[ret] = '\0';
 	std::cout << str;
 }
@@ -146,6 +154,7 @@ int		main()
 	for (int i = 0;; i++)
 	{
 		std::cout << "----------------------------------------------------------" << std::endl;
+		memset(&event, 0, sizeof(struct epoll_event));
 		std::cout << "epoll is waiting..." << i << std::endl;
 		int nfds = epoll_wait(epoll_fd, &event, 1, -1);
 		std::cout << "epoll has detected some change in fd" << std::endl;
@@ -166,7 +175,11 @@ int		main()
 				}
 				if ((event.events & EPOLLOUT) != 0)
 					std::cout << "  Ready for writing" << std::endl;
-				send(event.data.fd, "GOT IT !\n", 10, 0);
+				std::cout << "Sending 'GOT IT !'" << std::endl;
+				if (send(event.data.fd, "GOT IT !\n", 10, MSG_NOSIGNAL) < 0) // NOSIGNAL flag because ctrl-c in client kills server as there is a broken pipe
+				{
+					std::cout << "send failed: " << std::strerror(errno) << std::endl;
+				}
 			}
 		}
 	}
