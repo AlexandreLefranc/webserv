@@ -16,23 +16,32 @@ CXXFLAGS	= -Wall -Wextra -Werror -std=c++98 -g3
 LDFLAGS		=
 
 #------------------------------------#
-#          SOURCES AND CLASSES       #
+#                SOURCES             #
 #------------------------------------#
 
 SRCDIR		=	src/
-SRCFILE		=	main.cpp
+SRCFILE		=	webserv.cpp
+
+CLASSFILE	=	\
+				client/Client.cpp \
+				config/HTTPConfig.cpp \
+				server/Epoll.cpp \
+				server/HTTPServer.cpp \
+				server/VirtualServer.cpp \
 
 SRC			=	$(addprefix $(SRCDIR), $(SRCFILE))
+SRC			+=	$(addprefix $(SRCDIR), $(CLASSFILE))
 
 #------------------------------------#
 #              INCLUDES              #
 #------------------------------------#
 
 INCDIR		=	includes/
-INCFILE		=	HTTPConfig.hpp \
-				HTTPServer.hpp
+INCFILE		=	webserv.hpp \
+				ansi_colors.hpp
 
 INC			=	$(addprefix $(INCDIR), $(INCFILE))
+INC			+=	$(addprefix $(SRCDIR), $(CLASSFILE:.cpp=.hpp))
 
 #------------------------------------#
 #               OBJECTS              #
@@ -55,13 +64,27 @@ $(NAME): $(OBJ)
 
 $(OBJDIR)%.o: $(SRCDIR)%.cpp $(INC)
 	@mkdir -p `dirname $@`
-	$(CXX) $(CXXFLAGS) -c $< -o $@ -I $(INCDIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -I $(INCDIR) -I $(SRCDIR)
 
 .PHONY: clean
 clean:
+	rm -rf $(OBJDIR)
 
 .PHONY: fclean
-fclean:
+fclean: clean
+	rm -rf $(NAME)
 
 .PHONY: re
 re: fclean all
+
+.PHONY: run
+run: $(NAME)
+	./$(NAME)
+
+# .PHONY: run
+# run: $(NAME)
+# 	./$(NAME) $(filter-out $@, $(MAKECMDGOALS))
+
+# .PHONY: test
+# test:
+# 	echo $(INC)
