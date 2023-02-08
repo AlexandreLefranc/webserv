@@ -1,14 +1,14 @@
 #ifndef HTTPSERVER_HPP
-#define HTTPSERVER_HPP
+# define HTTPSERVER_HPP
 
-#include <map>
-#include <string>
-#include <iostream>
+# include <map>
+# include <string>
+# include <iostream>
 
-#include "client/Client.hpp"
-#include "server/Epoll.hpp"
-#include "server/VirtualServer.hpp"
-#include "config/HTTPConfig.hpp"
+# include "client/Client.hpp"
+# include "server/Epoll.hpp"
+# include "server/VirtualServer.hpp"
+# include "config/HTTPConfig.hpp"
 
 class HTTPServer
 {
@@ -32,7 +32,7 @@ private:
 	void	_add_server_to_epoll(const VirtualServer& server);
 
 public:
-	HTTPServer(const std::string& confg_file);
+	HTTPServer(const std::string& confg_file = "config/default.conf");
 	~HTTPServer();
 
 	void	run();
