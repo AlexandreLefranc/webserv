@@ -11,22 +11,23 @@
 
 #include "webserv.hpp"
 
-struct  VirtualServer
+class	VirtualServer
 {
-    int     fd;
-    int     family;
-    int     addr;
-    int     port;
+private:
+	int			_fd;
+	int			_family;
+	int			_addr;
+	int			_port;
+	std::string	_server_name;
 
-    bool    initiated;
-    bool    binded;
-    bool    listening;
+public:
+	VirtualServer();
+	~VirtualServer();
 
-    VirtualServer();
-    ~VirtualServer();
+	void	init();
+	// int	accept_client();
 
-    void    init();
-    // int     accept_client();
+	int		fd() const;
 };
 
 #endif

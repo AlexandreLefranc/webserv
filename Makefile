@@ -27,6 +27,7 @@ CLASSFILE	=	\
 				config/HTTPConfig.cpp \
 				server/Epoll.cpp \
 				server/HTTPServer.cpp \
+				server/ServerList.cpp \
 				server/VirtualServer.cpp \
 
 SRC			=	$(addprefix $(SRCDIR), $(SRCFILE))

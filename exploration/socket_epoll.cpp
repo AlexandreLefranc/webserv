@@ -144,8 +144,8 @@ static void	print_socket(int fd)
 
 int		main()
 {
-	int epoll_fd = epoll_init();
 	int server_fd = init_server();
+	int epoll_fd = epoll_init();
 	
 	add_fd_to_epoll(epoll_fd, server_fd, EPOLLIN | EPOLLET);
 

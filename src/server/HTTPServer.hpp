@@ -7,6 +7,7 @@
 
 #include "client/Client.hpp"
 #include "server/Epoll.hpp"
+#include "server/ServerList.hpp"
 #include "server/VirtualServer.hpp"
 #include "config/HTTPConfig.hpp"
 
@@ -18,18 +19,16 @@ private:
 
 	Epoll				_epoll;
 
-	VirtualServer		_server; // tmp for tests
+	// VirtualServer		_server; // tmp for tests
 
 	Client				_client;
 
-	// std::map<int, VirtualServer>	_virt_servers;
-	// std::map<int, int>				_user_agents;
+	ServerList			_server_list;
+	// ClientList			_client_list;
 
 	HTTPServer();
 
-	void	_parse_config();
-
-	void	_add_server_to_epoll(const VirtualServer& server);
+	void	_add_servers_to_epoll();
 
 public:
 	HTTPServer(const std::string& confg_file);

@@ -10,20 +10,23 @@
 
 #include "webserv.hpp"
 
-struct Client
+class Client
 {
-    int     fd;
-    int     associated_server_fd;
+private:
+	int		_fd;
+	int		_associated_server_fd;
 
-    struct sockaddr_in  sockaddr;
-    socklen_t           socklen;
+	struct sockaddr_in	_sockaddr;
+	socklen_t			_socklen;
 
+public:
+	Client();
+	~Client();
 
-    Client();
-    ~Client();
+	void	accept_conection(int server_fd);
+	void	clear();
 
-    void    accept_conection(int server_fd);
-    void    clear();
+	int		fd() const;
 };
 
 #endif
