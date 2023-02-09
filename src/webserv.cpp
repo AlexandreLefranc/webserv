@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "webserv.hpp"
-#include "server/HTTPServer.hpp"
+#include "core/HTTPServer.hpp"
 
 int main(int argc, char** argv)
 {

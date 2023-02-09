@@ -117,7 +117,7 @@ static void	accept_client_and_add_to_epoll(int epoll_fd, int server_fd)
 	std::cout << "Accept has accepted a connection ! client_fd = " << client_fd << std::endl << std::endl;
 	display_sockaddr_in(client_sockaddr);
 
-	add_fd_to_epoll(epoll_fd, client_fd, EPOLLIN | EPOLLET);
+	add_fd_to_epoll(epoll_fd, client_fd, EPOLLIN | EPOLLET | EPOLLRDHUP);
 }
 
 static bool	is_ready_for_reading(const struct epoll_event& event)
@@ -175,6 +175,8 @@ int		main()
 				}
 				if ((event.events & EPOLLOUT) != 0)
 					std::cout << "  Ready for writing" << std::endl;
+				if ((event.events & EPOLLRDHUP) != 0)
+					std::cout << "  Client connection closed" << std::endl;
 				std::cout << "Sending 'GOT IT !'" << std::endl;
 				if (send(event.data.fd, "GOT IT !\n", 10, MSG_NOSIGNAL) < 0) // NOSIGNAL flag because ctrl-c in client kills server as there is a broken pipe
 				{

@@ -25,9 +25,9 @@ SRCFILE		=	webserv.cpp
 CLASSFILE	=	\
 				client/Client.cpp \
 				config/HTTPConfig.cpp \
-				server/Epoll.cpp \
-				server/HTTPServer.cpp \
-				server/ServerList.cpp \
+				core/Epoll.cpp \
+				core/HTTPServer.cpp \
+				server/ServerManager.cpp \
 				server/VirtualServer.cpp \
 
 SRC			=	$(addprefix $(SRCDIR), $(SRCFILE))
@@ -86,6 +86,6 @@ run: $(NAME)
 # run: $(NAME)
 # 	./$(NAME) $(filter-out $@, $(MAKECMDGOALS))
 
-# .PHONY: test
-# test:
-# 	echo $(INC)
+.PHONY: test
+test:
+	@echo $(SRC)

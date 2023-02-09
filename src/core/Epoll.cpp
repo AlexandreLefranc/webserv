@@ -1,12 +1,12 @@
-#include "server/Epoll.hpp"
+#include "core/Epoll.hpp"
 
 Epoll::Epoll():
-	_fd(-1), _initiated(false)
+	_fd(-1)
 {}
 
 Epoll::~Epoll()
 {
-	if (_initiated == true)
+	if (_fd != -1)
 	{
 		std::cout << MAG << "[Epoll] CLOSING fd: " << _fd << CRESET << std::endl;
 		close(_fd);
@@ -23,12 +23,12 @@ void	Epoll::init()
 		throw std::runtime_error("epoll_create1() failed");
 	}
 	std::cout << MAG << _fd << CRESET << std::endl;
-	_initiated = true;
 }
 
 void	Epoll::add_fd(int fd_to_add, uint32_t flags)
 {
 	struct epoll_event  event;
+	std::memset(&event, 0, sizeof(event));
 	event.events = flags;
 	event.data.fd = fd_to_add;
 
@@ -48,14 +48,9 @@ void	Epoll::remove_fd(int fd_to_rm)
 	}
 }
 
-void	Epoll::wait(struct epoll_event& event, int& nfds)
+void	Epoll::wait(struct epoll_event* event, int& nfds)
 {
 	std::cout << MAG << "[Epoll] Waiting..." << CRESET << std::endl;
-	nfds = epoll_wait(_fd, &event, 1, -1);
+	nfds = epoll_wait(_fd, event, EPOLL_SIZE, -1);
 	std::cout << MAG << "[Epoll] Event !" << CRESET << std::endl;
-}
-
-int		Epoll::fd() const
-{
-	return _fd;
 }
