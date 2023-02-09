@@ -37,7 +37,6 @@ public:
 	const std::vector<int>	getfds() const;
 	bool					is_fd_in_list(int fd) const;
 	const VirtualServer&	get_virtual_server(int fd) const;
-	int						accept_connection(int server_fd) const;
 };
 
 #endif

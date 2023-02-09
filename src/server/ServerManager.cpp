@@ -83,24 +83,3 @@ bool					ServerManager::is_fd_in_list(int fd) const
 	}
 	return false;
 }
-
-int						accept_connection(int server_fd) const
-{
-	int					fd;
-	struct sockaddr_in	sockaddr;
-	socklen_t			socklen;
-
-	memset(&sockaddr, 0, sizeof(struct sockaddr_in));
-	socklen = sizeof(sockaddr);
-
-	std::cout << GRN << "[ServerManager] Accept client" << CRESET << std::endl;
-	std::cout << YEL << "[Client] OPENING fd: " << CRESET;
-	fd = accept(server_fd, reinterpret_cast<struct sockaddr*>(&sockaddr), &socklen);
-	if (fd < 0)
-	{
-		throw std::runtime_error("accept() failed");
-	}
-	std::cout << YEL << fd << CRESET << std::endl;
-
-	return fd;
-}

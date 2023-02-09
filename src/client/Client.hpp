@@ -16,6 +16,7 @@
 struct Client
 {
 private: // Disable defaults behaviors
+	Client();
 	Client(const Client& src);
 	Client&	operator=(const Client& src);
 
@@ -23,7 +24,6 @@ public:
 	int		fd;
 	int		server_fd;
 
-	Client();
 	Client(int fd, int server_fd);
 	~Client();
 };

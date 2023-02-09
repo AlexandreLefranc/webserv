@@ -20,6 +20,27 @@ HTTPServer::HTTPServer(const std::string& confg_file):
 HTTPServer::~HTTPServer()
 {}
 
+void	HTTPServer::_create_client(int server_fd)
+{
+	std::cout << CYN << "[HTTPServer] Client connection request!" << CRESET << std::endl;
+	int client_fd = _client_manager.create_client(server_fd);
+	_fds[client_fd] = CLIENT;
+	_epoll.add_fd(client_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET);
+}
+
+bool	HTTPServer::_is_client_disconnected(const epoll_event& event)
+{
+	if ((event.events & EPOLLRDHUP) != 0)
+	{
+		std::cout << CYN << "[HTTPServer] Client connection closed!" << CRESET << std::endl;
+		_epoll.remove_fd(event.data.fd);
+		_client_manager.remove_client(event.data.fd);
+		_fds.erase(event.data.fd);
+		return true;
+	}
+	return false;
+}
+
 void	HTTPServer::run()
 {
 	struct epoll_event	event[EPOLL_SIZE];
@@ -36,28 +57,19 @@ void	HTTPServer::run()
 			std::cout << CYN << "[HTTPServer] Event from fd " << event[i].data.fd << CRESET << std::endl;
 			if (_fds[event[i].data.fd] == SERVER)
 			{
-				std::cout << CYN << "[HTTPServer] Client connection request!" << CRESET << std::endl;
-				int client_fd = _client_manager.create_client(event[i].data.fd);
-				_client_manager.add_client(client_fd, event[i].data.fd);
-				// _client.accept_conection(event[i].data.fd);
-				_fds[client_fd] = CLIENT;
-				_epoll.add_fd(client_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET);
+				_create_client(event[i].data.fd);
 			}
 			else
 			{
 				std::cout << CYN << "[HTTPServer] Client is talking!" << CRESET << std::endl;
-				char	str[1024];
-				if ((event[i].events & EPOLLRDHUP) != 0)
+				if (_is_client_disconnected(event[i]) == true)
 				{
-					std::cout << CYN << "[HTTPServer] Client connection closed!" << CRESET << std::endl;
-					_epoll.remove_fd(event[i].data.fd);
-					_client.clear();
-					_fds.erase(event[i].data.fd);
-					break;
+					continue;
 				}
 				if ((event[i].events & EPOLLIN) != 0)
 				{
-					ssize_t ret = recv(event[i].data.fd, str, 1023, 0);
+					char	str[BUFF_SIZE];
+					ssize_t ret = recv(event[i].data.fd, str, BUFF_SIZE - 1, 0);
 					str[ret] = '\0';
 					std::cout << str;
 					if ((event[i].events & EPOLLOUT) != 0)
@@ -67,10 +79,10 @@ void	HTTPServer::run()
 					// _epoll.remove_fd(event[i].data.fd);
 					// _client.clear();
 					// _fds.erase(event[i].data.fd);
-				}
-				if (std::strcmp(str, "STOP\r\n") == 0)
-				{
-					return;
+					if (std::strcmp(str, "STOP\r\n") == 0)
+					{
+						return;
+					}
 				}
 			}
 		}

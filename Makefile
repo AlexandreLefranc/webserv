@@ -24,6 +24,7 @@ SRCFILE		=	webserv.cpp
 
 CLASSFILE	=	\
 				client/Client.cpp \
+				client/ClientManager.cpp \
 				config/HTTPConfig.cpp \
 				core/Epoll.cpp \
 				core/HTTPServer.cpp \

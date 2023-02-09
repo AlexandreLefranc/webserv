@@ -17,6 +17,11 @@
 
 class HTTPServer
 {
+private: // Disable defaults behaviors
+	HTTPServer();
+	HTTPServer(const HTTPServer& src);
+	HTTPServer&	operator=(const HTTPServer& src);
+
 private:
 
 	std::map<int, bool>		_fds;
@@ -26,12 +31,11 @@ private:
 
 	Epoll				_epoll;
 
-	Client				_client;
-
 	ServerManager			_server_manager;
 	ClientManager			_client_manager;
 
-	HTTPServer();
+	void	_create_client(int server_fd);
+	bool	_is_client_disconnected(const epoll_event& event);
 
 public:
 	HTTPServer(const std::string& confg_file);
