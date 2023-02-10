@@ -24,7 +24,7 @@ public:
 	int		fd;
 	int		server_fd;
 
-	Client(int fd, int server_fd);
+	Client(int server_fd);
 	~Client();
 };
 
