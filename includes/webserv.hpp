@@ -12,4 +12,8 @@ enum	socket_type
 	CLIENT
 };
 
+// utils/debug.cpp
+void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "");
+void	display_epoll_event(const struct epoll_event& event, const std::string& msg = "");
+
 #endif

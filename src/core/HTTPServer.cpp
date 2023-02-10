@@ -55,6 +55,7 @@ void	HTTPServer::run()
 		for (int i = 0; i < nfds; i++)
 		{
 			std::cout << CYN << "[HTTPServer] Event from fd " << event[i].data.fd << CRESET << std::endl;
+			display_epoll_event(event[i]);
 			if (_fds[event[i].data.fd] == SERVER)
 			{
 				_create_client(event[i].data.fd);
@@ -77,7 +78,7 @@ void	HTTPServer::run()
 						send(event[i].data.fd, "GOT IT !\n", 10, 0);
 					}
 					// _epoll.remove_fd(event[i].data.fd);
-					// _client.clear();
+					// _client_manager.remove_client(event[i].data.fd);
 					// _fds.erase(event[i].data.fd);
 					if (std::strcmp(str, "STOP\r\n") == 0)
 					{

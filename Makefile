@@ -20,7 +20,9 @@ LDFLAGS		=
 #------------------------------------#
 
 SRCDIR		=	src/
-SRCFILE		=	webserv.cpp
+SRCFILE		=	\
+				webserv.cpp \
+				utils/debug.cpp
 
 CLASSFILE	=	\
 				client/Client.cpp \
