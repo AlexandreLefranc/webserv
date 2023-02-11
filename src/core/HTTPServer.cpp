@@ -41,6 +41,31 @@ bool	HTTPServer::_is_client_disconnected(const epoll_event& event)
 	return false;
 }
 
+std::string	HTTPServer::_receive_all(int fd)
+{
+	std::string	full("");
+	char str[BUFF_SIZE];
+	ssize_t ret;
+
+	do
+	{
+		std::cout << "Reading socket: ";
+		ret = recv(fd, str, BUFF_SIZE - 1, MSG_DONTWAIT);
+		std::cout << ret << " bytes" << std::endl;
+		if (ret > 0)
+		{
+			str[ret] = '\0';
+			full += str;
+		}
+		if (ret == 0)
+		{
+			// Client disconnection during transmission
+		}
+	} while (ret > 0);
+
+	return full;
+}
+
 void	HTTPServer::run()
 {
 	struct epoll_event	event[EPOLL_SIZE];
@@ -69,9 +94,7 @@ void	HTTPServer::run()
 				}
 				if ((event[i].events & EPOLLIN) != 0)
 				{
-					char	str[BUFF_SIZE];
-					ssize_t ret = recv(event[i].data.fd, str, BUFF_SIZE - 1, 0);
-					str[ret] = '\0';
+					std::string str = _receive_all(event[i].data.fd);
 					std::cout << str;
 					if ((event[i].events & EPOLLOUT) != 0)
 					{
@@ -80,7 +103,7 @@ void	HTTPServer::run()
 					// _epoll.remove_fd(event[i].data.fd);
 					// _client_manager.remove_client(event[i].data.fd);
 					// _fds.erase(event[i].data.fd);
-					if (std::strcmp(str, "STOP\r\n") == 0)
+					if (str == "STOP\r\n")
 					{
 						return;
 					}

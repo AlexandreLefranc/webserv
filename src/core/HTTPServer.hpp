@@ -37,6 +37,8 @@ private:
 	void	_create_client(int server_fd);
 	bool	_is_client_disconnected(const epoll_event& event);
 
+	std::string	_receive_all(int fd);
+
 public:
 	HTTPServer(const std::string& confg_file);
 	~HTTPServer();
