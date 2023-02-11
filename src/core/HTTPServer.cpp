@@ -48,7 +48,7 @@ void	HTTPServer::run()
 	std::cout << CYN << "[HTTPServer] Starting event loop" << CRESET << std::endl;
 	while (true)
 	{
-		std::cout << CYN << "[HTTPServer] New event loop iteration" << CRESET << std::endl;
+		std::cout << CYN << "[HTTPServer] =========== New event loop iteration ===========" << CRESET << std::endl;
 		_epoll.wait(event, nfds);
 
 		std::cout << CYN << "[HTTPServer] Received " << nfds << " events" << CRESET << std::endl;
