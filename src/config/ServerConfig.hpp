@@ -5,5 +5,17 @@
 
 class ServerConfig
 {
-	
+
+public:
+	//	Attributes
+	std::ofstream	log_stream;
+
+	// Member functions
+	//		Constructor
+	HTTPConfig(const std::string& confg_file);
+	HTTPConfig(const HTTPConfig& other);
+	//		Destructor
+	~HTTPConfig();
+	//Assignment operator
+	HTTPConfig&	operator=(const HTTPConfig& other);
 };

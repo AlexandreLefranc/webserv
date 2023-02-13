@@ -18,11 +18,18 @@
 ==============================================================================*/
 
 HTTPConfig::HTTPConfig(const std::string& config_file)
-	: _file(config_file)
+	: _file(ifstream(config_file))
 	, log_stream( std::cout )
 {
 	std::cout << RED << "[HTTPConfig] Initiate Config" << CRESET << std::endl;
 	_parse();
+}
+
+HTTPConfig::HTTPConfig(const HTTPConfig& other)
+	: _file(other._file)
+	, log_stream(other.log_stream)
+{
+	return ;
 }
 
 /*==============================================================================
@@ -31,7 +38,21 @@ HTTPConfig::HTTPConfig(const std::string& config_file)
 
 HTTPConfig::~HTTPConfig()
 {
+	log_stream.close();
 	return ;
+}
+
+/*==============================================================================
+	Exception.
+==============================================================================*/
+
+HTTPConfig&	HTTPConfig::operator=(const HTTPConfig& other)
+{
+	if (this != &other)
+	{
+		_file = other._file;
+		log_stream = other.log_stream;
+	}
 }
 
 /*==============================================================================
@@ -75,7 +96,7 @@ void	HTTPConfig::_parse()
 void	_parse_block(const std::string& line)
 {
 	if (line.find("server") != NPOS)
-		_virtual_server_config.push_back(ServerConfig(this->_file));
+		_virtual_server_config.push_back(ServerConfig(_file));
 	else if (line.find("http"))
 	{
 		std::getline(_file, line);

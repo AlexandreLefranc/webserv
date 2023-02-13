@@ -13,7 +13,7 @@
 class HTTPConfig
 {
 private:
-	std::ifstream			_file;
+	std::ifstream&			_file;
 	std::list<ServerConfig>	_virtual_server_config;
 	// static const std::set<std::string>	_valid_keys;	
 
@@ -24,8 +24,11 @@ public:
 	// Member functions
 	//		Constructor
 	HTTPConfig(const std::string& confg_file);
+	HTTPConfig(const HTTPConfig& other);
 	//		Destructor
 	~HTTPConfig();
+	//Assignment operator
+	HTTPConfig&	operator=(const HTTPConfig& other);
 	//		Getters
 
 	//	Exception
