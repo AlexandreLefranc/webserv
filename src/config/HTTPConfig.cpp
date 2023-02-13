@@ -1,12 +1,6 @@
 #include "HTTPConfig.hpp"
 
 /*==============================================================================
-	Constructors.
-==============================================================================*/
-
-// const std::set<std::string>	HTTPConfig::_valid_keys = _init_set();
-
-/*==============================================================================
 
 							PUBLIC MEMBER FUNCTIONS.
 
@@ -19,7 +13,7 @@
 
 HTTPConfig::HTTPConfig(const std::string& config_file)
 	: _file(ifstream(config_file))
-	, log_stream( std::cout )
+	, log_stream(std::cout)
 {
 	std::cout << RED << "[HTTPConfig] Initiate Config" << CRESET << std::endl;
 	_parse();
@@ -38,7 +32,10 @@ HTTPConfig::HTTPConfig(const HTTPConfig& other)
 
 HTTPConfig::~HTTPConfig()
 {
-	log_stream.close();
+	if (log_stream.is_open())
+		log_stream.close();
+	if (file.is_open())
+		file.close();
 	return ;
 }
 
@@ -56,17 +53,8 @@ HTTPConfig&	HTTPConfig::operator=(const HTTPConfig& other)
 }
 
 /*==============================================================================
-	Exception.
-==============================================================================*/
 
-const char*	HTTPConfig::ParsingException::what() const throw()
-{
-	return ("HTTP parsing error.");
-}
-
-/*==============================================================================
-
-							PUBLIC MEMBER FUNCTIONS.
+							PRIVATE MEMBER FUNCTIONS.
 
 ==============================================================================*/
 
@@ -85,15 +73,12 @@ void	HTTPConfig::_parse()
 		line = format_line(line);
 		if (line.empty())
 			continue ;
-		if (line.find("{") == NPOS)
 			_parse_line(line);
-		else
-			_parse_block(line); // throw (ParsingException());
 	}
 	_file.close();
 }
 
-void	_parse_block(const std::string& line)
+void	HTTPConfig::_parse_block(std::string& line)
 {
 	if (line.find("server") != NPOS)
 		_virtual_server_config.push_back(ServerConfig(_file));
@@ -107,24 +92,30 @@ void	_parse_block(const std::string& line)
 		throw (ParsingException());
 }
 
-void	_parse_line(const std::string& line)
+void	HTTPConfig::_parse_line(std::string& line)
 {
-	std::pair<std::string, std::string>	entry;
+	const std::vector<std::string>	tokens;
 
 	if (line.find("{") != NPOS)
 		_parse_block(line);
 	else
-		_insert_entry(split_key_value(line));
+	{
+		tokens = split_tokens(line);
+		//	Potential token check HERE.
+		_insert_token(tokens);
+	}
+	return ;
 }
 
-void	_insert_entry(const std::pair<std::string, std::string>	entry)
+void	HTTPConfig::_insert_token(const std::vector<std::string> tokens)
 {
-	if (entry.first == "log_file")
+	if (tokens.front() == "log_file")
 	{
-		_open_log_file(entry.second);
+		_open_log_file(tokens.last());
 		if (!log_stream.is_open())
 			throw (ParsingException());
 	}
+	//	Other config options go HERE with `else if`.
 	else
 		throw (ParsingException());
 }

@@ -1,5 +1,17 @@
-#include <string>
-#include <pair>
+# include "parse_utils.hpp"
+
+/*==============================================================================
+	Exception.
+==============================================================================*/
+
+const char*	ParsingException::what() const throw()
+{
+	return ("HTTP parsing error.");
+}
+
+/*==============================================================================
+	Parse functions.
+==============================================================================*/
 
 std::string&	format_line(std::string& line)
 {
@@ -24,7 +36,7 @@ std::string&	format_line(std::string& line)
 	return (line);
 }
 
-std::vector<std::string>	split_tokens(std::string& line)
+std::vector<std::string>	split_tokens(std::string line)
 {
 	std::string::iterator		it;
 	std::vector<std::string>	tokens;

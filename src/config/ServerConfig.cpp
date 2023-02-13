@@ -11,16 +11,16 @@
 	Constructors.
 ==============================================================================*/
 
-ServerConfig::ServerConfig(const std::string& config_file)
-	: _file(ifstream(config_file))
-	, log_stream( std::cout )
+ServerConfig::ServerConfig(std::ifstream& config)
+	: file(config)
+	, log_stream(std::cout)
 {
 	std::cout << RED << "[ServerConfig] Initiate Config" << CRESET << std::endl;
 	_parse();
 }
 
 ServerConfig::ServerConfig(const ServerConfig& other)
-	: _file(other._file)
+	: file(other.file)
 	, log_stream(other.log_stream)
 {
 	return ;
@@ -32,7 +32,8 @@ ServerConfig::ServerConfig(const ServerConfig& other)
 
 ServerConfig::~ServerConfig()
 {
-	log_stream.close();
+	if (log_stream.is_open())
+		log_stream.close();
 	return ;
 }
 
@@ -44,16 +45,71 @@ ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
 {
 	if (this != &other)
 	{
-		_file = other._file;
+		file = other.file;
 		log_stream = other.log_stream;
 	}
 }
 
 /*==============================================================================
-	Exception.
+
+							PRIVATE MEMBER FUNCTIONS.
+
 ==============================================================================*/
 
-const char*	ServerConfig::ParsingException::what() const throw()
+/*==============================================================================
+	Parsing functions.
+==============================================================================*/
+
+void	ServerConfig::_parse()
 {
-	return ("HTTP parsing error.");
+	std::string		line;
+
+	if (!file.is_open())
+		throw (std::ios_base::failure("Config file error."));
+	while (std::getline(file, line))
+	{
+		line = format_line(line);
+		if (line.empty())
+			continue ;
+		_parse_line(line);
+	}
+	file.close();
+}
+
+void	ServerConfig::_parse_line(std::string& line)
+{
+	const std::vector<std::string>	tokens;
+
+	if (line.find("{") != NPOS)
+	{
+		tokens = split_tokens(line);
+		if (tokens.front() == "location")
+			_add_location(line);
+		else
+			throw (ParsingException());
+	}
+	else
+	{
+		tokens = split_tokens(line);
+		//	Potential token check HERE.
+		_insert_token(tokens);
+	}
+	return ;
+}
+
+void	_insert_token(std::vector<std::string> tokens)
+{
+	if (tokens.front() == "root" && tokens.size() == 2)
+		root = tokens[1];
+	else if (tokens.front() == "server_name" && tokens.size() == 2)
+		server_name = tokens[1];
+	else if (tokens.front() == "index")
+		index = std::vector(tokens.begin() + 1, tokens.end());
+	else
+		throw (ParsingException());
+}
+
+void	_add_location(std::string& line)
+{
+	
 }

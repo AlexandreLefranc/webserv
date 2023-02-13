@@ -1,11 +1,11 @@
 #ifndef HTTPCONFIG_HPP
 # define HTTPCONFIG_HPP
 
-# include <string>
-# include <ios>
 # include <fstream>
+# include <iostream>
 
 # include "ServerConfig.hpp"
+# include "parse_utils.hpp"
 
 # define NPOS	std::string::npos
 # define LOG_OPT	std::ios_base::out | std::ios_base::ate | std::ios_base::app
@@ -13,14 +13,12 @@
 class HTTPConfig
 {
 private:
-	std::ifstream&			_file;
-	std::list<ServerConfig>	_virtual_server_config;
-	// static const std::set<std::string>	_valid_keys;	
+	//	Attributes
+	std::ifstream&			file;
+	std::list<ServerConfig>	virtual_server_config;
+	std::ofstream			log_stream;
 
 public:
-	//	Attributes
-	std::ofstream	log_stream;
-
 	// Member functions
 	//		Constructor
 	HTTPConfig(const std::string& confg_file);
@@ -31,21 +29,14 @@ public:
 	HTTPConfig&	operator=(const HTTPConfig& other);
 	//		Getters
 
-	//	Exception
-	class ParsingException: public std::exception
-	{
-	public:
-		const char*	what() const throw();
-	};
-
 private:
 	//	parsing functions
 	void	_parse();
 	void	_parse_line(std::string& line);
-	void	_parse_block(std::string& line);
+	void	_add_location(std::string& line);
+	void	_insert_entry(const std::vector<std::string> tokens);
 	//	Utils functions
-	bool						_is_key_valid(const std::string& key) const;
-	const std::set<std::string>	_init_set();
+	void	_open_log_file(const std::string& log_file);
 };
 
 #endif
