@@ -129,17 +129,25 @@ static bool	is_ready_for_reading(const struct epoll_event& event)
 
 static void	print_socket(int fd)
 {
-	std::cout << "Reading socket: ";
+	std::string	full("");
 	char str[BUFF_SIZE];
-	ssize_t ret = recv(fd, str, BUFF_SIZE - 1, 0);
-	std::cout << ret << " bytes" << std::endl;
-	if (ret < 0)
+	ssize_t ret;
+
+	do
 	{
-		std::cerr << "recv failed" << std::endl;
-		throw std::exception();
-	}
-	str[ret] = '\0';
-	std::cout << str;
+		std::cout << "Reading socket: ";
+		ret = recv(fd, str, BUFF_SIZE - 1, MSG_DONTWAIT);
+		std::cout << ret << " bytes" << std::endl;
+		if (ret > 0)
+		{
+			str[ret] = '\0';
+			// std::cout << str;
+			full += str;
+		}
+		// sleep(1);
+	} while (ret > 0);
+
+	std::cout << "Full message: " << full << std::endl;
 }
 
 int		main()

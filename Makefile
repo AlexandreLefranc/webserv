@@ -20,13 +20,17 @@ LDFLAGS		=
 #------------------------------------#
 
 SRCDIR		=	src/
-SRCFILE		=	webserv.cpp
+SRCFILE		=	\
+				webserv.cpp \
+				utils/debug.cpp
 
 CLASSFILE	=	\
 				client/Client.cpp \
+				client/ClientManager.cpp \
 				config/HTTPConfig.cpp \
-				server/Epoll.cpp \
-				server/HTTPServer.cpp \
+				core/Epoll.cpp \
+				core/HTTPServer.cpp \
+				server/ServerManager.cpp \
 				server/VirtualServer.cpp \
 
 SRC			=	$(addprefix $(SRCDIR), $(SRCFILE))
@@ -85,6 +89,6 @@ run: $(NAME)
 # run: $(NAME)
 # 	./$(NAME) $(filter-out $@, $(MAKECMDGOALS))
 
-# .PHONY: test
-# test:
-# 	echo $(INC)
+.PHONY: test
+test:
+	@echo $(SRC)

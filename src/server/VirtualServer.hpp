@@ -1,32 +1,33 @@
 #ifndef VIRTUALSERVER_HPP
-#define VIRTUALSERVER_HPP
+# define VIRTUALSERVER_HPP
 
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <netdb.h>
+# include <sys/socket.h>
+# include <arpa/inet.h>
+# include <unistd.h>
+# include <netdb.h>
 
-#include <cstring>
-#include <iostream>
+# include <cstring>
+# include <iostream>
 
-#include "webserv.hpp"
+# include "webserv.hpp"
+# include "config/ServerConfig.hpp"
 
-struct  VirtualServer
+// Purpose: Keep all info relative to a specific VirtualServer.
+// Manage the socket fd for this VirtualServer
+
+struct VirtualServer
 {
-    int     fd;
-    int     family;
-    int     addr;
-    int     port;
+private: // Disable defaults behaviors
+	VirtualServer();
+	VirtualServer(const VirtualServer& src);
+	VirtualServer&	operator=(const VirtualServer& src);
 
-    bool    initiated;
-    bool    binded;
-    bool    listening;
+public:
+	int						fd;
+	const ServerConfig&		config;
 
-    VirtualServer();
-    ~VirtualServer();
-
-    void    init();
-    // int     accept_client();
+	VirtualServer(const ServerConfig& config);
+	~VirtualServer();
 };
 
 #endif
