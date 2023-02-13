@@ -22,7 +22,8 @@ LDFLAGS		=
 SRCDIR		=	src/
 SRCFILE		=	\
 				webserv.cpp \
-				utils/debug.cpp
+				utils/debug.cpp \
+				utils/string_utils.cpp
 
 CLASSFILE	=	\
 				client/Client.cpp \
@@ -30,6 +31,7 @@ CLASSFILE	=	\
 				config/HTTPConfig.cpp \
 				core/Epoll.cpp \
 				core/HTTPServer.cpp \
+				request/Request.cpp \
 				server/ServerManager.cpp \
 				server/VirtualServer.cpp \
 

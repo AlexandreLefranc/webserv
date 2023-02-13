@@ -49,9 +49,9 @@ std::string	HTTPServer::_receive_all(int fd)
 
 	do
 	{
-		std::cout << "Reading socket: ";
+		// std::cout << "Reading socket: ";
 		ret = recv(fd, str, BUFF_SIZE - 1, MSG_DONTWAIT);
-		std::cout << ret << " bytes" << std::endl;
+		// std::cout << ret << " bytes" << std::endl;
 		if (ret > 0)
 		{
 			str[ret] = '\0';
@@ -63,7 +63,54 @@ std::string	HTTPServer::_receive_all(int fd)
 		}
 	} while (ret > 0);
 
+	// std::cout << full;
 	return full;
+}
+
+int		HTTPServer::_process_epollin(const epoll_event& event)
+{
+	Client&		client = _client_manager.get_client(event.data.fd);
+
+	std::string str = _receive_all(event.data.fd);
+	client.request.raw += str;
+	// std::cout << "raw:" << std::endl << client.request.raw;
+
+	while (client.request.raw.find("\r\n") != std::string::npos)
+	{
+		std::string line = client.request.raw.substr(0, client.request.raw.find("\r\n"));
+		client.request.raw.erase(0, client.request.raw.find("\r\n") + 2);
+		std::cout << "line:" << std::endl << line << std::endl;
+
+		std::vector<std::string>	splitted = split(line, " ");
+		if (client.request.method == "" && splitted.size() != 3)
+		{
+			std::cout << "Send 501 Not Implemented" << std::endl;
+		}
+		else
+		{
+			client.request.method = splitted[0];
+			client.request.route = splitted[1];
+			client.request.protocol = splitted[2];
+			// check validy
+		}
+
+
+	}
+
+
+
+	if ((event.events & EPOLLOUT) != 0)
+	{
+		send(event.data.fd, "GOT IT !\n", 10, 0);
+	}
+	// _epoll.remove_fd(event.data.fd);
+	// _client_manager.remove_client(event.data.fd);
+	// _fds.erase(event.data.fd);
+	if (str == "STOP\r\n" || str == "STOP")
+	{
+		return -1;
+	}
+	return 0;
 }
 
 void	HTTPServer::run()
@@ -80,7 +127,7 @@ void	HTTPServer::run()
 		for (int i = 0; i < nfds; i++)
 		{
 			std::cout << CYN << "[HTTPServer] Event from fd " << event[i].data.fd << CRESET << std::endl;
-			display_epoll_event(event[i]);
+			// display_epoll_event(event[i]);
 			if (_fds[event[i].data.fd] == SERVER)
 			{
 				_create_client(event[i].data.fd);
@@ -94,16 +141,7 @@ void	HTTPServer::run()
 				}
 				if ((event[i].events & EPOLLIN) != 0)
 				{
-					std::string str = _receive_all(event[i].data.fd);
-					std::cout << str;
-					if ((event[i].events & EPOLLOUT) != 0)
-					{
-						send(event[i].data.fd, "GOT IT !\n", 10, 0);
-					}
-					// _epoll.remove_fd(event[i].data.fd);
-					// _client_manager.remove_client(event[i].data.fd);
-					// _fds.erase(event[i].data.fd);
-					if (str == "STOP\r\n")
+					if (_process_epollin(event[i]) == -1)
 					{
 						return;
 					}

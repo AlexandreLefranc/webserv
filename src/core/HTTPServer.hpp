@@ -38,6 +38,7 @@ private:
 	bool	_is_client_disconnected(const epoll_event& event);
 
 	std::string	_receive_all(int fd);
+	int			_process_epollin(const epoll_event& event);
 
 public:
 	HTTPServer(const std::string& confg_file);

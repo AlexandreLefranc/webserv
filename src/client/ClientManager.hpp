@@ -23,6 +23,7 @@ public:
 
 	int		create_client(int server_fd);
 	void	remove_client(int client_fd);
+	Client&	get_client(int client_fd);
 };
 
 #endif

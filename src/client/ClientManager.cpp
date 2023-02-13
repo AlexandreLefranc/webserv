@@ -27,3 +27,8 @@ void	ClientManager::remove_client(int client_fd)
 		_clients.erase(client_fd);
 	}
 }
+
+Client&	ClientManager::get_client(int client_fd)
+{
+	return *_clients[client_fd];
+}
