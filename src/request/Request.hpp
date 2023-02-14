@@ -6,6 +6,7 @@
 # include <string>
 # include <map>
 # include <iostream>
+# include <algorithm>
 
 # include "webserv.hpp"
 # include "utils/Exceptions.hpp"
@@ -26,7 +27,10 @@ private:
 	std::string							_route;
 	std::string							_protocol;
 
+	bool								_is_header_done;
 	std::map<std::string, std::string>	_headers;
+
+	bool								_ready_to_respond;
 
 public:
 	Request();
