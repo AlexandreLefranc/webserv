@@ -5,12 +5,14 @@
 # include <string>
 # include <iostream>
 
+# include "webserv.hpp"
 # include "client/Client.hpp"
 # include "client/ClientManager.hpp"
 # include "core/Epoll.hpp"
 # include "server/ServerManager.hpp"
 # include "server/VirtualServer.hpp"
 # include "config/HTTPConfig.hpp"
+# include "utils/Exceptions.hpp"
 
 // Purpose: Supervise relations between Epoll, Servers and Clients.
 // Run main loop and decides what to do
@@ -34,11 +36,13 @@ private:
 	ServerManager			_server_manager;
 	ClientManager			_client_manager;
 
+	// Client manip
 	void	_create_client(int server_fd);
-	bool	_is_client_disconnected(const epoll_event& event);
+	void	_remove_client(int fd);
+	void	_receive_client(int fd);
 
-	std::string	_receive_all(int fd);
 	int			_process_epollin(const epoll_event& event);
+
 
 public:
 	HTTPServer(const std::string& confg_file);

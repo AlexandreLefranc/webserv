@@ -22,4 +22,7 @@ void	display_epoll_event(const struct epoll_event& event, const std::string& msg
 // utils/string_utils.cpp
 std::vector<std::string> split(std::string s, std::string delimiter);
 
+// utils/socket_utils.cpp
+std::string	receive_all(int fd);
+
 #endif

@@ -23,6 +23,7 @@ SRCDIR		=	src/
 SRCFILE		=	\
 				webserv.cpp \
 				utils/debug.cpp \
+				utils/socket_utils.cpp \
 				utils/string_utils.cpp
 
 CLASSFILE	=	\
@@ -34,6 +35,7 @@ CLASSFILE	=	\
 				request/Request.cpp \
 				server/ServerManager.cpp \
 				server/VirtualServer.cpp \
+				utils/Exceptions.cpp
 
 SRC			=	$(addprefix $(SRCDIR), $(SRCFILE))
 SRC			+=	$(addprefix $(SRCDIR), $(CLASSFILE))
