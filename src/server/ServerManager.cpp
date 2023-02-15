@@ -45,11 +45,6 @@ void	ServerManager::init()
 	}
 }
 
-const ServerManager::server_list_t&	ServerManager::l() const
-{
-	return _servers;
-}
-
 const std::vector<int>				ServerManager::getfds() const
 {
 	typedef	ServerManager::server_list_t				outer_t;
@@ -65,21 +60,4 @@ const std::vector<int>				ServerManager::getfds() const
 		}
 	}
 	return fds;
-}
-
-
-bool					ServerManager::is_fd_in_list(int fd) const
-{
-	typedef	ServerManager::server_list_t				outer_t;
-	typedef	ServerManager::server_list_t::mapped_type	inner_t;
-
-	for (outer_t::const_iterator outerit = _servers.begin(); outerit != _servers.end(); outerit++)
-	{
-		for (inner_t::const_iterator innerit = outerit->second.begin(); innerit != outerit->second.end(); innerit++)
-		{
-			if (fd == innerit->second->fd)
-				return true;
-		}
-	}
-	return false;
 }

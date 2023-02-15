@@ -4,11 +4,41 @@ Request::Request()
 	: _client_fd(-1)
 	, _has_start_line(false)
 	, _is_header_done(false)
+	, _has_body(false)
+	, _body_len(0)
 	, _ready_to_respond(false)
 {}
 
 Request::~Request()
 {}
+
+/*******************************************************************************
+                                PRIVATE METHODS
+*******************************************************************************/
+
+void	Request::_parse_body(const std::string& str)
+{
+	if (_body_type == "content-length" && _body_len > 0)
+	{
+		if (_body_len >= str.length())
+		{
+			_body += str;
+			_body_len -= str.length();
+			std::cout << "_body_len = " << _body_len << std::endl;
+		}
+		else
+		{
+			std::string	sub = str.substr(0, _body_len);
+			_body += sub;
+			_body_len -= sub.length();
+			std::cout << "_body_len = " << _body_len << std::endl;
+		}
+	}
+}
+
+/*******************************************************************************
+                                PUBLIC METHODS
+*******************************************************************************/
 
 void	Request::set_client_fd(int client_fd)
 {
@@ -20,6 +50,17 @@ void	Request::parse_data(const std::string& str)
 	_raw += str;
 	std::cout << "raw:" << std::endl << _raw;
 
+	if (str == "STOP" || str == "STOP\r\n")
+	{
+		throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
+	}
+
+	if (_is_header_done == true && _has_body == true)
+	{
+		_parse_body(str);
+		return;
+	}
+
 	while (_raw.find("\r\n") != std::string::npos)
 	{
 		std::string	line = _raw.substr(0, _raw.find("\r\n"));
@@ -28,11 +69,6 @@ void	Request::parse_data(const std::string& str)
 		if (_has_start_line == false && line == "")
 		{
 			continue;
-		}
-
-		if (line == "STOP")
-		{
-			throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
 		}
 
 		if (_has_start_line == false)
@@ -79,8 +115,22 @@ void	Request::parse_data(const std::string& str)
 			}
 
 			std::vector<std::string>	splitted = split_first(line, ":");
-			_headers[tolowerstr(trim(splitted[0]))] = trim(splitted[1]);
+			std::string					key = tolowerstr(trim(splitted[0]));
+			std::string					value = trim(splitted[1]);
+			_headers[key] = value;
 			display_map(_headers, "header");
+
+			if (key == "content-length")
+			{
+				_has_body = true;
+				_body_len = std::atol(value.c_str());
+				_body_type = key;
+			}
+			if (key == "transfer-encoding")
+			{
+				_has_body = true;
+				_body_type = key;
+			}
 		}
 	}
 }

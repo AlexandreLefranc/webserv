@@ -33,10 +33,10 @@ public:
 
 	void	init();
 
-	const server_list_t&	l() const;
+	// const server_list_t&	l() const;
 	const std::vector<int>	getfds() const;
-	bool					is_fd_in_list(int fd) const;
-	const VirtualServer&	get_virtual_server(int fd) const;
+	// bool					is_fd_in_list(int fd) const;
+	// const VirtualServer&	get_virtual_server(int fd) const;
 };
 
 #endif
