@@ -3,6 +3,8 @@
 #include <arpa/inet.h>
 
 #include <iostream>
+#include <map>
+#include <string>
 
 void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "")
 {

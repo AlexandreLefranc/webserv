@@ -24,7 +24,7 @@ private:
 
 	bool								_has_start_line;
 	std::string							_method;
-	std::string							_route;
+	std::string							_target;
 	std::string							_protocol;
 
 	bool								_is_header_done;
