@@ -14,7 +14,7 @@ private:
 	std::ofstream				log_stream;
 	std::string					root;
 	std::string					server_name;
-	std::pair<int, short>		listen_port;
+	std::pair<int, short>		listen_port = make_pair(, 80);
 	std::vector<std::string>	index;
 	std::vector<ServerLocation>	locations;
 

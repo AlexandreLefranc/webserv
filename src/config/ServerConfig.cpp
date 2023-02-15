@@ -38,7 +38,7 @@ ServerConfig::~ServerConfig()
 }
 
 /*==============================================================================
-	Exception.
+	Assignment operator.
 ==============================================================================*/
 
 ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
@@ -71,6 +71,8 @@ void	ServerConfig::_parse()
 		line = format_line(line);
 		if (line.empty())
 			continue ;
+		else if (line == "}")
+			return ;
 		_parse_line(line);
 	}
 	file.close();
@@ -84,10 +86,12 @@ void	ServerConfig::_parse_line(std::string& line)
 	{
 		tokens = split_tokens(line);
 		if (tokens.front() == "location")
-			_add_location(line);
+			_add_location(tokens);
 		else
 			throw (ParsingException());
 	}
+	else if (line == "}")
+			return ;
 	else
 	{
 		tokens = split_tokens(line);
@@ -103,6 +107,8 @@ void	_insert_token(std::vector<std::string> tokens)
 		root = tokens[1];
 	else if (tokens.front() == "server_name" && tokens.size() == 2)
 		server_name = tokens[1];
+	else if (tokens.front() == "listen" && tokens.size() == 2)
+		
 	else if (tokens.front() == "index")
 		index = std::vector(tokens.begin() + 1, tokens.end());
 	else
