@@ -20,14 +20,20 @@ LDFLAGS		=
 #------------------------------------#
 
 SRCDIR		=	src/
-SRCFILE		=	webserv.cpp
+SRCFILE		=	\
+				config/main_config.cpp \
+				utils/parse_utils.cpp \
+				# webserv.cpp \
 
 CLASSFILE	=	\
-				client/Client.cpp \
 				config/HTTPConfig.cpp \
-				server/Epoll.cpp \
-				server/HTTPServer.cpp \
-				server/VirtualServer.cpp \
+				config/ServerConfig.cpp \
+				config/ServerLocation.cpp \
+				# client/Client.cpp \
+				# config/HTTPConfig.cpp \
+				# server/Epoll.cpp \
+				# server/HTTPServer.cpp \
+				# server/VirtualServer.cpp \
 
 SRC			=	$(addprefix $(SRCDIR), $(SRCFILE))
 SRC			+=	$(addprefix $(SRCDIR), $(CLASSFILE))
@@ -38,6 +44,7 @@ SRC			+=	$(addprefix $(SRCDIR), $(CLASSFILE))
 
 INCDIR		=	includes/
 INCFILE		=	webserv.hpp \
+				parse_utils.hpp \
 				ansi_colors.hpp
 
 INC			=	$(addprefix $(INCDIR), $(INCFILE))

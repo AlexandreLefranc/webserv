@@ -11,17 +11,16 @@
 	Constructors.
 ==============================================================================*/
 
-ServerConfig::ServerConfig(std::ifstream& config)
-	: file(config)
-	, log_stream(std::cout)
+ServerConfig::ServerConfig(std::stringstream& config)
+	: content(config)
+	, listen_port(std::make_pair(0, 80))
 {
 	std::cout << RED << "[ServerConfig] Initiate Config" << CRESET << std::endl;
 	_parse();
 }
 
 ServerConfig::ServerConfig(const ServerConfig& other)
-	: file(other.file)
-	, log_stream(other.log_stream)
+	: content(other.content)
 {
 	return ;
 }
@@ -32,8 +31,6 @@ ServerConfig::ServerConfig(const ServerConfig& other)
 
 ServerConfig::~ServerConfig()
 {
-	if (log_stream.is_open())
-		log_stream.close();
 	return ;
 }
 
@@ -44,10 +41,8 @@ ServerConfig::~ServerConfig()
 ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
 {
 	if (this != &other)
-	{
-		file = other.file;
-		log_stream = other.log_stream;
-	}
+		content.str(other.content.str());
+	return (*this);
 }
 
 /*==============================================================================
@@ -64,10 +59,9 @@ void	ServerConfig::_parse()
 {
 	std::string		line;
 
-	if (!file.is_open())
-		throw (std::ios_base::failure("Config file error."));
-	while (std::getline(file, line))
+	while (std::getline(content, line))
 	{
+		std::cout << line << std::endl;
 		line = format_line(line);
 		if (line.empty())
 			continue ;
@@ -75,17 +69,16 @@ void	ServerConfig::_parse()
 			return ;
 		_parse_line(line);
 	}
-	file.close();
 }
 
 void	ServerConfig::_parse_line(std::string& line)
 {
-	const std::vector<std::string>	tokens;
+	std::vector<std::string>	tokens;
 
-	if (line.find("{") != NPOS)
+	if (line.find("{") != std::string::npos)
 	{
 		tokens = split_tokens(line);
-		if (tokens.front() == "location")
+		if (tokens.front() == "location" && tokens.size() <= 4)
 			_add_location(tokens);
 		else
 			throw (ParsingException());
@@ -95,27 +88,72 @@ void	ServerConfig::_parse_line(std::string& line)
 	else
 	{
 		tokens = split_tokens(line);
-		//	Potential token check HERE.
+		std::cout << "Splitted token length: " << tokens.size() << std::endl;
 		_insert_token(tokens);
 	}
 	return ;
 }
 
-void	_insert_token(std::vector<std::string> tokens)
+void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 {
 	if (tokens.front() == "root" && tokens.size() == 2)
 		root = tokens[1];
 	else if (tokens.front() == "server_name" && tokens.size() == 2)
 		server_name = tokens[1];
 	else if (tokens.front() == "listen" && tokens.size() == 2)
-		
+		listen_port = _parse_address(tokens[1]);
 	else if (tokens.front() == "index")
-		index = std::vector(tokens.begin() + 1, tokens.end());
+		index = std::vector<std::string>(tokens.begin() + 1, tokens.end());
 	else
 		throw (ParsingException());
 }
 
-void	_add_location(std::string& line)
+std::pair<int, short>	ServerConfig::_parse_address(std::string& address)
 {
-	
+	std::string::size_type	splitter_pos;
+
+	if ((splitter_pos = address.find(':')) != std::string::npos)
+		return (std::make_pair(iptoi(address.substr(0, splitter_pos)), std::atoi(address.substr(splitter_pos + 1).c_str())));
+	else if (address.find('.') != std::string::npos)
+		return (std::make_pair(iptoi(address), 80));
+	else 
+		return (std::make_pair(0, std::atoi(address.c_str())));
+}
+
+void	ServerConfig::_add_location(std::vector<std::string>& tokens)
+{
+	bool									exact_match = false;
+	std::string								location;
+	std::vector<ServerLocation>::iterator	pos;
+
+	location = tokens[1];
+	if (tokens.size() == 3)
+	{
+		location = tokens[2];
+		if (tokens[1] == "=")
+			exact_match = true;
+		else
+			throw (ParsingException());
+	}
+	for (pos = locations.begin(); pos != locations.end(); pos++)
+	{
+		if (exact_match && pos->get_exact_match())
+		{
+			if (std::count(pos->get_location_match().begin(), pos->get_location_match().end(), '/') <
+				std::count(location.begin(), location.end(), '/'))
+				break ;
+		}
+		else if (exact_match && !pos->get_exact_match())
+			break ;
+		else if (!exact_match && !pos->get_exact_match())
+		{
+			if (std::count(pos->get_location_match().begin(), pos->get_location_match().end(), '/') <
+				std::count(location.begin(), location.end(), '/'))
+				break ;
+		}
+		else
+			continue ;
+	}
+	locations.insert(pos, ServerLocation(content, location, exact_match));
+	return ;
 }

@@ -12,16 +12,18 @@
 ==============================================================================*/
 
 HTTPConfig::HTTPConfig(const std::string& config_file)
-	: _file(ifstream(config_file))
-	, log_stream(std::cout)
 {
+	std::ifstream	config(config_file.c_str());
 	std::cout << RED << "[HTTPConfig] Initiate Config" << CRESET << std::endl;
+	if (!config.is_open())
+		throw (ParsingException());
+	content << config.rdbuf();
+	config.close();
 	_parse();
 }
 
 HTTPConfig::HTTPConfig(const HTTPConfig& other)
-	: _file(other._file)
-	, log_stream(other.log_stream)
+	: content(other.content.str())
 {
 	return ;
 }
@@ -32,10 +34,6 @@ HTTPConfig::HTTPConfig(const HTTPConfig& other)
 
 HTTPConfig::~HTTPConfig()
 {
-	if (log_stream.is_open())
-		log_stream.close();
-	if (file.is_open())
-		file.close();
 	return ;
 }
 
@@ -47,9 +45,10 @@ HTTPConfig&	HTTPConfig::operator=(const HTTPConfig& other)
 {
 	if (this != &other)
 	{
-		_file = other._file;
-		log_stream = other.log_stream;
+		content.str(other.content.str());
+		virtual_server_config = other.virtual_server_config;
 	}
+	return (*this);
 }
 
 /*==============================================================================
@@ -66,25 +65,22 @@ void	HTTPConfig::_parse()
 {
 	std::string		line;
 
-	if (!_file.is_open())
-		throw (std::ios_base::failure("Config file error."));
-	while (std::getline(_file, line))
+	while (std::getline(content, line))
 	{
 		line = format_line(line);
 		if (line.empty())
 			continue ;
-			_parse_line(line);
+		_parse_line(line);
 	}
-	_file.close();
 }
 
 void	HTTPConfig::_parse_block(std::string& line)
 {
-	if (line.find("server") != NPOS)
-		_virtual_server_config.push_back(ServerConfig(_file));
+	if (line.find("server") != std::string::npos)
+		virtual_server_config.push_back(ServerConfig(content));
 	else if (line.find("http"))
 	{
-		std::getline(_file, line);
+		std::getline(content, line);
 		line = format_line(line);
 		_parse_line(line);
 	}
@@ -94,9 +90,9 @@ void	HTTPConfig::_parse_block(std::string& line)
 
 void	HTTPConfig::_parse_line(std::string& line)
 {
-	const std::vector<std::string>	tokens;
+	std::vector<std::string>	tokens;
 
-	if (line.find("{") != NPOS)
+	if (line.find("{") != std::string::npos)
 		_parse_block(line);
 	else
 	{
@@ -107,25 +103,9 @@ void	HTTPConfig::_parse_line(std::string& line)
 	return ;
 }
 
-void	HTTPConfig::_insert_token(const std::vector<std::string> tokens)
+void	HTTPConfig::_insert_token(std::vector<std::string> tokens)
 {
-	if (tokens.front() == "log_file")
-	{
-		_open_log_file(tokens.last());
-		if (!log_stream.is_open())
-			throw (ParsingException());
-	}
 	//	Other config options go HERE with `else if`.
-	else
+	if (tokens.size() > 0)
 		throw (ParsingException());
-}
-
-/*==============================================================================
-	Utils functions.
-==============================================================================*/
-
-void	HTTPConfig::_open_log_file(const std::string& log_file)
-{
-	log_stream.close();
-	log_stream.open(log_file, LOG_OPT);
 }
