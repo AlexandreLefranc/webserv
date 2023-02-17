@@ -88,7 +88,9 @@ void	ServerConfig::_parse_line(std::string& line)
 	else
 	{
 		tokens = split_tokens(line);
-		std::cout << "Splitted token length: " << tokens.size() << std::endl;
+		if (tokens.size() == 0)
+			throw (ParsingException());
+		std::cout << "Splitted token length: " << tokens.size() << std::endl	;
 		_insert_token(tokens);
 	}
 	return ;
@@ -126,6 +128,7 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 	std::string								location;
 	std::vector<ServerLocation>::iterator	pos;
 
+	std::cout << "[_add_location]tokens size: " << tokens.size() << std::endl;
 	location = tokens[1];
 	if (tokens.size() == 3)
 	{

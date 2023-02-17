@@ -110,6 +110,7 @@ void	ServerLocation::_parse()
 
 	while (std::getline(content, line))
 	{
+		std::cout << "[ServerLocation]line: " << line << std::endl;
 		line = format_line(line);
 		if (line.empty())
 			continue ;
@@ -123,6 +124,8 @@ void	ServerLocation::_parse_line(std::string& line)
 {
 	std::vector<std::string>	tokens = split_tokens(line);
 
+	if (tokens.size() == 0)
+		throw (ParsingException());
 	if (tokens.front() == "index")
 		index.assign(tokens.begin() + 1, tokens.end());
 	else if (tokens.front() == "try_files")

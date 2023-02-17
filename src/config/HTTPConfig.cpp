@@ -97,6 +97,8 @@ void	HTTPConfig::_parse_line(std::string& line)
 	else
 	{
 		tokens = split_tokens(line);
+		if (tokens.size() == 0)
+			throw (ParsingException());
 		//	Potential token check HERE.
 		_insert_token(tokens);
 	}
