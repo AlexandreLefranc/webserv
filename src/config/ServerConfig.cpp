@@ -98,13 +98,13 @@ void	ServerConfig::_parse_line(std::string& line)
 
 void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 {
-	if (tokens.front() == "root" && tokens.size() == 2)
+	if (tokens.front() == "root" && tokens.size() == 2 && root.empty())
 		root = tokens[1];
-	else if (tokens.front() == "server_name" && tokens.size() == 2)
+	else if (tokens.front() == "server_name" && tokens.size() == 2 && server_name.empty())
 		server_name = tokens[1];
-	else if (tokens.front() == "listen" && tokens.size() == 2)
+	else if (tokens.front() == "listen" && tokens.size() == 2 && listen_port == std::make_pair<int, short>(0, 80))
 		listen_port = _parse_address(tokens[1]);
-	else if (tokens.front() == "index")
+	else if (tokens.front() == "index" && index.empty())
 		index = std::vector<std::string>(tokens.begin() + 1, tokens.end());
 	else
 		throw (ParsingException());

@@ -126,13 +126,13 @@ void	ServerLocation::_parse_line(std::string& line)
 
 	if (tokens.size() == 0)
 		throw (ParsingException());
-	if (tokens.front() == "index")
+	if (tokens.front() == "index" && index.empty())
 		index.assign(tokens.begin() + 1, tokens.end());
-	else if (tokens.front() == "try_files")
+	else if (tokens.front() == "try_files" && try_files.empty())
 		try_files.assign(tokens.begin() + 1, tokens.end());
-	else if (tokens.front() == "root" && tokens.size() == 2)
+	else if (tokens.front() == "root" && tokens.size() == 2 && root.empty())
 		root = tokens[1];
-	else if (tokens.front() == "error_page" && tokens.size() == 3)
+	else if (tokens.front() == "error_page" && tokens.size() == 3 && error_page.second.empty())
 		error_page = std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]);
 	else
 		throw (ParsingException());
