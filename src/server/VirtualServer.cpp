@@ -1,66 +1,42 @@
 #include "VirtualServer.hpp"
 
-VirtualServer::VirtualServer():
-    fd(-1), family(AF_INET), addr(INADDR_ANY), port(8080)
-    , initiated(false), binded(false), listening(false)
-{}
+VirtualServer::VirtualServer(const ServerConfig& config):
+	fd(-1), config(config)
+{
+	std::cout << GRN << "[VirtualServer] Init" << CRESET << std::endl;
+	std::cout << GRN << "[VirtualServer] OPENING fd: " << CRESET;
+	fd = socket(config.family, SOCK_STREAM, getprotobyname("tcp")->p_proto);
+	if (fd == -1)
+	{
+		throw std::runtime_error("socket() failed");
+	}
+	std::cout << GRN << fd << CRESET << std::endl;
+
+	struct sockaddr_in	  sockaddr;
+	memset(&sockaddr, 0, sizeof(struct sockaddr_in));
+	socklen_t			socklen = sizeof(struct sockaddr_in);
+	sockaddr.sin_family			= config.family;
+	sockaddr.sin_addr.s_addr	= htonl(config.addr);
+	sockaddr.sin_port			= htons(config.port);
+
+	if (bind(fd, reinterpret_cast<const struct sockaddr*>(&sockaddr), socklen) < 0)
+	{
+		close(fd);
+		throw std::runtime_error("bind() failed");
+	}
+
+	if (listen(fd, 42) < 0)
+	{
+		close(fd);
+		throw std::runtime_error("listen() failed");
+	}
+}
 
 VirtualServer::~VirtualServer()
 {
-    if (fd != -1)
-    {
-        std::cout << GRN << "[VirtualServer] CLOSING fd: " << fd << CRESET << std::endl;
-        close(fd);
-    }
+	if (fd != -1)
+	{
+		std::cout << GRN << "[VirtualServer] CLOSING fd: " << fd << CRESET << std::endl;
+		close(fd);
+	}
 }
-
-void    VirtualServer::init()
-{
-    std::cout << GRN << "[VirtualServer] Init" << CRESET << std::endl;
-    std::cout << GRN << "[VirtualServer] OPENING fd: " << CRESET;
-    fd = socket(family, SOCK_STREAM, getprotobyname("tcp")->p_proto);
-    if (fd == -1)
-    {
-        throw std::runtime_error("socket() failed");
-    }
-    std::cout << GRN << fd << CRESET << std::endl;
-
-    struct sockaddr_in      sockaddr;
-    memset(&sockaddr, 0, sizeof(struct sockaddr_in));
-    socklen_t               socklen = sizeof(struct sockaddr_in);
-    sockaddr.sin_family = family;
-    sockaddr.sin_addr.s_addr = htonl(addr);
-    sockaddr.sin_port       = htons(port);
-
-    if (bind(fd, reinterpret_cast<const struct sockaddr*>(&sockaddr), socklen) < 0)
-    {
-        throw std::runtime_error("bind() failed");
-    }
-    binded = true;
-
-    if (listen(fd, 42) < 0)
-    {
-        throw std::runtime_error("listen() failed");
-    }
-
-    initiated = true;
-}
-
-// int VirtualServer::accept_client()
-// {
-//     int client_fd;
-//     struct sockaddr_in  client_sockaddr;
-//     memset(&client_sockaddr, 0, sizeof(struct sockaddr_in));
-//     socklen_t               client_socklen = sizeof(struct sockaddr_in);
-
-//     std::cout << GRN << "[VirtualServer] Accept client" << CRESET << std::endl;
-//     std::cout << YEL << "[Client] OPENING fd: " << CRESET;
-//     client_fd = accept(fd, reinterpret_cast<struct sockaddr*>(&client_sockaddr), &client_socklen);
-//     if (client_fd < 0)
-//     {
-//         throw std::runtime_error("accept() failed");
-//     }
-//     std::cout << YEL << client_fd << CRESET << std::endl;
-
-//     return client_fd;
-// }

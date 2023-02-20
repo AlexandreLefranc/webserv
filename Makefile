@@ -21,19 +21,22 @@ LDFLAGS		=
 
 SRCDIR		=	src/
 SRCFILE		=	\
+				webserv.cpp \
+				utils/debug.cpp \
 				config/main_config.cpp \
 				utils/parse_utils.cpp \
-				# webserv.cpp \
 
 CLASSFILE	=	\
 				config/HTTPConfig.cpp \
 				config/ServerConfig.cpp \
 				config/ServerLocation.cpp \
-				# client/Client.cpp \
-				# config/HTTPConfig.cpp \
-				# server/Epoll.cpp \
-				# server/HTTPServer.cpp \
-				# server/VirtualServer.cpp \
+				client/Client.cpp \
+				client/ClientManager.cpp \
+				config/HTTPConfig.cpp \
+				core/Epoll.cpp \
+				core/HTTPServer.cpp \
+				server/ServerManager.cpp \
+				server/VirtualServer.cpp \
 
 SRC			=	$(addprefix $(SRCDIR), $(SRCFILE))
 SRC			+=	$(addprefix $(SRCDIR), $(CLASSFILE))
@@ -92,6 +95,6 @@ run: $(NAME)
 # run: $(NAME)
 # 	./$(NAME) $(filter-out $@, $(MAKECMDGOALS))
 
-# .PHONY: test
-# test:
-# 	echo $(INC)
+.PHONY: test
+test:
+	@echo $(SRC)

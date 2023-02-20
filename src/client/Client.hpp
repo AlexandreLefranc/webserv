@@ -10,20 +10,22 @@
 
 #include "webserv.hpp"
 
+// Purpose: Keep all info relative to a Client
+// Manage socket fd for this client
+
 struct Client
 {
-    int     fd;
-    int     associated_server_fd;
+private: // Disable defaults behaviors
+	Client();
+	Client(const Client& src);
+	Client&	operator=(const Client& src);
 
-    struct sockaddr_in  sockaddr;
-    socklen_t           socklen;
+public:
+	int		fd;
+	int		server_fd;
 
-
-    Client();
-    ~Client();
-
-    void    accept_conection(int server_fd);
-    void    clear();
+	Client(int server_fd);
+	~Client();
 };
 
 #endif
