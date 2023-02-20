@@ -19,11 +19,13 @@ private: // Disable defaults behaviors
 	ServerManager&	operator=(const ServerManager& src);
 
 public:
-	typedef	std::map<std::string, std::map<std::string, VirtualServer*> >	server_list_t;
+	typedef std::map<std::string, VirtualServer*>	inner_map_t;
+	typedef	std::map<std::string, inner_map_t>		outer_map_t;
+	typedef	outer_map_t								servers_t;
 
 private:
 	// map<ip:port, map<server_name, VirtualServer*> >
-	server_list_t				_servers;
+	servers_t				_servers;
 
 	
 
@@ -33,10 +35,7 @@ public:
 
 	void	init();
 
-	// const server_list_t&	l() const;
 	const std::vector<int>	getfds() const;
-	// bool					is_fd_in_list(int fd) const;
-	// const VirtualServer&	get_virtual_server(int fd) const;
 };
 
 #endif

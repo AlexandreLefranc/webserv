@@ -38,7 +38,12 @@ private:
 	bool								_ready_to_respond;
 
 private:
-	void	_parse_body(const std::string& str);
+	void	_process_body(const std::string& str);
+
+	void	_process_start_line(const std::string& line);
+	void	_process_header(const std::string& line);
+
+	void	_check_headers();
 
 public:
 	Request();

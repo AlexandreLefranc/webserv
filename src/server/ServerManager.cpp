@@ -5,8 +5,8 @@ ServerManager::ServerManager()
 
 ServerManager::~ServerManager()
 {
-	typedef	ServerManager::server_list_t				outer_t;
-	typedef	ServerManager::server_list_t::mapped_type	inner_t;
+	typedef	ServerManager::outer_map_t	outer_t;
+	typedef	ServerManager::inner_map_t	inner_t;
 
 	for (outer_t::iterator outerit = _servers.begin(); outerit != _servers.end(); outerit++)
 	{
@@ -47,8 +47,8 @@ void	ServerManager::init()
 
 const std::vector<int>				ServerManager::getfds() const
 {
-	typedef	ServerManager::server_list_t				outer_t;
-	typedef	ServerManager::server_list_t::mapped_type	inner_t;
+	typedef	ServerManager::outer_map_t	outer_t;
+	typedef	ServerManager::inner_map_t	inner_t;
 
 	std::vector<int>	fds;
 
