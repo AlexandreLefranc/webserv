@@ -10,10 +10,10 @@
 - strerror
 - errno
 
-- htons
-- htonl
-- ntohs
-- ntohl
+- htons: host bit order to network bit order (short int)
+- htonl: host bit order to network bit order (long int)
+- ntohs: network bit order to host bit order (short int)
+- ntohl: network bit order to host bit order (long int)
 
 - select
 - poll
@@ -109,3 +109,7 @@ Control Data:
 - [Socket programming github example](https://github.com/kusdavletov/socket-programming-simple-server-and-client)
 - [Socket programming Geeksforgeeks](https://www.geeksforgeeks.org/socket-programming-cc/)
 - [epoll tutorial](https://www.suchprogramming.com/epoll-in-3-easy-steps/)
+
+# Examples
+
+- [Sherchryst](https://github.com/Sherchryst/42-webserv)

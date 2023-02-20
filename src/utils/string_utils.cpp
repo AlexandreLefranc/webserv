@@ -4,7 +4,7 @@
 #include <iostream>
 #include <algorithm>
 
-std::vector<std::string> split(std::string s, std::string delimiter)
+std::vector<std::string>	split(std::string s, std::string delimiter)
 {
 	size_t	pos_start = 0;
 	size_t	pos_end;
@@ -44,7 +44,7 @@ std::vector<std::string>	split_first(std::string s, std::string delimiter)
 	return res;
 }
 
-std::string trim(const std::string& str)
+std::string		trim(const std::string& str)
 {
     size_t first = str.find_first_not_of(" \t\v\r\f");
     if (std::string::npos == first)
@@ -55,7 +55,7 @@ std::string trim(const std::string& str)
     return str.substr(first, (last - first + 1));
 }
 
-std::string tolowerstr(const std::string& str)
+std::string		tolowerstr(const std::string& str)
 {
 	std::string	copy(str);
 	for (size_t i = 0; i < copy.length(); i++) {
