@@ -23,8 +23,8 @@ SRCDIR		=	src/
 SRCFILE		=	\
 				webserv.cpp \
 				utils/debug.cpp \
-				config/main_config.cpp \
 				utils/parse_utils.cpp \
+				# config/main_config.cpp \
 
 CLASSFILE	=	\
 				config/HTTPConfig.cpp \
