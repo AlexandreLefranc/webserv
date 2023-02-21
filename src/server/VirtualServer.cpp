@@ -3,7 +3,6 @@
 VirtualServer::VirtualServer(const ServerConfig& config):
 	fd(-1), config(config)
 {
-	std::cout << GRN << "[VirtualServer] Creating a VirtualServer" << CRESET << std::endl;
 	std::cout << GRN << "[VirtualServer] OPENING fd: " << CRESET;
 	fd = socket(AF_INET, SOCK_STREAM, getprotobyname("tcp")->p_proto);
 	if (fd == -1)
