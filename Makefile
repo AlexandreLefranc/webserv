@@ -10,7 +10,7 @@
 
 NAME = webserv
 
-CXX 		= clang++
+CXX 		= c++
 CXXFLAGS	= -Wall -Wextra -Werror -std=c++98 -g3
 
 LDFLAGS		=
@@ -21,13 +21,17 @@ LDFLAGS		=
 
 SRCDIR		=	src/
 SRCFILE		=	\
+				utils/debug.cpp \
+				utils/parse_utils.cpp \
 				webserv.cpp \
-				utils/debug.cpp
+				# config/main_config.cpp \
 
 CLASSFILE	=	\
 				client/Client.cpp \
 				client/ClientManager.cpp \
 				config/HTTPConfig.cpp \
+				config/ServerConfig.cpp \
+				config/ServerLocation.cpp \
 				core/Epoll.cpp \
 				core/HTTPServer.cpp \
 				server/ServerManager.cpp \
@@ -42,6 +46,7 @@ SRC			+=	$(addprefix $(SRCDIR), $(CLASSFILE))
 
 INCDIR		=	includes/
 INCFILE		=	webserv.hpp \
+				parse_utils.hpp \
 				ansi_colors.hpp
 
 INC			=	$(addprefix $(INCDIR), $(INCFILE))

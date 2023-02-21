@@ -1,14 +1,14 @@
 #include "core/HTTPServer.hpp"
 
-HTTPServer::HTTPServer(const std::string& confg_file):
-	_config_file(confg_file)
+HTTPServer::HTTPServer(const std::string& config_file)
+	: _config(config_file)
+	, _server_manager(_config)
 {
-	std::cout << CYN << "[HTTPServer] Parsing configuration file" << CRESET << std::endl;
 	std::cout << CYN << "[HTTPServer] Initiate epoll" << CRESET << std::endl;
 	_epoll.init();
 
-	std::cout << CYN << "[HTTPServer] Initiate virtual servers" << CRESET << std::endl;
-	_server_manager.init();
+	// std::cout << CYN << "[HTTPServer] Initiate virtual servers" << CRESET << std::endl;
+	// _server_manager.init();
 	const std::vector<int>	serv_fds = _server_manager.getfds();
 	for (std::vector<int>::const_iterator it = serv_fds.begin(); it != serv_fds.end(); it++)
 	{

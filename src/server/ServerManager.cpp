@@ -1,7 +1,15 @@
 #include "server/ServerManager.hpp"
 
-ServerManager::ServerManager()
-{}
+ServerManager::ServerManager(const HTTPConfig& conf)
+{
+	std::list<ServerConfig>::const_iterator it = conf.get_virtual_server_config().begin();
+	std::list<ServerConfig>::const_iterator end = conf.get_virtual_server_config().end();
+
+	for ( ; it != end; it++)
+	{
+		_create_virtual_server(*it);
+	}
+}
 
 ServerManager::~ServerManager()
 {
@@ -17,33 +25,59 @@ ServerManager::~ServerManager()
 	}
 }
 
-void	ServerManager::init()
+void	ServerManager::_create_virtual_server(const ServerConfig& sconf)
 {
-	std::string	ip = "127.0.0.1";
-	std::string	port = "8080";
-	std::string	server_name = "default";
+	std::string		ip			= nbtostr(sconf.get_ip());
+	std::string		port		= nbtostr(sconf.get_port());
+	std::string		server_name	= sconf.get_server_name();
 
-	int n_vserver = 1;
-	for (int i = 0; i < n_vserver; i++)
+	if (_servers.find(ip+":"+port) == _servers.end())
 	{
-		if (_servers.find(ip+":"+port) == _servers.end())
-		{
-			std::cout << GRN << "[ServerManager] No virtual server for " << ip+":"+port << CRESET << std::endl;
-
-			ServerConfig conf = ServerConfig(); // tmp
-			conf.family = AF_INET; // tmp
-			conf.addr = INADDR_ANY; // tmp
-			conf.port = 8080; // tmp
-			conf.server_name = "default"; // tmp
-
-			_servers[ip+":"+port][server_name] = new VirtualServer(conf);
-		}
-		else
-		{
-			std::cout << GRN << "[ServerManager] virtual server found for " << ip+":"+port << CRESET << std::endl;
-		}
+		std::cout << GRN << "[ServerManager] Creating Virtual Server: "
+			<< ip << ":" << port << "|" << server_name << CRESET << std::endl;
+		_servers[ip+":"+port][server_name] = new VirtualServer(sconf);
+	}
+	else if (_servers[ip+":"+port].find(server_name) == _servers[ip+":"+port].end())
+	{
+		std::cout << GRN << "[ServerManager] Creating Virtual Server: "
+			<< ip << ":" << port << "|" << server_name << CRESET << std::endl;
+		_servers[ip+":"+port][server_name] = new VirtualServer(sconf);
+	}
+	else
+	{
+		std::cout << GRN << "[ServerManager] Warning! Virtual Server: "
+			<< ip << ":" << port << "|" << server_name
+			<< "already exists" << CRESET << std::endl;
 	}
 }
+
+// void	ServerManager::init()
+// {
+// 	std::string	ip = "127.0.0.1";
+// 	std::string	port = "8080";
+// 	std::string	server_name = "default";
+
+// 	int n_vserver = 1;
+// 	for (int i = 0; i < n_vserver; i++)
+// 	{
+// 		if (_servers.find(ip+":"+port) == _servers.end())
+// 		{
+// 			std::cout << GRN << "[ServerManager] No virtual server for " << ip+":"+port << CRESET << std::endl;
+
+// 			ServerConfig conf = ServerConfig(); // tmp
+// 			conf.family = AF_INET; // tmp
+// 			conf.addr = INADDR_ANY; // tmp
+// 			conf.port = 8080; // tmp
+// 			conf.server_name = "default"; // tmp
+
+// 			_servers[ip+":"+port][server_name] = new VirtualServer(conf);
+// 		}
+// 		else
+// 		{
+// 			std::cout << GRN << "[ServerManager] virtual server found for " << ip+":"+port << CRESET << std::endl;
+// 		}
+// 	}
+// }
 
 const ServerManager::server_list_t&	ServerManager::l() const
 {
@@ -66,7 +100,6 @@ const std::vector<int>				ServerManager::getfds() const
 	}
 	return fds;
 }
-
 
 bool					ServerManager::is_fd_in_list(int fd) const
 {

@@ -26,7 +26,7 @@ private:
 
 	std::map<int, bool>		_fds;
 
-	std::string			_config_file;
+	// std::string			_config_file;
 	HTTPConfig			_config;
 
 	Epoll				_epoll;

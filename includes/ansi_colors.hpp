@@ -8,18 +8,18 @@
 # define ANSI_COLORS_HPP
 
 //Regular text
-#define BLK "\e[0;30m"
-#define RED "\e[0;31m"
-#define GRN "\e[0;32m"
-#define YEL "\e[0;33m"
+#define BLK "\e[0;30m" // 
+#define RED "\e[0;31m" // HTTPConfig & ServerConfig
+#define GRN "\e[0;32m" // VirtualServer
+#define YEL "\e[0;33m" // Client
 #define BLU "\e[0;34m"
-#define MAG "\e[0;35m"
-#define CYN "\e[0;36m"
+#define MAG "\e[0;35m" // EPoll
+#define CYN "\e[0;36m" // HTTPServer
 #define WHT "\e[0;37m"
 
 //Regular bold text
 #define BBLK "\e[1;30m"
-#define BRED "\e[1;31m"
+#define BRED "\e[1;31m" // CRASH
 #define BGRN "\e[1;32m"
 #define BYEL "\e[1;33m"
 #define BBLU "\e[1;34m"
