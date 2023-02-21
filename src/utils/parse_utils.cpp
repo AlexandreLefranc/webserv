@@ -82,29 +82,29 @@ std::vector<std::string>	split_tokens(std::string line)
 int	iptoi(const std::string& ip)
 {
 	std::stringstream			ss;
-	std::vector<std::string>	seq;
+	std::vector<int>			seq;
 	std::string					segment;
+	int							segment_int;
 	unsigned int				address = 0;
-	// int							pow = 1;
 
 	ss.str(ip);
 	while (std::getline(ss, segment, '.'))
-		seq.push_back(segment);
+	{
+		segment_int = std::atoi(segment.c_str());
+		if (segment_int < 0 || segment_int > 255)
+			throw std::runtime_error("ip contains number not between 0 and 255");
+		seq.push_back(segment_int);
+	}
 	
 	if (seq.size() != 4)
 	{
-		throw std::exception();
+		throw std::runtime_error("ip is not formated x.x.x.x");
 	}
 
-	address += std::atoi(seq[0].c_str()) << 24;
-	address += std::atoi(seq[1].c_str()) << 16;
-	address += std::atoi(seq[2].c_str()) << 8;
-	address += std::atoi(seq[3].c_str()) << 0;
+	address += (seq[0] << 24);
+	address += (seq[1] << 16);
+	address += (seq[2] << 8);
+	address += (seq[3] << 0);
 
-	// for (std::vector<std::string>::reverse_iterator rit = seq.rbegin(); rit != seq.rend(); rit++)
-	// {
-	// 	address += pow * std::atoi(rit->c_str());
-	// 	pow *= 1000;
-	// }
 	return (address);
 }
