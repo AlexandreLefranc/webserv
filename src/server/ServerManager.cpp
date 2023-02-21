@@ -51,11 +51,6 @@ void	ServerManager::_create_virtual_server(const ServerConfig& sconf)
 	}
 }
 
-const ServerManager::server_list_t&	ServerManager::l() const
-{
-	return _servers;
-}
-
 const std::vector<int>				ServerManager::getfds() const
 {
 	typedef	ServerManager::outer_map_t	outer_t;

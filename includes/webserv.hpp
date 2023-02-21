@@ -24,16 +24,8 @@ enum	socket_type
 void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "");
 void	display_epoll_event(const struct epoll_event& event, const std::string& msg = "");
 
-template <typename T>
-std::string	nbtostr(T nb)
-{
-	std::ostringstream ss;
-	ss << nb;
-	return ss.str();
-}
-
-template <class T, class U>
-void	display_map(const std::map<T, U>& map, const std::string& name);
+// template <class T, class U>
+// void	display_map(const std::map<T, U>& map, const std::string& name);
 
 // utils/string_utils.cpp
 std::vector<std::string> split(std::string s, std::string delimiter);
@@ -47,5 +39,7 @@ std::string	receive_all(int fd);
 
 
 # include "utils/debug.tpp"
+# include "utils/string_utils.tpp"
+
 
 #endif

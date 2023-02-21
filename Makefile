@@ -21,10 +21,9 @@ LDFLAGS		=
 
 SRCDIR		=	src/
 SRCFILE		=	\
-				utils/debug.cpp \
-				utils/parse_utils.cpp \
 				webserv.cpp \
 				utils/debug.cpp \
+				utils/parse_utils.cpp \
 				utils/socket_utils.cpp \
 				utils/string_utils.cpp
 

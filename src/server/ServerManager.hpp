@@ -38,8 +38,6 @@ public:
 	ServerManager(const HTTPConfig& conf);
 	~ServerManager();
 
-	// void	init();
-
 	const std::vector<int>	getfds() const;
 };
 
