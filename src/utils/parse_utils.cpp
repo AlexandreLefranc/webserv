@@ -22,6 +22,8 @@ std::string&	format_line(std::string& line)
 	pos = line.find_first_not_of(" \t\v\r\f");
 	if (pos != std::string::npos)
 		line = line.erase(0, pos);
+	else
+		line.clear();
 	it = line.begin();
 	for (; it != line.end(); it++)
 	{
@@ -52,7 +54,7 @@ std::vector<std::string>	split_tokens(std::string line)
 			quote = !quote;
 		else if (seps.find(*it) != std::string::npos && !quote)
 		{
-			std::cout << "[split]found sep for:" << std::string(line.begin(), it) << std::endl;
+			std::cout << "[split]found sep for:\'" << std::string(line.begin(), it) << "\'" << std::endl;
 			tokens.push_back(std::string(line.begin(), it));
 			std::cout << "[split]tokens size: " << tokens.size() << std::endl;
 			line.erase(line.begin(), it);
