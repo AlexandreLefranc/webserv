@@ -21,18 +21,17 @@ LDFLAGS		=
 
 SRCDIR		=	src/
 SRCFILE		=	\
-				webserv.cpp \
 				utils/debug.cpp \
 				utils/parse_utils.cpp \
+				webserv.cpp \
 				# config/main_config.cpp \
 
 CLASSFILE	=	\
-				config/HTTPConfig.cpp \
-				config/ServerConfig.cpp \
-				config/ServerLocation.cpp \
 				client/Client.cpp \
 				client/ClientManager.cpp \
 				config/HTTPConfig.cpp \
+				config/ServerConfig.cpp \
+				config/ServerLocation.cpp \
 				core/Epoll.cpp \
 				core/HTTPServer.cpp \
 				server/ServerManager.cpp \

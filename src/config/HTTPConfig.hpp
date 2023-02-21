@@ -27,6 +27,7 @@ public:
 	//Assignment operator
 	HTTPConfig&	operator=(const HTTPConfig& other);
 	//		Getters
+	const std::list<ServerConfig>&	get_virtual_server_config() const;
 
 private:
 	//	parsing functions

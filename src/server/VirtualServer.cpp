@@ -3,9 +3,9 @@
 VirtualServer::VirtualServer(const ServerConfig& config):
 	fd(-1), config(config)
 {
-	std::cout << GRN << "[VirtualServer] Init" << CRESET << std::endl;
+	std::cout << GRN << "[VirtualServer] Creating a VirtualServer" << CRESET << std::endl;
 	std::cout << GRN << "[VirtualServer] OPENING fd: " << CRESET;
-	fd = socket(config.family, SOCK_STREAM, getprotobyname("tcp")->p_proto);
+	fd = socket(AF_INET, SOCK_STREAM, getprotobyname("tcp")->p_proto);
 	if (fd == -1)
 	{
 		throw std::runtime_error("socket() failed");
@@ -15,9 +15,9 @@ VirtualServer::VirtualServer(const ServerConfig& config):
 	struct sockaddr_in	  sockaddr;
 	memset(&sockaddr, 0, sizeof(struct sockaddr_in));
 	socklen_t			socklen = sizeof(struct sockaddr_in);
-	sockaddr.sin_family			= config.family;
-	sockaddr.sin_addr.s_addr	= htonl(config.addr);
-	sockaddr.sin_port			= htons(config.port);
+	sockaddr.sin_family			= AF_INET;
+	sockaddr.sin_addr.s_addr	= htonl(config.get_ip());
+	sockaddr.sin_port			= htons(config.get_port());
 
 	if (bind(fd, reinterpret_cast<const struct sockaddr*>(&sockaddr), socklen) < 0)
 	{
@@ -30,6 +30,7 @@ VirtualServer::VirtualServer(const ServerConfig& config):
 		close(fd);
 		throw std::runtime_error("listen() failed");
 	}
+	std::cout << GRN << "[VirtualServer] Listening on " << config.get_ip() << ":" << config.get_port() << CRESET << std::endl;
 }
 
 VirtualServer::~VirtualServer()

@@ -10,6 +10,9 @@
 class ServerConfig
 {
 private:
+	ServerConfig();
+
+private:
 	//	Attribute
 	std::stringstream&			content;
 	std::string					root;
@@ -23,13 +26,18 @@ public:
 	//		Constructor
 	ServerConfig(std::stringstream& config);
 	ServerConfig(const ServerConfig& other);
-	//		Destructor
-	~ServerConfig();
 	//Assignment operator
 	ServerConfig&	operator=(const ServerConfig& other);
+	//		Destructor
+	~ServerConfig();
 
 	//	Location finder
 	std::string	find_location(std::string path);
+
+	// Getters
+	int					get_ip() const;
+	short				get_port() const;
+	const std::string&	get_server_name() const;
 
 private:
 	//	Parsing functions

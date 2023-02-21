@@ -84,16 +84,27 @@ int	iptoi(const std::string& ip)
 	std::stringstream			ss;
 	std::vector<std::string>	seq;
 	std::string					segment;
-	int							address = 0;
-	int							pow = 1;
+	unsigned int				address = 0;
+	// int							pow = 1;
 
 	ss.str(ip);
 	while (std::getline(ss, segment, '.'))
 		seq.push_back(segment);
-	for (std::vector<std::string>::reverse_iterator rit = seq.rbegin(); rit != seq.rend(); rit++)
+	
+	if (seq.size() != 4)
 	{
-		address += pow * std::atoi(rit->c_str());
-		pow *= 1000;
+		throw std::exception();
 	}
+
+	address += std::atoi(seq[0].c_str()) << 24;
+	address += std::atoi(seq[1].c_str()) << 16;
+	address += std::atoi(seq[2].c_str()) << 8;
+	address += std::atoi(seq[3].c_str()) << 0;
+
+	// for (std::vector<std::string>::reverse_iterator rit = seq.rbegin(); rit != seq.rend(); rit++)
+	// {
+	// 	address += pow * std::atoi(rit->c_str());
+	// 	pow *= 1000;
+	// }
 	return (address);
 }

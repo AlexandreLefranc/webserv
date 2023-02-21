@@ -22,6 +22,7 @@ ServerConfig::ServerConfig(std::stringstream& config)
 ServerConfig::ServerConfig(const ServerConfig& other)
 	: content(other.content)
 {
+	*this = other;
 	return ;
 }
 
@@ -41,8 +42,34 @@ ServerConfig::~ServerConfig()
 ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
 {
 	if (this != &other)
-		content.str(other.content.str());
+	{
+		// content = other.content;
+		root = other.root;
+		server_name = other.server_name;
+		listen_port = other.listen_port;
+		index = other.index;
+		locations = other.locations;
+	}
 	return (*this);
+}
+
+/*==============================================================================
+	Getters.
+==============================================================================*/
+
+int		ServerConfig::get_ip() const
+{
+	return listen_port.first;
+}
+
+short	ServerConfig::get_port() const
+{
+	return listen_port.second;
+}
+
+const std::string&	ServerConfig::get_server_name() const
+{
+	return server_name;
 }
 
 /*==============================================================================

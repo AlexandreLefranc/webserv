@@ -52,6 +52,15 @@ HTTPConfig&	HTTPConfig::operator=(const HTTPConfig& other)
 }
 
 /*==============================================================================
+	Getters.
+==============================================================================*/
+
+const std::list<ServerConfig>&	HTTPConfig::get_virtual_server_config() const
+{
+	return virtual_server_config;
+}
+
+/*==============================================================================
 
 							PRIVATE MEMBER FUNCTIONS.
 
