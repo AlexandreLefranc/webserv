@@ -5,9 +5,13 @@
 # include <string>
 # include <map>
 # include <vector>
+# include <stdlib.h>
 
-# include "server/VirtualServer.hpp"
+# include "config/HTTPConfig.hpp"
 # include "config/ServerConfig.hpp"
+# include "server/VirtualServer.hpp"
+
+# include "webserv.hpp"
 
 // Purpose: Store all VirtualServers in an organized and easy to access way
 // Perform action on VirtualServers
@@ -15,6 +19,7 @@
 class ServerManager
 {
 private: // Disable defaults behaviors
+	ServerManager();
 	ServerManager(const ServerManager& src);
 	ServerManager&	operator=(const ServerManager& src);
 
@@ -27,13 +32,13 @@ private:
 	// map<ip:port, map<server_name, VirtualServer*> >
 	servers_t				_servers;
 
-	
+	void	_create_virtual_server(const ServerConfig& sconf);
 
 public:
-	ServerManager();
+	ServerManager(const HTTPConfig& conf);
 	~ServerManager();
 
-	void	init();
+	// void	init();
 
 	const std::vector<int>	getfds() const;
 };

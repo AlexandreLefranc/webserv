@@ -1,6 +1,10 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
+# include <iostream>
+# include <algorithm>
+# include <sstream>
+
 # include <string>
 # include <vector>
 # include <map>
@@ -19,6 +23,15 @@ enum	socket_type
 // utils/debug.cpp
 void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "");
 void	display_epoll_event(const struct epoll_event& event, const std::string& msg = "");
+
+template <typename T>
+std::string	nbtostr(T nb)
+{
+	std::ostringstream ss;
+	ss << nb;
+	return ss.str();
+}
+
 template <class T, class U>
 void	display_map(const std::map<T, U>& map, const std::string& name);
 

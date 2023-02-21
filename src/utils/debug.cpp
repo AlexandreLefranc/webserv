@@ -3,6 +3,8 @@
 #include <arpa/inet.h>
 
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <map>
 #include <string>
 
