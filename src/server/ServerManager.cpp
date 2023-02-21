@@ -31,13 +31,24 @@ void	ServerManager::_create_virtual_server(const ServerConfig& sconf)
 	std::string		port		= nbtostr(sconf.get_port());
 	std::string		server_name	= sconf.get_server_name();
 
-
-	std::cout << GRN << "[ServerManager] Creating Virtual Server: "
-		<< ip << ":" << port << "|" << server_name << CRESET << std::endl;
-
-	// Here, need to check if server already exists
-
-	_servers[ip+":"+port][server_name] = new VirtualServer(sconf);
+	if (_servers.find(ip+":"+port) == _servers.end())
+	{
+		std::cout << GRN << "[ServerManager] Creating Virtual Server: "
+			<< ip << ":" << port << "|" << server_name << CRESET << std::endl;
+		_servers[ip+":"+port][server_name] = new VirtualServer(sconf);
+	}
+	else if (_servers[ip+":"+port].find(server_name) == _servers[ip+":"+port].end())
+	{
+		std::cout << GRN << "[ServerManager] Creating Virtual Server: "
+			<< ip << ":" << port << "|" << server_name << CRESET << std::endl;
+		_servers[ip+":"+port][server_name] = new VirtualServer(sconf);
+	}
+	else
+	{
+		std::cout << GRN << "[ServerManager] Warning! Virtual Server: "
+			<< ip << ":" << port << "|" << server_name
+			<< "already exists" << CRESET << std::endl;
+	}
 }
 
 // void	ServerManager::init()
