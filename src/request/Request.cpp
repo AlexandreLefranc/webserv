@@ -16,32 +16,6 @@ Request::~Request()
                                 PRIVATE METHODS
 *******************************************************************************/
 
-void	Request::_process_body(const std::string& str)
-{
-	if (_body_type == "content-length" && _body_len > 0)
-	{
-		if (_body_len >= str.length())
-		{
-			_body += str;
-			_body_len -= str.length();
-			std::cout << "_body_len = " << _body_len << std::endl;
-		}
-		else
-		{
-			std::string	sub = str.substr(0, _body_len);
-			_body += sub;
-			_body_len -= sub.length();
-			std::cout << "_body_len = " << _body_len << std::endl;
-		}
-	}
-	
-	if (_body_type == "content-length" && _body_len == 0)
-	{
-		std::cout << YEL << "[Request] Ready to respond" << CRESET << std::endl;
-		_ready_to_respond = true;
-	}
-}
-
 void	Request::_process_start_line(const std::string& line)
 {
 	std::vector<std::string>	splitted = split(line, " ");
@@ -71,6 +45,7 @@ void	Request::_process_start_line(const std::string& line)
 	_protocol = splitted[2];
 	_has_start_line = true;
 	std::cout << YEL << "[Request] Start Line OK" << CRESET << std::endl;
+	std::cout << _method + " " + _target + " " + _protocol << std::endl;
 }
 
 void	Request::_process_header(const std::string& line)
@@ -80,6 +55,7 @@ void	Request::_process_header(const std::string& line)
 		_check_headers();
 		_is_header_done = true;
 		std::cout << YEL << "[Request] Headers OK" << CRESET << std::endl;
+		display_map(_headers, "header");
 
 		if (_has_body == false)
 		{
@@ -104,7 +80,7 @@ void	Request::_process_header(const std::string& line)
 	std::string					key = tolowerstr(trim(splitted[0]));
 	std::string					value = trim(splitted[1]);
 	_headers[key] = value;
-	display_map(_headers, "header");
+	// display_map(_headers, "header");
 }
 
 void	Request::_check_headers()
@@ -132,6 +108,32 @@ void	Request::_check_headers()
 	return;
 }
 
+void	Request::_process_body(const std::string& str)
+{
+	if (_body_type == "content-length" && _body_len > 0)
+	{
+		if (_body_len >= str.length())
+		{
+			_body += str;
+			_body_len -= str.length();
+			std::cout << "_body_len = " << _body_len << std::endl;
+		}
+		else
+		{
+			std::string	sub = str.substr(0, _body_len);
+			_body += sub;
+			_body_len -= sub.length();
+			std::cout << "_body_len = " << _body_len << std::endl;
+		}
+	}
+	
+	if (_body_type == "content-length" && _body_len == 0)
+	{
+		std::cout << YEL << "[Request] Ready to respond" << CRESET << std::endl;
+		_ready_to_respond = true;
+	}
+}
+
 /*******************************************************************************
                                 PUBLIC METHODS
 *******************************************************************************/
@@ -151,11 +153,12 @@ void	Request::parse_data(const std::string& str)
 		throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
 	}
 
+	// Get start line and headers
 	while (_raw.find("\r\n") != std::string::npos && _is_header_done == false)
 	{
 		std::string	line = _raw.substr(0, _raw.find("\r\n"));
 		_raw.erase(0, _raw.find("\r\n") + 2);
-		std::cout << "line:" << std::endl << line << std::endl;
+		// std::cout << "line:" << std::endl << line << std::endl;
 
 		// Request not started yet, we are kind and dont throw
 		if (line == "" && _has_start_line == false)
@@ -179,12 +182,32 @@ void	Request::parse_data(const std::string& str)
 		}
 	}
 
-	if (_has_body == true)
+	// Get body if has body
+	if (_is_header_done == true && _has_body == true)
 	{
 		_process_body(_raw);
 		_raw.clear();
 
 		std::cout << "Body = " << _body << std::endl;
 		return;
+	}
+
+	if (_ready_to_respond == true)
+	{
+		std::cout << YEL << "[Request] Responding" << CRESET << std::endl;
+
+		// create_body
+		// create_start_line
+		// create_headers
+
+		// send_start_line
+		// send_headers
+		// send_body
+
+		// close connection
+
+		std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 3\r\n\r\nOK\n";
+		send(_client_fd, response.c_str(), response.length(), 0);
+		throw CloseClientException();
 	}
 }
