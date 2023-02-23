@@ -31,6 +31,7 @@ void	HTTPServer::_create_client(int server_fd)
 	_epoll.add_fd(client_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET);
 }
 
+
 void	HTTPServer::_remove_client(int fd)
 {
 	std::cout << CYN << "[HTTPServer] Remove client!" << CRESET << std::endl;
@@ -38,6 +39,7 @@ void	HTTPServer::_remove_client(int fd)
 	_client_manager.remove_client(fd);
 	_fds.erase(fd);
 }
+
 
 int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 {
@@ -74,8 +76,12 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 
 	if ((event.events & EPOLLOUT) != 0 && client.request_complete == true)
 	{
-		// create response
+		std::cout << CYN << "[HTTPServer] Sending data to client!" << CRESET << std::endl;
+		// create response if not created
 		// send response
+		send_example_page(client_fd);
+		_remove_client(client_fd);
+		return -1;
 	}
 
 	return 0;
@@ -99,7 +105,7 @@ void	HTTPServer::run()
 		for (int i = 0; i < nfds; i++)
 		{
 			std::cout << CYN << "[HTTPServer] Event from fd " << event[i].data.fd << CRESET << std::endl;
-			// display_epoll_event(event[i]);
+			display_epoll_event(event[i]);
 			if (_fds[event[i].data.fd] == SERVER)
 			{
 				_create_client(event[i].data.fd);
@@ -113,17 +119,6 @@ void	HTTPServer::run()
 				{
 					continue;
 				}
-				
-				// std::cout << CYN << "[HTTPServer] Client is talking!" << CRESET << std::endl;
-				// if ((event[i].events & EPOLLRDHUP) != 0)
-				// {
-				// 	_remove_client(event[i].data.fd);
-				// 	continue;
-				// }
-				// if ((event[i].events & EPOLLIN) != 0)
-				// {
-				// 	_receive_client(event[i].data.fd);
-				// }
 			}
 		}
 

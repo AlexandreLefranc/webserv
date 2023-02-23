@@ -30,12 +30,12 @@ Client::~Client()
 }
 
 
-
-
-
-
 void	Client::parse_request()
 {
 	std::string	data = receive_all(fd); // can throw
 	request_complete = request.parse_data(data); // can throw
+	if (request_complete == true)
+	{
+		std::cout << YEL << "[Request] Request complete!"<< CRESET << std::endl;
+	}
 }
