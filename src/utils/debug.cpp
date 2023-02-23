@@ -26,15 +26,27 @@ void	display_epoll_event(const struct epoll_event& event, const std::string& msg
 {
 	std::cout << "[epoll_event] " << msg << std::endl;
 	// std::cout << "  event.data.ptr = " << event.data.ptr << std::endl;
-	// std::cout << "  event.data.fd = " << event.data.fd << std::endl;
+	std::cout << "  event.data.fd = " << event.data.fd << std::endl;
 	// std::cout << "  event.data.u32 = " << event.data.u32 << std::endl;
 	// std::cout << "  event.data.u64 = " << event.data.u64 << std::endl;
 	if ((event.events & EPOLLIN) != 0)
 		std::cout << "  EPOLLIN" << std::endl;
+
 	if ((event.events & EPOLLOUT) != 0)
 		std::cout << "  EPOLLOUT" << std::endl;
+
 	if ((event.events & EPOLLRDHUP) != 0)
 		std::cout << "  EPOLLRDHUP" << std::endl;
+
+	if ((event.events & EPOLLHUP) != 0)
+		std::cout << "  EPOLLHUP" << std::endl;
+
+	if ((event.events & EPOLLERR) != 0)
+		std::cout << "  EPOLLERR" << std::endl;
+
+	if ((event.events & EPOLLET) != 0)
+		std::cout << "  EPOLLET" << std::endl;
+
 	std::cout << std::endl;
 }
 
