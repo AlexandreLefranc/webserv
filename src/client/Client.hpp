@@ -22,12 +22,18 @@ private: // Disable defaults behaviors
 	Client&	operator=(const Client& src);
 
 public:
-	int		fd;
-	int		server_fd;
-	Request	request;
+	int			fd;
+	int			server_fd;
+	Request		request;
+	Response	response;
+	bool		request_complete;
 
 	Client(int server_fd);
 	~Client();
+
+	void/bool	parse_request(int fd/std::string str);
+	void		create_response();
+	int/bool	send_response();
 };
 
 #endif
