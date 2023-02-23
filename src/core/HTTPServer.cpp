@@ -20,6 +20,10 @@ HTTPServer::HTTPServer(const std::string& config_file)
 HTTPServer::~HTTPServer()
 {}
 
+/*******************************************************************************
+                                PRIVATE METHODS
+*******************************************************************************/
+
 void	HTTPServer::_create_client(int server_fd)
 {
 	std::cout << CYN << "[HTTPServer] Client connection request!" << CRESET << std::endl;
@@ -28,43 +32,36 @@ void	HTTPServer::_create_client(int server_fd)
 	_epoll.add_fd(client_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET);
 }
 
-bool	HTTPServer::_is_client_disconnected(const epoll_event& event)
+void	HTTPServer::_remove_client(int fd)
 {
-	if ((event.events & EPOLLRDHUP) != 0)
+	std::cout << CYN << "[HTTPServer] Client connection closed!" << CRESET << std::endl;
+	_epoll.remove_fd(fd);
+	_client_manager.remove_client(fd);
+	_fds.erase(fd);
+}
+
+void	HTTPServer::_receive_client(int fd)
+{
+	try
 	{
-		std::cout << CYN << "[HTTPServer] Client connection closed!" << CRESET << std::endl;
-		_epoll.remove_fd(event.data.fd);
-		_client_manager.remove_client(event.data.fd);
-		_fds.erase(event.data.fd);
-		return true;
+		std::string	str = receive_all(fd); // can throw
+		Request& request = _client_manager.get_client(fd).request;
+		request.parse_data(str); // can throw
 	}
-	return false;
-}
-
-std::string	HTTPServer::_receive_all(int fd)
-{
-	std::string	full("");
-	char str[BUFF_SIZE];
-	ssize_t ret;
-
-	do
+	catch (const RecvException& e)
 	{
-		std::cout << "Reading socket: ";
-		ret = recv(fd, str, BUFF_SIZE - 1, MSG_DONTWAIT);
-		std::cout << ret << " bytes" << std::endl;
-		if (ret > 0)
-		{
-			str[ret] = '\0';
-			full += str;
-		}
-		if (ret == 0)
-		{
-			// Client disconnection during transmission
-		}
-	} while (ret > 0);
-
-	return full;
+		// Client disconnection
+		_remove_client(fd);
+	}
+	catch (const CloseClientException& e)
+	{
+		_remove_client(fd);
+	}
 }
+
+/*******************************************************************************
+                                PRIVATE METHODS
+*******************************************************************************/
 
 void	HTTPServer::run()
 {
@@ -80,7 +77,7 @@ void	HTTPServer::run()
 		for (int i = 0; i < nfds; i++)
 		{
 			std::cout << CYN << "[HTTPServer] Event from fd " << event[i].data.fd << CRESET << std::endl;
-			display_epoll_event(event[i]);
+			// display_epoll_event(event[i]);
 			if (_fds[event[i].data.fd] == SERVER)
 			{
 				_create_client(event[i].data.fd);
@@ -88,25 +85,14 @@ void	HTTPServer::run()
 			else
 			{
 				std::cout << CYN << "[HTTPServer] Client is talking!" << CRESET << std::endl;
-				if (_is_client_disconnected(event[i]) == true)
+				if ((event[i].events & EPOLLRDHUP) != 0)
 				{
+					_remove_client(event[i].data.fd);
 					continue;
 				}
 				if ((event[i].events & EPOLLIN) != 0)
 				{
-					std::string str = _receive_all(event[i].data.fd);
-					std::cout << str;
-					if ((event[i].events & EPOLLOUT) != 0)
-					{
-						send(event[i].data.fd, "GOT IT !\n", 10, 0);
-					}
-					// _epoll.remove_fd(event[i].data.fd);
-					// _client_manager.remove_client(event[i].data.fd);
-					// _fds.erase(event[i].data.fd);
-					if (str == "STOP\r\n")
-					{
-						return;
-					}
+					_receive_client(event[i].data.fd);
 				}
 			}
 		}

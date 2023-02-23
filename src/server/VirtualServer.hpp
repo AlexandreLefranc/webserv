@@ -23,9 +23,15 @@ private: // Disable defaults behaviors
 	VirtualServer&	operator=(const VirtualServer& src);
 
 public:
+	//	Typedefs
+	typedef struct sockaddr_in	t_sockaddr_in;
+	typedef struct sockaddr		t_sockaddr;
+
+	//	Attributes
 	int						fd;
 	const ServerConfig&		config;
 
+	//	Constructor & Destructor
 	VirtualServer(const ServerConfig& config);
 	~VirtualServer();
 };

@@ -21,10 +21,11 @@ LDFLAGS		=
 
 SRCDIR		=	src/
 SRCFILE		=	\
+				webserv.cpp \
 				utils/debug.cpp \
 				utils/parse_utils.cpp \
-				webserv.cpp \
-				# config/main_config.cpp \
+				utils/socket_utils.cpp \
+				utils/string_utils.cpp
 
 CLASSFILE	=	\
 				client/Client.cpp \
@@ -34,8 +35,10 @@ CLASSFILE	=	\
 				config/ServerLocation.cpp \
 				core/Epoll.cpp \
 				core/HTTPServer.cpp \
+				request/Request.cpp \
 				server/ServerManager.cpp \
 				server/VirtualServer.cpp \
+				utils/Exceptions.cpp
 
 SRC			=	$(addprefix $(SRCDIR), $(SRCFILE))
 SRC			+=	$(addprefix $(SRCDIR), $(CLASSFILE))

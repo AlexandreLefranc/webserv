@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "webserv.hpp"
+#include "request/Request.hpp"
 
 // Purpose: Keep all info relative to a Client
 // Manage socket fd for this client
@@ -23,6 +24,7 @@ private: // Disable defaults behaviors
 public:
 	int		fd;
 	int		server_fd;
+	Request	request;
 
 	Client(int server_fd);
 	~Client();

@@ -17,6 +17,7 @@ Client::Client(int server_fd):
 		throw std::runtime_error("accept() failed");
 	}
 	std::cout << YEL << fd << CRESET << std::endl;
+	request.set_client_fd(fd);
 }
 
 Client::~Client()
