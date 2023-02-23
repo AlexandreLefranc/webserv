@@ -51,6 +51,9 @@ public:
 
 	void	set_client_fd(int client_fd);
 	void	parse_data(const std::string& str);
+
+	//	Getters
+	const std::string&	get_target() const;
 };
 
 #endif

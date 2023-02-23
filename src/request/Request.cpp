@@ -257,3 +257,12 @@ void	Request::parse_data(const std::string& str)
 		throw CloseClientException();
 	}
 }
+
+/*==============================================================================
+	Getters.
+==============================================================================*/
+
+const std::string&	Request::getTarget() const
+{
+	return (_target);
+}

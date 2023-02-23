@@ -57,7 +57,7 @@ HTTPConfig&	HTTPConfig::operator=(const HTTPConfig& other)
 
 const std::list<ServerConfig>&	HTTPConfig::get_virtual_server_config() const
 {
-	return virtual_server_config;
+	return (virtual_server_config);
 }
 
 /*==============================================================================

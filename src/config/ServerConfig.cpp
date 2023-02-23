@@ -59,17 +59,22 @@ ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
 
 int		ServerConfig::get_ip() const
 {
-	return listen_port.first;
+	return (listen_port.first);
 }
 
 short	ServerConfig::get_port() const
 {
-	return listen_port.second;
+	return (listen_port.second);
 }
 
 const std::string&	ServerConfig::get_server_name() const
 {
-	return server_name;
+	return (server_name);
+}
+
+const std::string&	ServerConfig::get_root() const
+{
+	return (root);
 }
 
 /*==============================================================================

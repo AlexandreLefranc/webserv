@@ -38,6 +38,7 @@ public:
 	int					get_ip() const;
 	short				get_port() const;
 	const std::string&	get_server_name() const;
+	const std::string&	get_root() const;
 
 private:
 	//	Parsing functions
