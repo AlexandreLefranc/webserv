@@ -7,7 +7,9 @@
 #include <map>
 #include <string>
 
-void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "")
+#include "webserv.hpp"
+
+void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg)
 {
 	std::cout << "[sockaddr_in] " << msg << std::endl;
 	std::cout << "  sockaddr_in.sin_family = " << addr.sin_family << std::endl;
@@ -20,13 +22,13 @@ void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg 
 	std::cout << std::endl;
 }
 
-void	display_epoll_event(const struct epoll_event& event, const std::string& msg = "")
+void	display_epoll_event(const struct epoll_event& event, const std::string& msg)
 {
 	std::cout << "[epoll_event] " << msg << std::endl;
-	std::cout << "  event.data.ptr = " << event.data.ptr << std::endl;
-	std::cout << "  event.data.fd = " << event.data.fd << std::endl;
-	std::cout << "  event.data.u32 = " << event.data.u32 << std::endl;
-	std::cout << "  event.data.u64 = " << event.data.u64 << std::endl;
+	// std::cout << "  event.data.ptr = " << event.data.ptr << std::endl;
+	// std::cout << "  event.data.fd = " << event.data.fd << std::endl;
+	// std::cout << "  event.data.u32 = " << event.data.u32 << std::endl;
+	// std::cout << "  event.data.u64 = " << event.data.u64 << std::endl;
 	if ((event.events & EPOLLIN) != 0)
 		std::cout << "  EPOLLIN" << std::endl;
 	if ((event.events & EPOLLOUT) != 0)
@@ -84,6 +86,7 @@ void	send_example_page(int client_fd)
 </body>\n\
 </html>";
 
-		std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 1256\r\n\r\n" + body;
-		send(client_fd, response.c_str(), response.length(), 0);
+	std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + nbtostr(body.length())
+			+ "\r\n\r\n" + body;
+	send(client_fd, response.c_str(), response.length(), 0);
 }

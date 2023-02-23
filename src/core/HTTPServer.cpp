@@ -50,6 +50,7 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 
 	if ((event.events & EPOLLRDHUP) != 0)
 	{
+		std::cout << "RDUP" << std::endl;
 		_remove_client(client_fd);
 		return -1;
 	}
@@ -64,11 +65,13 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 		catch (const RecvException& e)
 		{
 			// Client disconnection
+			std::cout << "RECV" << std::endl;
 			_remove_client(client_fd);
 			return -1;
 		}
 		catch (const CloseClientException& e)
 		{
+			std::cout << "CLOS" << std::endl;
 			_remove_client(client_fd);
 			return -1;
 		}
@@ -99,6 +102,7 @@ void	HTTPServer::run()
 	while (true)
 	{
 		std::cout << CYN << "[HTTPServer] =========== New event loop iteration ===========" << CRESET << std::endl;
+		display_map(_fds, "fds");
 		_epoll.wait(event, nfds);
 
 		std::cout << CYN << "[HTTPServer] Received " << nfds << " events" << CRESET << std::endl;
@@ -121,6 +125,5 @@ void	HTTPServer::run()
 				}
 			}
 		}
-
 	}
 }
