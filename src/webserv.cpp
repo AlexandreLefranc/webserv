@@ -11,15 +11,13 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	std::string	confg_file("");
+	std::string	config_file("config/default.conf");
 	if (argc == 2)
-	{
-		confg_file = argv[1];
-	}
+		config_file = argv[1];
 
 	try
 	{
-		HTTPServer	serv(confg_file);
+		HTTPServer	serv(config_file);
 		serv.run();
 	}
 	catch (const std::exception& e)

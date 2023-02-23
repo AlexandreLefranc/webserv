@@ -11,14 +11,14 @@ VirtualServer::VirtualServer(const ServerConfig& config):
 	}
 	std::cout << GRN << fd << CRESET << std::endl;
 
-	struct sockaddr_in	  sockaddr;
-	memset(&sockaddr, 0, sizeof(struct sockaddr_in));
-	socklen_t			socklen = sizeof(struct sockaddr_in);
+	t_sockaddr_in	  sockaddr;
+	memset(&sockaddr, 0, sizeof(t_sockaddr_in));
+	socklen_t			socklen = sizeof(t_sockaddr_in);
 	sockaddr.sin_family			= AF_INET;
 	sockaddr.sin_addr.s_addr	= htonl(config.get_ip());
 	sockaddr.sin_port			= htons(config.get_port());
 
-	if (bind(fd, reinterpret_cast<const struct sockaddr*>(&sockaddr), socklen) < 0)
+	if (bind(fd, reinterpret_cast<const t_sockaddr*>(&sockaddr), socklen) < 0)
 	{
 		close(fd);
 		throw std::runtime_error("bind() failed");
