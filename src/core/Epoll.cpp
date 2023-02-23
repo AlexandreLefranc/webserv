@@ -2,7 +2,15 @@
 
 Epoll::Epoll():
 	_fd(-1)
-{}
+{
+	_fd = epoll_create1(0);
+	if (_fd < 0)
+	{
+		throw std::runtime_error("epoll_create1() failed");
+	}
+
+	std::cout << MAG << "[Epoll] Started epoll on fd: " << _fd << CRESET << std::endl;
+}
 
 Epoll::~Epoll()
 {
@@ -11,18 +19,6 @@ Epoll::~Epoll()
 		std::cout << MAG << "[Epoll] CLOSING fd: " << _fd << CRESET << std::endl;
 		close(_fd);
 	}
-}
-
-void	Epoll::init()
-{
-	std::cout << MAG << "[Epoll] Init..." << CRESET << std::endl;
-	std::cout << MAG << "[Epoll] OPENING fd: " << CRESET;
-	_fd = epoll_create1(0);
-	if (_fd < 0)
-	{
-		throw std::runtime_error("epoll_create1() failed");
-	}
-	std::cout << MAG << _fd << CRESET << std::endl;
 }
 
 void	Epoll::add_fd(int fd_to_add, uint32_t flags)

@@ -50,7 +50,7 @@ public:
 	~Request();
 
 	void	set_client_fd(int client_fd);
-	void	parse_data(const std::string& str);
+	bool	parse_data(const std::string& str);
 };
 
 #endif

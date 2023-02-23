@@ -143,7 +143,7 @@ void	Request::set_client_fd(int client_fd)
 	_client_fd = client_fd;
 }
 
-void	Request::parse_data(const std::string& str)
+bool	Request::parse_data(const std::string& str)
 {
 	_raw += str;
 	std::cout << "raw:" << std::endl << _raw;
@@ -189,7 +189,6 @@ void	Request::parse_data(const std::string& str)
 		_raw.clear();
 
 		std::cout << "Body = " << _body << std::endl;
-		return;
 	}
 
 	if (_ready_to_respond == true)
@@ -256,4 +255,6 @@ void	Request::parse_data(const std::string& str)
 		send(_client_fd, response.c_str(), response.length(), 0);
 		throw CloseClientException();
 	}
+
+	return true;
 }

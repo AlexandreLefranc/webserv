@@ -28,7 +28,6 @@ private:
 
 	std::map<int, bool>		_fds;
 
-	// std::string			_config_file;
 	HTTPConfig			_config;
 
 	Epoll				_epoll;
@@ -39,10 +38,8 @@ private:
 	// Client manip
 	void	_create_client(int server_fd);
 	void	_remove_client(int fd);
-	void	_receive_client(int fd);
 
-	int			_process_epollin(const epoll_event& event);
-
+	int		_communicate_with_client(const struct epoll_event& event);
 
 public:
 	HTTPServer(const std::string& confg_file);
