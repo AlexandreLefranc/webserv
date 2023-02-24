@@ -72,7 +72,7 @@ const std::string&	ServerConfig::get_server_name() const
 	return (server_name);
 }
 
-std::pair<std::string, const ServerLocation*>	ServerConfig::get_root(std::string target) const
+std::string	ServerConfig::get_root(std::string target) const
 {
 	std::vector<ServerLocation>::iterator	it = locations.begin();
 	while (it != locations.end())
