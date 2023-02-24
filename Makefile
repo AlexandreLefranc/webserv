@@ -23,6 +23,7 @@ SRCDIR		=	src/
 SRCFILE		=	\
 				webserv.cpp \
 				utils/debug.cpp \
+				utils/fs_utils.cpp \
 				utils/parse_utils.cpp \
 				utils/socket_utils.cpp \
 				utils/string_utils.cpp
