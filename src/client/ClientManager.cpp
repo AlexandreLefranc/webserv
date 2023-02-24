@@ -11,9 +11,9 @@ ClientManager::~ClientManager()
 	}
 }
 
-int	ClientManager::create_client(int server_fd)
+int	ClientManager::create_client(int server_fd, const ServerConfig& config)
 {
-	Client* new_client = new Client(server_fd);
+	Client* new_client = new Client(server_fd, config);
 	_clients[new_client->fd] = new_client;
 
 	return new_client->fd;

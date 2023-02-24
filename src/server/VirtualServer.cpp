@@ -4,12 +4,26 @@ VirtualServer::VirtualServer(const ServerConfig& config):
 	fd(-1), config(config)
 {
 	std::cout << GRN << "[VirtualServer] OPENING fd: " << CRESET;
-	fd = socket(AF_INET, SOCK_STREAM, getprotobyname("tcp")->p_proto);
+
+	fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, getprotobyname("tcp")->p_proto);
 	if (fd == -1)
 	{
 		throw std::runtime_error("socket() failed");
 	}
+
 	std::cout << GRN << fd << CRESET << std::endl;
+
+	// const int enable1 = 1;
+	// if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable1, sizeof(int)) < 0)
+	// {
+	// 	throw std::runtime_error("setsockopt1() failed");
+	// }
+
+	// const int enable2 = 1;
+	// if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable2, sizeof(int)) < 0)
+	// {
+	// 	throw std::runtime_error("setsockopt2() failed");
+	// }
 
 	t_sockaddr_in	  sockaddr;
 	memset(&sockaddr, 0, sizeof(t_sockaddr_in));
@@ -29,6 +43,7 @@ VirtualServer::VirtualServer(const ServerConfig& config):
 		close(fd);
 		throw std::runtime_error("listen() failed");
 	}
+
 	std::cout << GRN << "[VirtualServer] Listening on " << config.get_ip() << ":" << config.get_port() << CRESET << std::endl;
 }
 

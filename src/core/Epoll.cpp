@@ -2,7 +2,15 @@
 
 Epoll::Epoll():
 	_fd(-1)
-{}
+{
+	_fd = epoll_create1(0);
+	if (_fd < 0)
+	{
+		throw std::runtime_error("epoll_create1() failed");
+	}
+
+	std::cout << MAG << "[Epoll] Started epoll on fd: " << _fd << CRESET << std::endl;
+}
 
 Epoll::~Epoll()
 {
@@ -13,17 +21,9 @@ Epoll::~Epoll()
 	}
 }
 
-void	Epoll::init()
-{
-	std::cout << MAG << "[Epoll] Init..." << CRESET << std::endl;
-	std::cout << MAG << "[Epoll] OPENING fd: " << CRESET;
-	_fd = epoll_create1(0);
-	if (_fd < 0)
-	{
-		throw std::runtime_error("epoll_create1() failed");
-	}
-	std::cout << MAG << _fd << CRESET << std::endl;
-}
+
+
+
 
 void	Epoll::add_fd(int fd_to_add, uint32_t flags)
 {
@@ -52,5 +52,10 @@ void	Epoll::wait(struct epoll_event* event, int& nfds)
 {
 	std::cout << MAG << "[Epoll] Waiting..." << CRESET << std::endl;
 	nfds = epoll_wait(_fd, event, EPOLL_SIZE, -1);
-	std::cout << MAG << "[Epoll] Event !" << CRESET << std::endl;
+	if (nfds < 0)
+	{
+		throw std::runtime_error("epoll_wait() failed");
+	}
+
+	std::cout << MAG << "[Epoll] " << nfds << " event ! " << CRESET << std::endl;
 }

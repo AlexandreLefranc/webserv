@@ -27,8 +27,14 @@ ServerManager::~ServerManager()
 
 void	ServerManager::_create_virtual_server(const ServerConfig& sconf)
 {
-	std::string		ip			= nbtostr(sconf.get_ip());
-	std::string		port		= nbtostr(sconf.get_port());
+	std::stringstream ssip;
+	ssip << sconf.get_ip();
+
+	std::stringstream ssport;
+	ssport << sconf.get_port();
+
+	std::string		ip			= ssip.str();
+	std::string		port		= ssport.str();
 	std::string		server_name	= sconf.get_server_name();
 
 	if (_servers.find(ip+":"+port) == _servers.end())
@@ -66,4 +72,23 @@ const std::vector<int>				ServerManager::getfds() const
 		}
 	}
 	return fds;
+}
+
+const ServerConfig&	ServerManager::get_server_config(int fd) const
+{
+	typedef	ServerManager::outer_map_t	outer_t;
+	typedef	ServerManager::inner_map_t	inner_t;
+
+	for (outer_t::const_iterator outerit = _servers.begin(); outerit != _servers.end(); outerit++)
+	{
+		for (inner_t::const_iterator innerit = outerit->second.begin(); innerit != outerit->second.end(); innerit++)
+		{
+			if (innerit->second->fd == fd)
+			{
+				return innerit->second->config;
+			}
+		}
+	}
+
+	throw std::runtime_error("Server not found");
 }

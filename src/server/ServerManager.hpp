@@ -2,6 +2,7 @@
 # define SERVERMANAGER_HPP
 
 # include <iostream>
+# include <sstream>
 # include <string>
 # include <map>
 # include <vector>
@@ -40,6 +41,7 @@ public:
 	~ServerManager();
 
 	const std::vector<int>	getfds() const;
+	const ServerConfig&		get_server_config(int fd) const;
 };
 
 #endif
