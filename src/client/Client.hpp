@@ -1,15 +1,16 @@
 #ifndef CLIENT_HPP
-#define CLIENT_HPP
+# define CLIENT_HPP
 
-#include <unistd.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
+# include <unistd.h>
+# include <sys/socket.h>
+# include <arpa/inet.h>
 
-#include <cstring>
-#include <iostream>
+# include <cstring>
+# include <iostream>
 
-#include "webserv.hpp"
-#include "request/Request.hpp"
+# include "webserv.hpp"
+# include "request/Request.hpp"
+# include "config/ServerConfig.hpp"
 
 // Purpose: Keep all info relative to a Client
 // Manage socket fd for this client
@@ -22,18 +23,20 @@ private: // Disable defaults behaviors
 	Client&	operator=(const Client& src);
 
 public:
-	int			fd;
-	int			server_fd;
-	Request		request;
-	Response	response;
-	bool		request_complete;
+	int						fd;
+	const ServerConfig&		config;
 
-	Client(int server_fd);
+	Request		request;
+	bool		request_complete;
+	
+	// Response	response;
+
+	Client(int server_fd, const ServerConfig& config);
 	~Client();
 
-	void/bool	parse_request(int fd/std::string str);
-	void		create_response();
-	int/bool	send_response();
+	void	parse_request();
+	// void		create_response();
+	// int/bool	send_response();
 };
 
 #endif

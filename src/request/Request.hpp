@@ -35,15 +35,15 @@ private:
 	size_t								_body_len;
 	std::string							_body;
 
-	bool								_ready_to_respond;
-
 private:
-	void	_process_start_line(const std::string& line);
+	std::string		_get_line();
 
-	void	_process_header(const std::string& line);
+	void	_process_start_line();
+
+	bool	_process_header();
 	void	_check_headers();
 
-	void	_process_body(const std::string& str);
+	bool	_process_body();
 
 public:
 	Request();

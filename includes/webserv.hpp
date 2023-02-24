@@ -23,6 +23,7 @@ enum	socket_type
 // utils/debug.cpp
 void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "");
 void	display_epoll_event(const struct epoll_event& event, const std::string& msg = "");
+void	send_example_page(int client_fd);
 
 // utils/string_utils.cpp
 std::vector<std::string> split(std::string s, std::string delimiter);

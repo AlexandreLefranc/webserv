@@ -1,23 +1,22 @@
 #include "client/Client.hpp"
 
-Client::Client(int server_fd):
-	fd(-1), server_fd(server_fd)
+Client::Client(int server_fd, const ServerConfig& config)
+	: fd(-1)
+	, config(config)
+	, request()
+	, request_complete(false)
 {
-	struct sockaddr_in	sockaddr;
-	socklen_t			socklen;
-
-	memset(&sockaddr, 0, sizeof(struct sockaddr_in));
-	socklen = sizeof(sockaddr);
-
 	std::cout << YEL << "[Client] Accept client" << CRESET << std::endl;
 	std::cout << YEL << "[Client] OPENING fd: " << CRESET;
-	fd = accept(server_fd, reinterpret_cast<struct sockaddr*>(&sockaddr), &socklen);
+
+	fd = accept(server_fd, NULL, NULL);
 	if (fd < 0)
 	{
 		throw std::runtime_error("accept() failed");
 	}
-	std::cout << YEL << fd << CRESET << std::endl;
 	request.set_client_fd(fd);
+
+	std::cout << YEL << fd << CRESET << std::endl;
 }
 
 Client::~Client()
@@ -27,5 +26,16 @@ Client::~Client()
 		std::cout << YEL << "[Client] CLOSING fd: " << fd << CRESET << std::endl;
 		close(fd);
 		fd = -1;
+	}
+}
+
+
+void	Client::parse_request()
+{
+	std::string	data = receive_all(fd); // can throw
+	request_complete = request.parse_data(data); // can throw
+	if (request_complete == true)
+	{
+		std::cout << YEL << "[Request] Request complete!"<< CRESET << std::endl;
 	}
 }

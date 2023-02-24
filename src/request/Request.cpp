@@ -6,7 +6,6 @@ Request::Request()
 	, _is_header_done(false)
 	, _has_body(false)
 	, _body_len(0)
-	, _ready_to_respond(false)
 {}
 
 Request::~Request()
@@ -16,8 +15,20 @@ Request::~Request()
                                 PRIVATE METHODS
 *******************************************************************************/
 
-void	Request::_process_start_line(const std::string& line)
+std::string		Request::_get_line()
 {
+	std::string	line = _raw.substr(0, _raw.find("\r\n"));
+	_raw.erase(0, _raw.find("\r\n") + 2);
+
+	return line;
+}
+
+
+
+void	Request::_process_start_line()
+{
+	std::string line = _get_line();
+
 	std::vector<std::string>	splitted = split(line, " ");
 	if (splitted.size() != 3)
 	{
@@ -48,8 +59,11 @@ void	Request::_process_start_line(const std::string& line)
 	std::cout << _method + " " + _target + " " + _protocol << std::endl;
 }
 
-void	Request::_process_header(const std::string& line)
+// Returns true if request is complete. false otherwise
+bool	Request::_process_header()
 {
+	std::string	line = _get_line();
+
 	if (line == "")
 	{
 		_check_headers();
@@ -59,14 +73,14 @@ void	Request::_process_header(const std::string& line)
 
 		if (_has_body == false)
 		{
-			std::cout << YEL << "[Request] Ready to respond" << CRESET << std::endl;
-			_ready_to_respond = true;
+			// std::cout << YEL << "[Request] Ready to respond" << CRESET << std::endl;
+			return true;
 		}
 		else
 		{
 			std::cout << YEL << "[Request] Listen for body" << CRESET << std::endl;
+			return false;
 		}
-		return;
 	}
 	
 	if (std::count(line.begin(), line.end(), ':') == 0)
@@ -80,7 +94,8 @@ void	Request::_process_header(const std::string& line)
 	std::string					key = tolowerstr(trim(splitted[0]));
 	std::string					value = trim(splitted[1]);
 	_headers[key] = value;
-	// display_map(_headers, "header");
+
+	return false;
 }
 
 void	Request::_check_headers()
@@ -108,30 +123,30 @@ void	Request::_check_headers()
 	return;
 }
 
-void	Request::_process_body(const std::string& str)
+// Returns true if request is complete. false otherwise
+bool	Request::_process_body()
 {
 	if (_body_type == "content-length" && _body_len > 0)
 	{
-		if (_body_len >= str.length())
+		if (_body_len > _raw.length())
 		{
-			_body += str;
-			_body_len -= str.length();
-			std::cout << "_body_len = " << _body_len << std::endl;
+			_body += _raw;
+			_body_len -= _raw.length();
+			_raw.clear();
+			return false;
 		}
-		else
+
+		if (_body_len <= _raw.length())
 		{
-			std::string	sub = str.substr(0, _body_len);
+			std::string	sub = _raw.substr(0, _body_len);
 			_body += sub;
 			_body_len -= sub.length();
-			std::cout << "_body_len = " << _body_len << std::endl;
+			_raw.erase(0, sub.length());
+			return true;
 		}
 	}
-	
-	if (_body_type == "content-length" && _body_len == 0)
-	{
-		std::cout << YEL << "[Request] Ready to respond" << CRESET << std::endl;
-		_ready_to_respond = true;
-	}
+
+	return true;
 }
 
 /*******************************************************************************
@@ -143,7 +158,8 @@ void	Request::set_client_fd(int client_fd)
 	_client_fd = client_fd;
 }
 
-void	Request::parse_data(const std::string& str)
+// Returns true if request is complete. false otherwise
+bool	Request::parse_data(const std::string& str)
 {
 	_raw += str;
 	std::cout << "raw:" << std::endl << _raw;
@@ -153,43 +169,31 @@ void	Request::parse_data(const std::string& str)
 		throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
 	}
 
-	// Get start line and headers
-	while (_raw.find("\r\n") != std::string::npos && _is_header_done == false)
+	while (_has_start_line == false && _raw.find_first_of("\r\n") == 0)
 	{
-		std::string	line = _raw.substr(0, _raw.find("\r\n"));
-		_raw.erase(0, _raw.find("\r\n") + 2);
-		// std::cout << "line:" << std::endl << line << std::endl;
+		_raw.erase(0, 2);
+	}
 
-		// Request not started yet, we are kind and dont throw
-		if (line == "" && _has_start_line == false)
-		{
-			continue;
-		}
+	if (_has_start_line == false && _raw.find("\r\n") != std::string::npos)
+	{
+		_process_start_line();
+	}
 
-		// Start line + headers done
-		if (line == "" && _is_header_done == true)
+	while (_is_header_done == false && _raw.find("\r\n") != std::string::npos)
+	{
+		if (_process_header() == true)
 		{
-			break;
-		}
-
-		if (_has_start_line == false)
-		{
-			_process_start_line(line);
-		}
-		else if (_is_header_done == false)
-		{
-			_process_header(line);
+			return true;
 		}
 	}
 
-	// Get body if has body
 	if (_is_header_done == true && _has_body == true)
 	{
-		_process_body(_raw);
-		_raw.clear();
-
-		std::cout << "Body = " << _body << std::endl;
-		return;
+		if (_process_body() == true)
+		{
+			std::cout << "body: " << _body << std::endl;
+			return true;
+		}
 	}
 
 	if (_ready_to_respond == true)

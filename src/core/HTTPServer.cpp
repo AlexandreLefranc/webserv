@@ -2,18 +2,14 @@
 
 HTTPServer::HTTPServer(const std::string& config_file)
 	: _config(config_file)
+	, _epoll()
 	, _server_manager(_config)
 {
-	std::cout << CYN << "[HTTPServer] Initiate epoll" << CRESET << std::endl;
-	_epoll.init();
-
-	// std::cout << CYN << "[HTTPServer] Initiate virtual servers" << CRESET << std::endl;
-	// _server_manager.init();
 	const std::vector<int>	serv_fds = _server_manager.getfds();
 	for (std::vector<int>::const_iterator it = serv_fds.begin(); it != serv_fds.end(); it++)
 	{
-		_fds[*it] = SERVER;
-		_epoll.add_fd(*it, EPOLLIN | EPOLLET);
+		_fds[*it] = "SERVER";
+		_epoll.add_fd(*it, EPOLLIN);
 	}
 }
 
@@ -27,36 +23,68 @@ HTTPServer::~HTTPServer()
 void	HTTPServer::_create_client(int server_fd)
 {
 	std::cout << CYN << "[HTTPServer] Client connection request!" << CRESET << std::endl;
-	int client_fd = _client_manager.create_client(server_fd);
-	_fds[client_fd] = CLIENT;
+
+	const	ServerConfig&	config = _server_manager.get_server_config(server_fd);
+
+	int client_fd = _client_manager.create_client(server_fd, config);
+	_fds[client_fd] = "CLIENT";
 	_epoll.add_fd(client_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET);
 }
 
+
 void	HTTPServer::_remove_client(int fd)
 {
-	std::cout << CYN << "[HTTPServer] Client connection closed!" << CRESET << std::endl;
+	std::cout << CYN << "[HTTPServer] Remove client!" << CRESET << std::endl;
 	_epoll.remove_fd(fd);
 	_client_manager.remove_client(fd);
 	_fds.erase(fd);
 }
 
-void	HTTPServer::_receive_client(int fd)
+
+int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 {
-	try
+	std::cout << CYN << "[HTTPServer] Client is communicating!" << CRESET << std::endl;
+
+	int				client_fd = event.data.fd;
+	Client&	client = _client_manager.get_client(client_fd);
+
+	if ((event.events & EPOLLRDHUP) != 0)
 	{
-		std::string	str = receive_all(fd); // can throw
-		Request& request = _client_manager.get_client(fd).request;
-		request.parse_data(str); // can throw
+		_remove_client(client_fd);
+		return -1;
 	}
-	catch (const RecvException& e)
+
+	if ((event.events & EPOLLIN) != 0 && client.request_complete == false)
 	{
-		// Client disconnection
-		_remove_client(fd);
+		std::cout << CYN << "[HTTPServer] Receiving data from client!" << CRESET << std::endl;
+		try
+		{
+			client.parse_request();
+		}
+		catch (const RecvException& e)
+		{
+			// Client disconnection
+			_remove_client(client_fd);
+			return -1;
+		}
+		catch (const CloseClientException& e)
+		{
+			_remove_client(client_fd);
+			return -1;
+		}
 	}
-	catch (const CloseClientException& e)
+
+	if ((event.events & EPOLLOUT) != 0 && client.request_complete == true)
 	{
-		_remove_client(fd);
+		std::cout << CYN << "[HTTPServer] Sending data to client!" << CRESET << std::endl;
+		// create response if not created
+		// send response
+		send_example_page(client_fd);
+		_remove_client(client_fd);
+		return -1;
 	}
+
+	return 0;
 }
 
 /*******************************************************************************
@@ -67,35 +95,32 @@ void	HTTPServer::run()
 {
 	struct epoll_event	event[EPOLL_SIZE];
 	int					nfds;
+
 	std::cout << CYN << "[HTTPServer] Starting event loop" << CRESET << std::endl;
 	while (true)
 	{
 		std::cout << CYN << "[HTTPServer] =========== New event loop iteration ===========" << CRESET << std::endl;
+		// display_map(_fds, "monitored_fd");
 		_epoll.wait(event, nfds);
 
-		std::cout << CYN << "[HTTPServer] Received " << nfds << " events" << CRESET << std::endl;
 		for (int i = 0; i < nfds; i++)
 		{
-			std::cout << CYN << "[HTTPServer] Event from fd " << event[i].data.fd << CRESET << std::endl;
+			std::cout << CYN << "[HTTPServer] Consume event from fd " << event[i].data.fd << CRESET << std::endl;
 			// display_epoll_event(event[i]);
-			if (_fds[event[i].data.fd] == SERVER)
+			if (_fds[event[i].data.fd] == "SERVER")
 			{
 				_create_client(event[i].data.fd);
+				continue;
 			}
-			else
+			
+			if (_fds[event[i].data.fd] == "CLIENT")
 			{
-				std::cout << CYN << "[HTTPServer] Client is talking!" << CRESET << std::endl;
-				if ((event[i].events & EPOLLRDHUP) != 0)
+				int ret = _communicate_with_client(event[i]);
+				if (ret == -1)
 				{
-					_remove_client(event[i].data.fd);
 					continue;
-				}
-				if ((event[i].events & EPOLLIN) != 0)
-				{
-					_receive_client(event[i].data.fd);
 				}
 			}
 		}
-
 	}
 }
