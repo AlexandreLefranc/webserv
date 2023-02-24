@@ -26,7 +26,7 @@ private: // Disable defaults behaviors
 
 private:
 
-	std::map<int, bool>		_fds;
+	std::map<int, std::string>		_fds;
 
 	HTTPConfig			_config;
 

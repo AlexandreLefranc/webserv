@@ -29,6 +29,10 @@ void	display_epoll_event(const struct epoll_event& event, const std::string& msg
 	std::cout << "  event.data.fd = " << event.data.fd << std::endl;
 	// std::cout << "  event.data.u32 = " << event.data.u32 << std::endl;
 	// std::cout << "  event.data.u64 = " << event.data.u64 << std::endl;
+
+    std::cout << "  ";
+    display_bits(event.events);
+
 	if ((event.events & EPOLLIN) != 0)
 		std::cout << "  EPOLLIN" << std::endl;
 

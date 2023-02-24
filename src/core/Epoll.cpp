@@ -57,5 +57,5 @@ void	Epoll::wait(struct epoll_event* event, int& nfds)
 		throw std::runtime_error("epoll_wait() failed");
 	}
 
-	std::cout << MAG << "[Epoll] Event !" << CRESET << std::endl;
+	std::cout << MAG << "[Epoll] " << nfds << " event ! " << CRESET << std::endl;
 }

@@ -8,8 +8,8 @@ HTTPServer::HTTPServer(const std::string& config_file)
 	const std::vector<int>	serv_fds = _server_manager.getfds();
 	for (std::vector<int>::const_iterator it = serv_fds.begin(); it != serv_fds.end(); it++)
 	{
-		_fds[*it] = SERVER;
-		_epoll.add_fd(*it, EPOLLIN | EPOLLET);
+		_fds[*it] = "SERVER";
+		_epoll.add_fd(*it, EPOLLIN);
 	}
 }
 
@@ -27,7 +27,7 @@ void	HTTPServer::_create_client(int server_fd)
 	const	ServerConfig&	config = _server_manager.get_server_config(server_fd);
 
 	int client_fd = _client_manager.create_client(server_fd, config);
-	_fds[client_fd] = CLIENT;
+	_fds[client_fd] = "CLIENT";
 	_epoll.add_fd(client_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET);
 }
 
@@ -50,7 +50,6 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 
 	if ((event.events & EPOLLRDHUP) != 0)
 	{
-		std::cout << "RDUP" << std::endl;
 		_remove_client(client_fd);
 		return -1;
 	}
@@ -65,13 +64,11 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 		catch (const RecvException& e)
 		{
 			// Client disconnection
-			std::cout << "RECV" << std::endl;
 			_remove_client(client_fd);
 			return -1;
 		}
 		catch (const CloseClientException& e)
 		{
-			std::cout << "CLOS" << std::endl;
 			_remove_client(client_fd);
 			return -1;
 		}
@@ -98,25 +95,25 @@ void	HTTPServer::run()
 {
 	struct epoll_event	event[EPOLL_SIZE];
 	int					nfds;
+
 	std::cout << CYN << "[HTTPServer] Starting event loop" << CRESET << std::endl;
 	while (true)
 	{
 		std::cout << CYN << "[HTTPServer] =========== New event loop iteration ===========" << CRESET << std::endl;
-		display_map(_fds, "fds");
+		// display_map(_fds, "monitored_fd");
 		_epoll.wait(event, nfds);
 
-		std::cout << CYN << "[HTTPServer] Received " << nfds << " events" << CRESET << std::endl;
 		for (int i = 0; i < nfds; i++)
 		{
-			std::cout << CYN << "[HTTPServer] Event from fd " << event[i].data.fd << CRESET << std::endl;
-			display_epoll_event(event[i]);
-			if (_fds[event[i].data.fd] == SERVER)
+			std::cout << CYN << "[HTTPServer] Consume event from fd " << event[i].data.fd << CRESET << std::endl;
+			// display_epoll_event(event[i]);
+			if (_fds[event[i].data.fd] == "SERVER")
 			{
 				_create_client(event[i].data.fd);
 				continue;
 			}
 			
-			if (_fds[event[i].data.fd] == CLIENT)
+			if (_fds[event[i].data.fd] == "CLIENT")
 			{
 				int ret = _communicate_with_client(event[i]);
 				if (ret == -1)
