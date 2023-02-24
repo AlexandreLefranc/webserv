@@ -31,7 +31,7 @@ void	Response::create(const Request& request, const ServerConfig& config)
 	if (_body.size() > 0)
 	{
 		_add_header("Content-Length", std::to_string(_body.length()));
-		_add_header("Content-Type", _get_content_type(request.get_target()));
+		// _add_header("Content-Type", _get_content_type(request.get_target()));
 	}
 	return ;
 }

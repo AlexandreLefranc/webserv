@@ -95,6 +95,20 @@ std::pair<int, std::string>	ServerLocation::get_error_page() const
 }
 
 /*==============================================================================
+	Location matching.
+==============================================================================*/
+
+bool	location_is_match(const std::string& target) const
+{
+	if (exact_match && location_match == target)
+		return (true);
+	if (location_match == target.substr(0, location_match.length()))
+		return (true);
+	return (false);
+}
+
+
+/*==============================================================================
 
 							PRIVATE MEMBER FUNCTIONS.
 

@@ -12,14 +12,17 @@ class ServerConfig
 private:
 	ServerConfig();
 
+public:
+	typedef const ServerLocation constServerLocation;
+
 private:
 	//	Attribute
-	std::stringstream&			content;
-	std::string					root;
-	std::string					server_name;
-	std::pair<int, short>		listen_port;
-	std::vector<std::string>	index;
-	std::vector<ServerLocation>	locations;
+	std::stringstream&					content;
+	std::string							root;
+	std::string							server_name;
+	std::pair<int, short>				listen_port;
+	std::vector<std::string>			index;
+	std::vector<constServerLocation>	locations;
 
 public:
 	// Member functions
@@ -32,7 +35,7 @@ public:
 	~ServerConfig();
 
 	//	Location finder
-	std::string	find_location(std::string path);
+	// std::string	find_location(std::string path);
 
 	// Getters
 	int					get_ip() const;

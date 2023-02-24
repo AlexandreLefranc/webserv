@@ -35,6 +35,9 @@ public:
 	std::vector<std::string>	get_try_files() const;
 	std::pair<int, std::string>	get_error_page() const;
 
+	//	Location matching
+	bool	locationIsMatch(const std::string& target) const;
+
 private:
 	void	_parse();
 	void	_parse_line(std::string& line);
