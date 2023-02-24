@@ -3,9 +3,9 @@
 #include <arpa/inet.h>
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <map>
-#include <string>
 
 #include "webserv.hpp"
 
@@ -30,8 +30,8 @@ void	display_epoll_event(const struct epoll_event& event, const std::string& msg
 	// std::cout << "  event.data.u32 = " << event.data.u32 << std::endl;
 	// std::cout << "  event.data.u64 = " << event.data.u64 << std::endl;
 
-    std::cout << "  ";
-    display_bits(event.events);
+	std::cout << "  ";
+	display_bits(event.events);
 
 	if ((event.events & EPOLLIN) != 0)
 		std::cout << "  EPOLLIN" << std::endl;
@@ -102,7 +102,9 @@ void	send_example_page(int client_fd)
 </body>\n\
 </html>";
 
-	std::string response = "HTTP/1.1 200 OK\r\nContent-Length: " + nbtostr(body.length())
-			+ "\r\n\r\n" + body;
-	send(client_fd, response.c_str(), response.length(), 0);
+	std::stringstream response;
+	response << "HTTP/1.1 200 OK\r\nContent-Length: " << body.length() << "\r\n\r\n";
+	response << body;
+
+	send(client_fd, response.str().c_str(), response.str().length(), 0);
 }

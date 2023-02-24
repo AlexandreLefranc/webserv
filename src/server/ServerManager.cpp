@@ -27,8 +27,14 @@ ServerManager::~ServerManager()
 
 void	ServerManager::_create_virtual_server(const ServerConfig& sconf)
 {
-	std::string		ip			= nbtostr(sconf.get_ip());
-	std::string		port		= nbtostr(sconf.get_port());
+	std::stringstream ssip;
+	ssip << sconf.get_ip();
+
+	std::stringstream ssport;
+	ssport << sconf.get_port();
+
+	std::string		ip			= ssip.str();
+	std::string		port		= ssport.str();
 	std::string		server_name	= sconf.get_server_name();
 
 	if (_servers.find(ip+":"+port) == _servers.end())
