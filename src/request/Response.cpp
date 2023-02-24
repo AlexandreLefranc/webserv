@@ -24,6 +24,7 @@ Response&	Response::operator=(const Response& other)
 
 void	Response::create(const Request& request, const ServerConfig& config)
 {
+	
 	_fetch_ressource(config.get_root() + request.get_target());
 	// _make_status();
 	_add_header("Server", "Webserv42/1.0");

@@ -107,7 +107,6 @@ bool	location_is_match(const std::string& target) const
 	return (false);
 }
 
-
 /*==============================================================================
 
 							PRIVATE MEMBER FUNCTIONS.
