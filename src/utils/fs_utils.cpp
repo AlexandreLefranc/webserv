@@ -46,30 +46,3 @@ std::vector<std::string> get_dir_list(std::string path)
 	directories.insert(directories.end(), regular_files.begin(), regular_files.end());
 	return directories;
 }
-
-
-std::string		gen_dir_list_html(std::vector<std::string> dirlist, const std::string& target)
-{
-	std::ostringstream	ss;
-
-	ss << "<!doctype html>\n";
-	ss << "<html>\n";
-	ss << "  <body>\n";
-	ss << "    <h1>\n";
-	ss << "      Index of " << target << "\n";
-	ss << "    </h1>\n";
-	ss << "    <hr>\n";
-
-	std::vector<std::string>::const_iterator it;
-	for (it = dirlist.begin(); it != dirlist.end(); ++it)
-	{
-		ss << "    ";
-		ss << "<a href=\"" << *it << "\">" << *it << "</a><br>\n";
-	}
-
-	ss << "    <hr>\n";
-	ss << "  </body>\n";
-	ss << "</html>\n";
-
-	return ss.str();
-}

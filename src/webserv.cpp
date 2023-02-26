@@ -3,6 +3,8 @@
 #include "webserv.hpp"
 #include "core/HTTPServer.hpp"
 
+#include "request/HTMLGenerator.hpp"
+
 int main(int argc, char** argv)
 {
 	if (argc > 2)
@@ -29,8 +31,8 @@ int main(int argc, char** argv)
 	std::string root = "/home/alex/Data/Documents/42/Cursus42/5_webserv/webserv";
 	std::string	target = "/";
 
-	std::vector<std::string> dirlist = get_dir_list(root + target);
-	std::string html = gen_dir_list_html(dirlist, target);
+	HTMLGenerator gen;
+	std::string	html = gen.dirlist(root+target);
 
 	std::cout << html;
 
