@@ -18,4 +18,16 @@ class CloseClientException: public std::exception
 	virtual const char* what() const throw();
 };
 
+class ParsingException: public std::exception
+{
+public:
+	virtual const char*	what() const throw();
+};
+
+class ReponseException: public std::exception
+{
+public:
+	virtual const char*	what() const throw();
+};
+
 #endif

@@ -1,5 +1,27 @@
 # include "Response.hpp"
 
+/*==============================================================================
+
+									STATUS.
+
+==============================================================================*/
+
+const Status Status::Forbidden = Status("HTTP/1.1", 403, "Not Allowed");
+const Status Status::NotFound = Status("HTTP/1.1", 404, "Not Found");
+const Status Status::OK = Status("HTTP/1.1", 200, "OK");
+const Status Status::Created = Status("HTTP/1.1", 201, "Created");
+const Status Status::NoContent = Status("HTTP/1.1", 204, "No Content");
+
+/*==============================================================================
+
+									Response.
+
+==============================================================================*/
+
+/*==============================================================================
+								Constructors.
+==============================================================================*/
+
 Response::Response()
 {
 	return ;
@@ -24,11 +46,45 @@ Response&	Response::operator=(const Response& other)
 
 void	Response::create(const Request& request, const ServerConfig& config)
 {
-	
-	_fetch_ressource(config.get_root() + request.get_target());
-	// _make_status();
+	_config = config;
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
+	try
+	{
+		std::string	target = _config.get_target(request.get_target(), request.get_method());
+	}
+	catch (ParsingException& e)
+	{
+		_status = Status::FORBIDDEN;
+		return ;
+	}
+	if (request.get_method() == GET)
+		_serve_get(target);
+	else if (request.get_method() == POST)
+		_serve_post(target);
+	else if (request.get_method() == DELETE)
+		_serve_delete(target);
+	return ;
+}
+
+void	Response::send(int fd) const
+{
+	return ;
+}
+
+/*==============================================================================
+
+							Private member functions.
+
+==============================================================================*/
+
+/*==============================================================================
+								Get Response.
+==============================================================================*/
+
+void	Response::_serve_get(const std::string& target)
+{
+	_fetch_ressource(target);
 	if (_body.size() > 0)
 	{
 		_add_header("Content-Length", std::to_string(_body.length()));
@@ -37,30 +93,60 @@ void	Response::create(const Request& request, const ServerConfig& config)
 	return ;
 }
 
-void	_fetch_ressource(std::string target)
+void	Response::_fetch_ressource(const std::string& target)
 {
 	std::ifstream		file(target);
 	std::stringstream	buffer;
 	
 	if (!file.is_open())
 	{
-		_status.code = 404;
+		_status = Status::NotFound;
 		return ;
 	}
 	buffer << file.rdbuf();
 	_body = buffer.str();
+	_status = Status::OK;
+	return ;
 }
 
-// void	Response::_make_status()
-// {
-// 	_status.code = 404;
-// 	_status.message = "Page not found.";
-// }
+/*==============================================================================
+								Post Response.
+==============================================================================*/
+
+void	Response::_serve_post(const std::string& target, const char* content, size_t content_length)
+{
+	std::ofstream	file(target, POST_mode);
+
+	if (!file.is_open(target))
+	{
+		_status = Status::Forbidden;
+		return ;
+	}
+	file.write(content, content_length);
+	file.close();
+	_status = OK;
+	return ;
+}
+
+/*==============================================================================
+								Delete Response.
+==============================================================================*/
+
+void	Response::_serve_delete(const std::string& target)
+{
+	if (std::remove(target) == 0)
+		_status = OK;
+	else
+		_status = NoContent;
+	return ;
+}
+
+/*==============================================================================
+								Utils.
+==============================================================================*/
 
 void	Response::_add_header(std::string key, std::string value)
 {
 	_headers[key] = value;
 	return ;
 }
-
-Response::

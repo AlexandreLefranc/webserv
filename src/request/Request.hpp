@@ -23,8 +23,9 @@ private:
 	std::string							_raw;
 
 	bool								_has_start_line;
-	std::string							_method;
+	t_http_method						_method;
 	std::string							_target;
+	std::map<std::string, std::string>	_arguments;
 	std::string							_protocol;
 
 	bool								_is_header_done;
@@ -44,6 +45,8 @@ private:
 	void	_check_headers();
 
 	bool	_process_body();
+	
+	t_http_method	_process_method(std::string method);
 
 public:
 	Request();
@@ -54,6 +57,7 @@ public:
 
 	//	Getters
 	const std::string&	get_target() const;
+	const std::string&	get_method() const;
 };
 
 #endif

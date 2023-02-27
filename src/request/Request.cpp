@@ -51,12 +51,22 @@ void	Request::_process_start_line()
 		throw CloseClientException();
 	}
 
-	_method = splitted[0];
+	_method = _parse_method(splitted[0]);
 	_target = splitted[1];
 	_protocol = splitted[2];
 	_has_start_line = true;
 	std::cout << YEL << "[Request] Start Line OK" << CRESET << std::endl;
 	std::cout << _method + " " + _target + " " + _protocol << std::endl;
+}
+
+t_http_method	_process_method(std::string method)
+{
+	if (method == "GET")
+		return (GET);
+	else if (method == "POST")
+		return (POST);
+	else if (method == "DELETE")
+		return (DELETE);
 }
 
 // Returns true if request is complete. false otherwise
@@ -266,7 +276,12 @@ bool	Request::parse_data(const std::string& str)
 	Getters.
 ==============================================================================*/
 
-const std::string&	Request::getTarget() const
+const std::string&	Request::get_target() const
 {
 	return (_target);
+}
+
+const std::string&	Request::get_method() const
+{
+	return (_method);
 }

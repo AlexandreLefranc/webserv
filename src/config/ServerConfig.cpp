@@ -47,7 +47,7 @@ ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
 		root = other.root;
 		server_name = other.server_name;
 		listen_port = other.listen_port;
-		index = other.index;
+		error_page = other.error_page;
 		locations = other.locations;
 	}
 	return (*this);
@@ -74,15 +74,32 @@ const std::string&	ServerConfig::get_server_name() const
 
 std::string	ServerConfig::get_root(std::string target) const
 {
-	std::vector<ServerLocation>::iterator	it = locations.begin();
-
-	while (it != locations.end())
-	{
-		if (it->locationIsMatch(target))
-			return (it->get_root());
-		it++;
-	}
 	return (root);
+}
+
+const std::string&	ServerConfig::get_target(std::string init_target, http_method_type method) const
+{
+	ServerLocation	matched_location;
+
+	try
+	{
+		matched_location = _get_location(init_target);
+	}
+	catch (ResponseException& e)
+	{
+		if (!index.empty())
+			return (get_target(index));
+		else
+			return (root + init_target);
+	}
+	if (matched_location.get_methods().count(method) == 0)
+		throw (ResponseException());// return ("");
+	if (!matched_location.get_index().empty())
+		return (get_target(matched_location.get_index(), method));
+	if (!matched_location.get_root().empty())
+		return (init_target.replace(0, \
+		matched_location.get_location_match().length(), matched_location.get_root()));
+	return (init_target);
 }
 
 /*==============================================================================
@@ -144,8 +161,8 @@ void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 		server_name = tokens[1];
 	else if (tokens.front() == "listen" && tokens.size() == 2 && listen_port == std::make_pair<int, short>(0, 80))
 		listen_port = _parse_address(tokens[1]);
-	else if (tokens.front() == "index" && index.empty())
-		index = std::vector<std::string>(tokens.begin() + 1, tokens.end());
+	else if (tokens.front() == "error_page" && tokens.size() == 3)
+		error_page.insert(std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]));
 	else
 		throw (ParsingException());
 }
@@ -199,4 +216,17 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 	}
 	locations.insert(pos, ServerLocation(content, location, exact_match));
 	return ;
+}
+
+const ServerLocation&	ServerConfig::_get_location(std::string target) const
+{
+	std::vector<ServerLocation>::iterator	it = locations.begin();
+
+	while (it != locations.end())
+	{
+		if (it->locationIsMatch(target))
+			return (*it) ;
+		it++;
+	}
+	throw (ReponseException("No location match."));
 }

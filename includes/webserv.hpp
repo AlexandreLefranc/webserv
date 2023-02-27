@@ -20,6 +20,14 @@ enum	socket_type
 	CLIENT
 };
 
+enum	t_http_method
+{
+	DELETE,
+	GET,
+	// HEAD,
+	POST
+};
+
 // utils/debug.cpp
 void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "");
 void	display_epoll_event(const struct epoll_event& event, const std::string& msg = "");
