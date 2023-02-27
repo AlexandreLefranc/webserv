@@ -29,9 +29,9 @@ int main(int argc, char** argv)
 	// }
 
 	CGI cgi("/usr/bin/php-cgi");
-	std::string cgires = cgi.run_script("test/info.php");
+	std::vector<char> cgires = cgi.run_script("test/info.php");
 
-	std::cout << cgires;
+	std::cout << cgires.data();
 
 	return 0;
 }

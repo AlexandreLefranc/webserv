@@ -31,7 +31,7 @@ public:
 	CGI(const std::string& exec);
 	~CGI();
 
-	std::string	run_script(const std::string& script) const;
+	std::vector<char>	run_script(const std::string& script) const;
 };
 
 #endif
