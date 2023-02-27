@@ -28,6 +28,7 @@ SRCFILE		=	\
 				utils/string_utils.cpp
 
 CLASSFILE	=	\
+				CGI/CGI.cpp \
 				client/Client.cpp \
 				client/ClientManager.cpp \
 				config/HTTPConfig.cpp \

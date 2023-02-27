@@ -3,6 +3,8 @@
 #include "webserv.hpp"
 #include "core/HTTPServer.hpp"
 
+#include "CGI/CGI.hpp"
+
 int main(int argc, char** argv)
 {
 	if (argc > 2)
@@ -15,16 +17,21 @@ int main(int argc, char** argv)
 	if (argc == 2)
 		config_file = argv[1];
 
-	try
-	{
-		HTTPServer	serv(config_file);
-		serv.run();
-	}
-	catch (const std::exception& e)
-	{
-		std::cout <<BRED<< "Server had to stop: " << e.what() << CRESET << std::endl;
-		return 1;
-	}
+	// try
+	// {
+	// 	HTTPServer	serv(config_file);
+	// 	serv.run();
+	// }
+	// catch (const std::exception& e)
+	// {
+	// 	std::cout <<BRED<< "Server had to stop: " << e.what() << CRESET << std::endl;
+	// 	return 1;
+	// }
+
+	CGI cgi("/usr/bin/php-cgi");
+	std::string cgires = cgi.run_script("test/info.php");
+
+	std::cout << cgires;
 
 	return 0;
 }
