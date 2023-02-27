@@ -2,7 +2,12 @@
 
 CGI::CGI(const std::string& exec)
 	: _executable(exec)
-{}
+{
+	if (access(_executable.c_str(), X_OK) != 0)
+	{
+		throw std::runtime_error("CGI exec is not executable");
+	}
+}
 
 CGI::~CGI()
 {}

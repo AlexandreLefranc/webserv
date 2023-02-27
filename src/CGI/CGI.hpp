@@ -5,12 +5,12 @@
 # include <sys/socket.h>
 # include <unistd.h>
 # include <sys/wait.h>
+# include "errno.h"
 
 # include <vector>
 # include <map>
 # include <cstdlib>
 # include <string>
-# include <stdexcept>
 
 # include "webserv.hpp"
 
@@ -28,10 +28,10 @@ private:
 	std::string _executable;
 
 public:
-	CGI(const std::string& exec);
+	CGI(const std::string& exec); // can throw
 	~CGI();
 
-	std::vector<char>	run_script(const std::string& script) const;
+	std::vector<char>	run_script(const std::string& script) const; // can throw
 };
 
 #endif
