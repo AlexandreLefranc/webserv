@@ -7,11 +7,14 @@
 
 # include "webserv.hpp"
 
-struct HTMLGenerator
+class HTMLGenerator
 {
-	std::string	error(int code, const std::string& desc) const;
+private: // Non instanciable
+	HTMLGenerator();
 
-	std::string	dirlist(const std::string& fullpath) const;
+public:
+	static std::string	error(int code, const std::string& desc);
+	static std::string	dirlist(const std::string& fullpath);
 };
 
 #endif

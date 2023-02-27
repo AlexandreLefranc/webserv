@@ -1,6 +1,6 @@
 #include "HTMLGenerator.hpp"
 
-std::string	HTMLGenerator::error(int code, const std::string& desc) const
+std::string	HTMLGenerator::error(int code, const std::string& desc)
 {
 	std::ostringstream	ss;
 
@@ -16,7 +16,7 @@ std::string	HTMLGenerator::error(int code, const std::string& desc) const
 	return ss.str();
 }
 
-std::string	HTMLGenerator::dirlist(const std::string& fullpath) const
+std::string	HTMLGenerator::dirlist(const std::string& fullpath)
 {
 	std::vector<std::string> dirlist = get_dir_list(fullpath);
 
