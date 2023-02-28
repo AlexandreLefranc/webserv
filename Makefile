@@ -23,6 +23,7 @@ SRCDIR		=	src/
 SRCFILE		=	\
 				webserv.cpp \
 				utils/debug.cpp \
+				utils/fs_utils.cpp \
 				utils/parse_utils.cpp \
 				utils/socket_utils.cpp \
 				utils/string_utils.cpp
@@ -35,6 +36,7 @@ CLASSFILE	=	\
 				config/ServerLocation.cpp \
 				core/Epoll.cpp \
 				core/HTTPServer.cpp \
+				request/HTMLGenerator.cpp \
 				request/Request.cpp \
 				server/ServerManager.cpp \
 				server/VirtualServer.cpp \
@@ -50,7 +52,7 @@ SRC			+=	$(addprefix $(SRCDIR), $(CLASSFILE))
 INCDIR		=	includes/
 INCFILE		=	webserv.hpp \
 				parse_utils.hpp \
-				ansi_colors.hpp
+				ansi_colors.hpp \
 
 INC			=	$(addprefix $(INCDIR), $(INCFILE))
 INC			+=	$(addprefix $(SRCDIR), $(CLASSFILE:.cpp=.hpp))
