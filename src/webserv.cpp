@@ -3,6 +3,8 @@
 #include "webserv.hpp"
 #include "core/HTTPServer.hpp"
 
+#include "request/HTMLGenerator.hpp"
+
 int main(int argc, char** argv)
 {
 	if (argc > 2)
@@ -25,6 +27,14 @@ int main(int argc, char** argv)
 		std::cout <<BRED<< "Server had to stop: " << e.what() << CRESET << std::endl;
 		return 1;
 	}
+
+	// std::string root = "/mnt/nfs/homes/alefranc/Documents/cursus42/5_webserv/webserv";
+	// std::string	target = "/";
+
+	// std::cout << HTMLGenerator::dirlist(root+target);
+	// std::cout << HTMLGenerator::error(404, "Not Found");
+
+
 
 	return 0;
 }
