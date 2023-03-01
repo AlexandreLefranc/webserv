@@ -38,6 +38,7 @@ CLASSFILE	=	\
 				core/HTTPServer.cpp \
 				request/HTMLGenerator.cpp \
 				request/Request.cpp \
+				request/Response.cpp \
 				server/ServerManager.cpp \
 				server/VirtualServer.cpp \
 				utils/Exceptions.cpp

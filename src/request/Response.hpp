@@ -5,14 +5,17 @@
 # include <cstdio>
 
 # include "webserv.hpp"
+# include "config/ServerConfig.hpp"
 
 # define POST_mode	std::ios_base::out
 
 struct Status
 {
-	std::string	protocol("HTTP/1.1");
+	std::string	protocol;
 	int			code;
 	std::string	message;
+
+	Status(int code, std::string msg);
 
 	static const Status	Forbidden;
 	static const Status	NotFound;
@@ -24,10 +27,10 @@ struct Status
 class Response
 {
 private:
-	t_status										_status;
-	std::map<std::string key, std::string value>	_headers;
-	std::vector<char>								_body;
-	const ServerConfig&								_config;
+	Status								_status;
+	std::map<std::string, std::string>	_headers;
+	std::vector<char>					_body;
+	const ServerConfig&					_config;
 
 public:
 	Response();

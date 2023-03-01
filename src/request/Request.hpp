@@ -24,8 +24,9 @@ private:
 	std::string							_raw_s;
 
 	bool								_has_start_line;
-	t_http_method						_method;
+	std::string							_method;
 	std::string							_target;
+	std::map<std::string, std::string>	_target_param;
 	std::string							_protocol;
 
 	bool								_is_header_done;
@@ -54,7 +55,7 @@ public:
 	~Request();
 
 	void	set_client_fd(int client_fd);
-	bool	parse_data(const std::string& str);
+	bool	parse_data(const std::vector<char>& data);
 };
 
 #endif

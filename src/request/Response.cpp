@@ -6,11 +6,19 @@
 
 ==============================================================================*/
 
-const Status Status::Forbidden = Status("HTTP/1.1", 403, "Not Allowed");
-const Status Status::NotFound = Status("HTTP/1.1", 404, "Not Found");
-const Status Status::OK = Status("HTTP/1.1", 200, "OK");
-const Status Status::Created = Status("HTTP/1.1", 201, "Created");
-const Status Status::NoContent = Status("HTTP/1.1", 204, "No Content");
+Status::Status(int code, std::string msg)
+	: protocol("HTTP/1.1")
+	, code(code)
+	, message(msg)
+{
+	return ;
+}
+
+const Status Status::Forbidden = Status(403, "Not Allowed");
+const Status Status::NotFound = Status(404, "Not Found");
+const Status Status::OK = Status(200, "OK");
+const Status Status::Created = Status(201, "Created");
+const Status Status::NoContent = Status(204, "No Content");
 
 /*==============================================================================
 
@@ -46,16 +54,18 @@ Response&	Response::operator=(const Response& other)
 
 void	Response::create(const Request& request, const ServerConfig& config)
 {
+	std::string	target;
+	
 	_config = config;
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
 	try
 	{
-		std::string	target = _config.get_target(request.get_target(), request.get_method());
+		target = _config.get_target(request.get_target(), request.get_method());
 	}
 	catch (ParsingException& e)
 	{
-		_status = Status::FORBIDDEN;
+		_status = Status::Forbidden;
 		return ;
 	}
 	if (request.get_method() == GET)
