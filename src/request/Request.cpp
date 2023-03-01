@@ -17,8 +17,9 @@ Request::~Request()
 
 std::string		Request::_get_line()
 {
-	std::string	line = _raw.substr(0, _raw.find("\r\n"));
-	_raw.erase(0, _raw.find("\r\n") + 2);
+	std::string	line = _raw_s.substr(0, _raw_s.find("\r\n"));
+	_raw_d.erase(_raw_d.begin(), _raw_d.begin() + line.length() + 2);
+	_raw_s.erase(_raw_s.begin(), _raw_s.begin() + line.length() + 2);
 
 	return line;
 }
@@ -51,22 +52,43 @@ void	Request::_process_start_line()
 		throw CloseClientException();
 	}
 
-	_method = _process_method(splitted[0]);
-	_target = splitted[1];
+	_method = splitted[0];
+	_process_target(splitted[1]);
 	_protocol = splitted[2];
 	_has_start_line = true;
+
 	std::cout << YEL << "[Request] Start Line OK" << CRESET << std::endl;
 	std::cout << _method + " " + _target + " " + _protocol << std::endl;
+	display_map(_target_param, "target_param");
 }
 
-t_http_method	_process_method(std::string method)
+void	Request::_process_target(const std::string& target)
 {
-	if (method == "GET")
-		return (GET);
-	else if (method == "POST")
-		return (POST);
-	else if (method == "DELETE")
-		return (DELETE);
+	std::vector<std::string>	target_split = split_first(target, "?");
+
+	_target = target_split[0];
+
+	if (target_split.size() == 1)
+	{
+		return;
+	}
+
+	std::vector<std::string>	param_split = split(target_split[1], "&");
+
+	std::vector<std::string>::const_iterator it;
+	for (it = param_split.begin(); it != param_split.end(); ++it)
+	{
+		std::vector<std::string>	equal_split = split_first(*it, "=");
+		
+		if (equal_split.size() == 1)
+		{
+			std::cout << YEL << "[Request] 400 Bad Request" << CRESET << std::endl;
+			send(_client_fd, "400 Bad Request\r\n", 18, 0);
+			throw CloseClientException();
+		}
+
+		_target_param[equal_split[0]] = equal_split[1];
+	}
 }
 
 // Returns true if request is complete. false otherwise
@@ -138,20 +160,22 @@ bool	Request::_process_body()
 {
 	if (_body_type == "content-length" && _body_len > 0)
 	{
-		if (_body_len > _raw.length())
+		if (_body_len > _raw_d.size())
 		{
-			_body += _raw;
-			_body_len -= _raw.length();
-			_raw.clear();
+			_body.insert(_body.end(), _raw_d.begin(), _raw_d.end());
+			_body_len -= _raw_d.size();
+			_raw_d.clear();
+			_raw_s.clear();
 			return false;
 		}
 
-		if (_body_len <= _raw.length())
+		if (_body_len <= _raw_d.size())
 		{
-			std::string	sub = _raw.substr(0, _body_len);
-			_body += sub;
-			_body_len -= sub.length();
-			_raw.erase(0, sub.length());
+			_body.insert(_body.end(), _raw_d.begin(), _raw_d.begin() + _body_len);
+
+			_body_len = 0;
+			_raw_d.clear();
+			_raw_s.clear();
 			return true;
 		}
 	}
@@ -169,27 +193,35 @@ void	Request::set_client_fd(int client_fd)
 }
 
 // Returns true if request is complete. false otherwise
-bool	Request::parse_data(const std::string& str)
+bool	Request::parse_data(const std::vector<char>& data)
 {
-	_raw += str;
-	std::cout << "raw:" << std::endl << _raw;
+	std::string data_s;
+	data_s.insert(data_s.end(), data.begin(), data.end());
 
-	if (str == "STOP" || str == "STOP\r\n")
+	_raw_d.insert(_raw_d.end(), data.begin(), data.end());
+	_raw_s.insert(_raw_s.end(), data.begin(), data.end());
+
+	std::cout << "raw_d size:" << _raw_d.size() << " | _raw_s len:" <<  _raw_s.length() << std::endl;
+	std::cout << "raw:" << std::endl << _raw_s;
+
+	if (data_s == "STOP" || data_s == "STOP\r\n")
 	{
 		throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
 	}
 
-	while (_has_start_line == false && _raw.find_first_of("\r\n") == 0)
+	while (_has_start_line == false && _raw_s.find_first_of("\r\n") == 0)
 	{
-		_raw.erase(0, 2);
+		std::cout << "Empty line before start of request" << std::endl;
+		_raw_d.erase(_raw_d.begin(), _raw_d.begin() + 2);
+		_raw_s.erase(_raw_s.begin(), _raw_s.begin() + 2);
 	}
 
-	if (_has_start_line == false && _raw.find("\r\n") != std::string::npos)
+	if (_has_start_line == false && _raw_s.find("\r\n") != std::string::npos)
 	{
 		_process_start_line();
 	}
 
-	while (_is_header_done == false && _raw.find("\r\n") != std::string::npos)
+	while (_is_header_done == false && _raw_s.find("\r\n") != std::string::npos)
 	{
 		if (_process_header() == true)
 		{
@@ -201,7 +233,11 @@ bool	Request::parse_data(const std::string& str)
 	{
 		if (_process_body() == true)
 		{
-			std::cout << "body: " << _body << std::endl;
+			// debug
+			std::string body;
+			body.insert(body.end(), _body.begin(), _body.end());
+			std::cout << "body: " << body << std::endl;
+
 			return true;
 		}
 	}

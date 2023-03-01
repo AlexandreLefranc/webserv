@@ -56,7 +56,7 @@ std::string trim(const std::string& str);
 std::string tolowerstr(const std::string& str);
 
 // utils/socket_utils.cpp
-std::string	receive_all(int fd);
+std::vector<char>	receive_all(int fd);
 
 # include "utils/debug.tpp"
 # include "utils/string_utils.tpp"
