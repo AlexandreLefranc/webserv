@@ -72,12 +72,12 @@ const std::string&	ServerConfig::get_server_name() const
 	return (server_name);
 }
 
-std::string	ServerConfig::get_root(std::string target) const
+const std::string&	ServerConfig::get_root() const
 {
 	return (root);
 }
 
-const std::string&	ServerConfig::get_target(std::string init_target, http_method_type method) const
+std::string	ServerConfig::get_target(std::string init_target, t_http_method method) const
 {
 	ServerLocation	matched_location;
 
@@ -87,10 +87,7 @@ const std::string&	ServerConfig::get_target(std::string init_target, http_method
 	}
 	catch (ResponseException& e)
 	{
-		if (!index.empty())
-			return (get_target(index));
-		else
-			return (root + init_target);
+		return (init_target);
 	}
 	if (matched_location.get_methods().count(method) == 0)
 		throw (ResponseException());// return ("");
@@ -220,13 +217,13 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 
 const ServerLocation&	ServerConfig::_get_location(std::string target) const
 {
-	std::vector<ServerLocation>::iterator	it = locations.begin();
+	std::vector<ServerLocation>::const_iterator	it = locations.begin();
 
 	while (it != locations.end())
 	{
-		if (it->locationIsMatch(target))
+		if (it->location_is_match(target))
 			return (*it) ;
 		it++;
 	}
-	throw (ReponseException("No location match."));
+	throw (ResponseException());
 }

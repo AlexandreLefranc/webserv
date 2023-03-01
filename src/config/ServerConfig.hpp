@@ -3,6 +3,7 @@
 
 # include <string>
 # include <sstream>
+# include <set>
 
 # include "parse_utils.hpp"
 # include "ServerLocation.hpp"
@@ -13,16 +14,16 @@ private:
 	ServerConfig();
 
 public:
-	typedef const ServerLocation constServerLocation;
+	// typedef const ServerLocation constServerLocation;
 
 private:
 	//	Attribute
-	std::stringstream&					content;
-	std::string							root;
-	std::string							server_name;
-	std::pair<int, short>				listen_port;
-	std::map<int, std::string>			error_page;
-	std::vector<constServerLocation>	locations;
+	std::stringstream&			content;
+	std::string					root;
+	std::string					server_name;
+	std::pair<int, short>		listen_port;
+	std::map<int, std::string>	error_page;
+	std::vector<ServerLocation>	locations;
 
 public:
 	// Member functions
@@ -42,7 +43,7 @@ public:
 	short					get_port() const;
 	const std::string&		get_server_name() const;
 	const std::string&		get_root() const;
-	const std::string&		get_target(std::string init_target) const;
+	std::string				get_target(std::string init_target, t_http_method method) const;
 
 private:
 	//	Parsing functions

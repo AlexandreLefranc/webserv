@@ -10,6 +10,7 @@
 # include <map>
 
 # include "ansi_colors.hpp"
+# include "utils/Exceptions.hpp"
 
 # define EPOLL_SIZE	200
 # define BUFF_SIZE	32
@@ -27,6 +28,17 @@ enum	t_http_method
 	// HEAD,
 	POST
 };
+
+std::ostream&	operator<<(std::ostream& o, t_http_method method)
+{
+	if (method == GET)
+		o << "GET";
+	else if (method == DELETE)
+		o << "DELETE";
+	else if (method == POST)
+		o << "POST";
+	return o;
+}
 
 // utils/debug.cpp
 void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "");

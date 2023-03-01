@@ -24,7 +24,7 @@ public:
 	virtual const char*	what() const throw();
 };
 
-class ReponseException: public std::exception
+class ResponseException: public std::exception
 {
 public:
 	virtual const char*	what() const throw();

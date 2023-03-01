@@ -11,6 +11,12 @@
 	Constructors.
 ==============================================================================*/
 
+ServerLocation::ServerLocation()
+	: content(DummySS)
+{
+	return ;
+}
+
 ServerLocation::ServerLocation(std::stringstream& config, std::string& location_match, bool exact_match)
 	: content(config)
 	, exact_match(exact_match)
@@ -30,7 +36,6 @@ ServerLocation::ServerLocation(const ServerLocation& other)
 	, index(other.index)
 	, dir_ls(other.dir_ls)
 	, dir_default(other.dir_default)
-	, error_page(other.error_page)
 {
 	return ;
 }
@@ -57,11 +62,9 @@ ServerLocation&	ServerLocation::operator=(const ServerLocation& other)
 		location_match = other.location_match;
 		methods = other.methods;
 		root = other.root;
-		error_page = other.error_page;
 		index = other.index;
 		dir_ls = other.dir_ls;
 		dir_default = other.dir_default;
-		error_page = other.error_page;
 	}
 	return (*this);
 }
@@ -75,17 +78,17 @@ bool						ServerLocation::get_exact_match() const
 	return (exact_match);
 }
 
-std::string					ServerLocation::get_location_match() const
+const std::string&			ServerLocation::get_location_match() const
 {
 	return (location_match);
 }
 
-std::set<http_method_type>	ServerLocation::get_methods() const;
+std::set<t_http_method>		ServerLocation::get_methods() const
 {
 	return (methods);
 }
 
-std::string					ServerLocation::get_root() const
+const std::string&			ServerLocation::get_root() const
 {
 	return (root);
 }
@@ -95,7 +98,7 @@ const std::string&			ServerLocation::get_index() const
 	return (index);
 }
 
-bool						ServerLocation::get_dir_ls();
+bool						ServerLocation::get_dir_ls()
 {
 	return (dir_ls);
 }
@@ -105,16 +108,11 @@ const std::string&			ServerLocation::get_dir_default() const
 	return (dir_default);
 }
 
-std::pair<int, std::string>	ServerLocation::get_error_page() const
-{
-	return (error_page);
-}
-
 /*==============================================================================
 	Location matching.
 ==============================================================================*/
 
-bool	location_is_match(const std::string& target) const
+bool	ServerLocation::location_is_match(const std::string& target) const
 {
 	if (exact_match && location_match == target)
 		return (true);
@@ -157,9 +155,11 @@ void	ServerLocation::_parse_line(std::string& line)
 		throw (ParsingException());
 	if (tokens.front() == "index" && tokens.size() == 2 && index.empty())
 		index = tokens[1];
+	else if (tokens.front() == "root" && tokens.size() == 2 && root.empty())
+		root = tokens[1];
 	else if (tokens.front() == "methods" && methods.empty())
 	{
-		for (std::vector<st::string>::iterator	it = tokens.begin() + 1; it != tokens.end(); it++)
+		for (std::vector<std::string>::iterator	it = tokens.begin() + 1; it != tokens.end(); it++)
 		{
 			if (*it == "GET")
 				methods.insert(GET);
@@ -182,10 +182,6 @@ void	ServerLocation::_parse_line(std::string& line)
 	}
 	else if (tokens.front() == "dir_default" && tokens.size() == 2)
 		dir_default = tokens[1];
-	else if (tokens.front() == "root" && tokens.size() == 2 && root.empty())
-		root = tokens[1];
-	else if (tokens.front() == "error_page" && tokens.size() == 3 && error_page.second.empty())
-		error_page = std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]);
 	else
 		throw (ParsingException());
 }

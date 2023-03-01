@@ -51,7 +51,7 @@ void	Request::_process_start_line()
 		throw CloseClientException();
 	}
 
-	_method = _parse_method(splitted[0]);
+	_method = _process_method(splitted[0]);
 	_target = splitted[1];
 	_protocol = splitted[2];
 	_has_start_line = true;

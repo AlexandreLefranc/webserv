@@ -20,7 +20,7 @@ const char* ParsingException::what() const throw()
 	return "ParsingException";
 }
 
-const char* ReponseException::what() const throw()
+const char* ResponseException::what() const throw()
 {
-	return "ReponseException";
+	return "ResponseException";
 }
