@@ -6,6 +6,11 @@
 
 ==============================================================================*/
 
+Status::Status()
+{
+	return ;
+}
+
 Status::Status(int code, std::string msg)
 	: protocol("HTTP/1.1")
 	, code(code)
@@ -49,6 +54,14 @@ Response::Response(const Response& other)
 
 Response&	Response::operator=(const Response& other)
 {
+	if (this != &other)
+	{
+		_status = other._status;
+		_status = other._status;
+		_status = other._status;
+		_status = other._status;
+
+	}
 	return (*this);
 }
 
@@ -68,17 +81,18 @@ void	Response::create(const Request& request, const ServerConfig& config)
 		_status = Status::Forbidden;
 		return ;
 	}
-	if (request.get_method() == GET)
+	if (request.get_method() == "GET")
 		_serve_get(target);
-	else if (request.get_method() == POST)
-		_serve_post(target);
-	else if (request.get_method() == DELETE)
+	else if (request.get_method() == "POST")
+		_serve_post(target, request.get_body(), request.get_header("Content-Length"));
+	else if (request.get_method() == "DELETE")
 		_serve_delete(target);
 	return ;
 }
 
 void	Response::send(int fd) const
 {
+	(void)fd;
 	return ;
 }
 
@@ -97,7 +111,7 @@ void	Response::_serve_get(const std::string& target)
 	_fetch_ressource(target);
 	if (_body.size() > 0)
 	{
-		_add_header("Content-Length", std::to_string(_body.length()));
+		_add_header("Content-Length", _body.size());
 		// _add_header("Content-Type", _get_content_type(request.get_target()));
 	}
 	return ;
@@ -134,7 +148,7 @@ void	Response::_serve_post(const std::string& target, const char* content, size_
 	}
 	file.write(content, content_length);
 	file.close();
-	_status = OK;
+	_status = Status::OK;
 	return ;
 }
 
@@ -145,9 +159,9 @@ void	Response::_serve_post(const std::string& target, const char* content, size_
 void	Response::_serve_delete(const std::string& target)
 {
 	if (std::remove(target) == 0)
-		_status = OK;
+		_status = Status::OK;
 	else
-		_status = NoContent;
+		_status = Status::NoContent;
 	return ;
 }
 

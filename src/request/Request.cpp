@@ -249,12 +249,24 @@ bool	Request::parse_data(const std::vector<char>& data)
 	Getters.
 ==============================================================================*/
 
-// const std::string&	Request::get_target() const
-// {
-// 	return (_target);
-// }
+const std::string&	Request::get_target() const
+{
+	return (_target);
+}
 
-// const std::string&	Request::get_method() const
-// {
-// 	return (_method);
-// }
+const std::string&	Request::get_method() const
+{
+	return (_method);
+}
+
+std::string			Request::get_header(std::string key) const
+{
+	try
+	{
+		return (_headers.at(key));
+	}
+	catch (std::out_of_range& e)
+	{
+		throw (ResponseException());
+	}
+}

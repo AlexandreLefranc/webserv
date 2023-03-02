@@ -11,11 +11,7 @@
 class ServerConfig
 {
 private:
-	ServerConfig();
-
-public:
-	// typedef const ServerLocation constServerLocation;
-
+	static std::stringstream	DummySS;
 private:
 	//	Attribute
 	std::stringstream&			content;
@@ -28,6 +24,7 @@ private:
 public:
 	// Member functions
 	//		Constructor
+	ServerConfig();
 	ServerConfig(std::stringstream& config);
 	ServerConfig(const ServerConfig& other);
 	//Assignment operator
@@ -43,7 +40,7 @@ public:
 	short					get_port() const;
 	const std::string&		get_server_name() const;
 	const std::string&		get_root() const;
-	std::string				get_target(std::string init_target, t_http_method method) const;
+	std::string				get_target(std::string init_target, std::string method) const;
 
 private:
 	//	Parsing functions

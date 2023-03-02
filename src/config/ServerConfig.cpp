@@ -11,6 +11,12 @@
 	Constructors.
 ==============================================================================*/
 
+ServerConfig::ServerConfig()
+	: content(DummySS)
+{
+	return ;
+}
+
 ServerConfig::ServerConfig(std::stringstream& config)
 	: content(config)
 	, listen_port(std::make_pair(0, 80))
@@ -77,7 +83,7 @@ const std::string&	ServerConfig::get_root() const
 	return (root);
 }
 
-std::string	ServerConfig::get_target(std::string init_target, t_http_method method) const
+std::string	ServerConfig::get_target(std::string init_target, std::string method) const
 {
 	ServerLocation	matched_location;
 

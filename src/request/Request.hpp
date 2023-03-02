@@ -56,6 +56,11 @@ public:
 
 	void	set_client_fd(int client_fd);
 	bool	parse_data(const std::vector<char>& data);
+
+	//	Getters
+	const std::string&	get_target() const;
+	const std::string&	get_method() const;
+	std::string			get_header(std::string key) const;
 };
 
 #endif

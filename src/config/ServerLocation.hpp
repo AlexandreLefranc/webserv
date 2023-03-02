@@ -10,13 +10,14 @@
 class ServerLocation
 {
 public:
-	static std::stringstream	DummySS;
+	static std::stringstream		DummySS;
+	static std::set<std::string>	KnownMethods;
 private:
 	//	Attributes
 	std::stringstream&			content;
 	bool						exact_match;
 	std::string					location_match;
-	std::set<t_http_method>		methods;
+	std::set<std::string>		methods;
 	std::string					root;
 	std::string					index;
 	bool						dir_ls;
@@ -34,7 +35,7 @@ public:
 	//	Getters
 	bool					get_exact_match() const;
 	const std::string&		get_location_match() const;
-	std::set<t_http_method>	get_methods() const;
+	std::set<std::string>	get_methods() const;
 	const std::string&		get_root() const;
 	const std::string&		get_index() const;
 	bool					get_dir_ls();

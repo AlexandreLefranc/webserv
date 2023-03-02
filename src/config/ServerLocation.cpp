@@ -6,7 +6,7 @@
 
 ==============================================================================*/
 
-
+// ServerLocation::KnownMethods.insert({"GET", "POST", "DELETE"});
 /*==============================================================================
 	Constructors.
 ==============================================================================*/
@@ -23,6 +23,9 @@ ServerLocation::ServerLocation(std::stringstream& config, std::string& location_
 	, location_match(location_match)
 	, dir_ls(false)
 {
+	KnownMethods.insert("GET");
+	KnownMethods.insert("POST");
+	KnownMethods.insert("DELETE");
 	_parse();
 	return ;
 }
@@ -83,7 +86,7 @@ const std::string&			ServerLocation::get_location_match() const
 	return (location_match);
 }
 
-std::set<t_http_method>		ServerLocation::get_methods() const
+std::set<std::string>		ServerLocation::get_methods() const
 {
 	return (methods);
 }
@@ -161,14 +164,9 @@ void	ServerLocation::_parse_line(std::string& line)
 	{
 		for (std::vector<std::string>::iterator	it = tokens.begin() + 1; it != tokens.end(); it++)
 		{
-			if (*it == "GET")
-				methods.insert(GET);
-			else if (*it == "DELETE")
-				methods.insert(DELETE);
-			else if (*it == "POST")
-				methods.insert(POST);
-			else
+			if (KnownMethods.count(*it) == 0)
 				throw (ParsingException());
+			methods.insert(*it);
 		}
 	}
 	else if (tokens.front() == "dir_ls" && tokens.size() <= 2)
