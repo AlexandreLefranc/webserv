@@ -17,15 +17,17 @@ private:
 	std::stringstream		content;
 	std::list<ServerConfig>	virtual_server_config;
 
+	//	Constructors
+	HTTPConfig();
+	//Assignment operator
+	HTTPConfig&	operator=(const HTTPConfig& other);
 public:
 	// Member functions
-	//		Constructor
+	//		Constructors
 	HTTPConfig(const std::string& confg_file);
 	HTTPConfig(const HTTPConfig& other);
 	//		Destructor
 	~HTTPConfig();
-	//Assignment operator
-	HTTPConfig&	operator=(const HTTPConfig& other);
 	//		Getters
 	const std::list<ServerConfig>&	get_virtual_server_config() const;
 

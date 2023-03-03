@@ -69,12 +69,12 @@ void	Response::create(const Request& request, const ServerConfig& config)
 {
 	std::string	target;
 	
-	_config = config;
+	// _config = &config;
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
 	try
 	{
-		target = _config.get_target(request.get_target(), request.get_method());
+		target = config.get_target(request.get_target(), request.get_method());
 	}
 	catch (ParsingException& e)
 	{
@@ -136,9 +136,10 @@ void	Response::_fetch_ressource(const std::string& target)
 
 std::string	Response::_itos(int number) const
 {
-	char	str_nbr[12];
+	std::stringstream	ss;
 
-	return (std::string(std::itoa(number, str_nbr, 10)));
+	ss << number;
+	return (ss.str());
 }
 
 /*==============================================================================
@@ -147,9 +148,9 @@ std::string	Response::_itos(int number) const
 
 void	Response::_serve_post(const std::string& target, const std::vector<char>& content)
 {
-	std::ofstream	file(target, POST_mode);
+	std::ofstream	file(target.c_str());
 	
-	if (!file.is_open(target))
+	if (!file.is_open())
 	{
 		_status = Status::Forbidden;
 		return ;
@@ -170,7 +171,7 @@ void	Response::_serve_post(const std::string& target, const std::vector<char>& c
 
 void	Response::_serve_delete(const std::string& target)
 {
-	if (std::remove(target) == 0)
+	if (std::remove(target.c_str()) == 0)
 		_status = Status::OK;
 	else
 		_status = Status::NoContent;

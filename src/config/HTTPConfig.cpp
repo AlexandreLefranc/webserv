@@ -41,15 +41,15 @@ HTTPConfig::~HTTPConfig()
 	Exception.
 ==============================================================================*/
 
-HTTPConfig&	HTTPConfig::operator=(const HTTPConfig& other)
-{
-	if (this != &other)
-	{
-		content.str(other.content.str());
-		virtual_server_config = other.virtual_server_config;
-	}
-	return (*this);
-}
+// HTTPConfig&	HTTPConfig::operator=(const HTTPConfig& other)
+// {
+// 	if (this != &other)
+// 	{
+// 		content.str(other.content.str());
+// 		virtual_server_config = other.virtual_server_config;
+// 	}
+// 	return (*this);
+// }
 
 /*==============================================================================
 	Getters.

@@ -11,7 +11,7 @@
 class ServerConfig
 {
 private:
-	static std::stringstream	DummySS;
+	// static std::stringstream	DummySS;
 private:
 	//	Attribute
 	std::stringstream&			content;
@@ -21,14 +21,15 @@ private:
 	std::map<int, std::string>	error_page;
 	std::vector<ServerLocation>	locations;
 
+	//	Constructors
+	ServerConfig();
+	ServerConfig(const ServerConfig& other);
+	//	Assignment operator
+	ServerConfig&	operator=(const ServerConfig& other);
 public:
 	// Member functions
 	//		Constructor
-	ServerConfig();
 	ServerConfig(std::stringstream& config);
-	ServerConfig(const ServerConfig& other);
-	//Assignment operator
-	ServerConfig&	operator=(const ServerConfig& other);
 	//		Destructor
 	~ServerConfig();
 

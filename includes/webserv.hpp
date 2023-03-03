@@ -29,17 +29,6 @@ enum	t_http_method
 	POST
 };
 
-std::ostream&	operator<<(std::ostream& o, t_http_method method)
-{
-	if (method == GET)
-		o << "GET";
-	else if (method == DELETE)
-		o << "DELETE";
-	else if (method == POST)
-		o << "POST";
-	return o;
-}
-
 // utils/debug.cpp
 void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "");
 void	display_epoll_event(const struct epoll_event& event, const std::string& msg = "");

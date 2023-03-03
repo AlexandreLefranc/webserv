@@ -10,7 +10,7 @@
 # include "config/ServerConfig.hpp"
 # include "request/Request.hpp"
 
-# define POST_mode	std::ios_base::out
+// # define POST_mode	std::ios_base::out
 
 struct Status
 {
@@ -34,13 +34,13 @@ private:
 	Status								_status;
 	std::map<std::string, std::string>	_headers;
 	std::vector<char>					_body;
-	ServerConfig						_config;
+	// ServerConfig*						_config;
 
+	Response(const Response& other);
+	Response&	operator=(const Response& other);
 public:
 	Response();
 	~Response();
-	Response(const Response& other);
-	Response&	operator=(const Response& other);
 
 	void	create(const Request& request, const ServerConfig& config);
 	void	send(int fd) const;

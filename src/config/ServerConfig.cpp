@@ -6,16 +6,17 @@
 
 ==============================================================================*/
 
+// std::stringstream&	ServerConfig::DummySS;
 
 /*==============================================================================
 	Constructors.
 ==============================================================================*/
 
-ServerConfig::ServerConfig()
-	: content(DummySS)
-{
-	return ;
-}
+// ServerConfig::ServerConfig()
+// 	: content(DummySS)
+// {
+// 	return ;
+// }
 
 ServerConfig::ServerConfig(std::stringstream& config)
 	: content(config)
@@ -45,19 +46,19 @@ ServerConfig::~ServerConfig()
 	Assignment operator.
 ==============================================================================*/
 
-ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
-{
-	if (this != &other)
-	{
-		// content = other.content;
-		root = other.root;
-		server_name = other.server_name;
-		listen_port = other.listen_port;
-		error_page = other.error_page;
-		locations = other.locations;
-	}
-	return (*this);
-}
+// ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
+// {
+// 	if (this != &other)
+// 	{
+// 		// content = other.content;
+// 		root = other.root;
+// 		server_name = other.server_name;
+// 		listen_port = other.listen_port;
+// 		error_page = other.error_page;
+// 		locations = other.locations;
+// 	}
+// 	return (*this);
+// }
 
 /*==============================================================================
 	Getters.
@@ -85,23 +86,23 @@ const std::string&	ServerConfig::get_root() const
 
 std::string	ServerConfig::get_target(std::string init_target, std::string method) const
 {
-	ServerLocation	matched_location;
+	const ServerLocation*	matched_location;
 
 	try
 	{
-		matched_location = _get_location(init_target);
+		matched_location = &_get_location(init_target);
 	}
 	catch (ResponseException& e)
 	{
 		return (init_target);
 	}
-	if (matched_location.get_methods().count(method) == 0)
+	if (matched_location->get_methods().count(method) == 0)
 		throw (ResponseException());// return ("");
-	if (!matched_location.get_index().empty())
-		return (get_target(matched_location.get_index(), method));
-	if (!matched_location.get_root().empty())
+	if (!matched_location->get_index().empty())
+		return (get_target(matched_location->get_index(), method));
+	if (!matched_location->get_root().empty())
 		return (init_target.replace(0, \
-		matched_location.get_location_match().length(), matched_location.get_root()));
+		matched_location->get_location_match().length(), matched_location->get_root()));
 	return (init_target);
 }
 

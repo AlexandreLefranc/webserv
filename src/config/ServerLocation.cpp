@@ -6,16 +6,17 @@
 
 ==============================================================================*/
 
-// ServerLocation::KnownMethods.insert({"GET", "POST", "DELETE"});
+std::set<std::string>	ServerLocation::KnownMethods;
+
 /*==============================================================================
 	Constructors.
 ==============================================================================*/
 
-ServerLocation::ServerLocation()
-	: content(DummySS)
-{
-	return ;
-}
+// ServerLocation::ServerLocation()
+// 	: content(DummySS)
+// {
+// 	return ;
+// }
 
 ServerLocation::ServerLocation(std::stringstream& config, std::string& location_match, bool exact_match)
 	: content(config)

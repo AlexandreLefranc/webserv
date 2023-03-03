@@ -10,7 +10,7 @@
 class ServerLocation
 {
 public:
-	static std::stringstream		DummySS;
+	// static std::stringstream		DummySS;
 	static std::set<std::string>	KnownMethods;
 private:
 	//	Attributes
@@ -22,9 +22,11 @@ private:
 	std::string					index;
 	bool						dir_ls;
 	std::string					dir_default;
+
+	//	Constructors
+	ServerLocation();
 public:
 	//	Constructor
-	ServerLocation();
 	ServerLocation(std::stringstream& config, std::string& location_match, bool exact_match);
 	ServerLocation(const ServerLocation& other);
 	//	Destructor
