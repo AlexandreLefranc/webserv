@@ -1,10 +1,23 @@
+
+#include <csignal>
 #include <iostream>
 
 #include "webserv.hpp"
 #include "core/HTTPServer.hpp"
 
+bool	g_running = true;
+
+void	sighandler(int)
+{
+	std::cout << BRED << std::endl << "Signal caugth" << CRESET << std::endl;
+	g_running = false;
+}
+
 int main(int argc, char** argv)
 {
+	signal(SIGINT, sighandler);
+	signal(SIGQUIT, sighandler);
+
 	if (argc > 2)
 	{
 		std::cout << RED << "Usage: " << argv[0] << " [<configuration_file>]" << CRESET << std::endl;

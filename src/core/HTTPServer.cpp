@@ -95,7 +95,7 @@ void	HTTPServer::run()
 	int					nfds;
 
 	std::cout << CYN << "[HTTPServer] Starting event loop" << CRESET << std::endl;
-	while (true)
+	while (g_running == true)
 	{
 		std::cout << CYN << "[HTTPServer] =========== New event loop iteration ===========" << CRESET << std::endl;
 		// display_map(_fds, "monitored_fd");
