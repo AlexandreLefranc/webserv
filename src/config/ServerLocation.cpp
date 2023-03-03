@@ -18,7 +18,7 @@ std::set<std::string>	ServerLocation::KnownMethods;
 // 	return ;
 // }
 
-ServerLocation::ServerLocation(std::stringstream& config, std::string& location_match, bool exact_match)
+ServerLocation::ServerLocation(std::stringstream* config, std::string& location_match, bool exact_match)
 	: content(config)
 	, exact_match(exact_match)
 	, location_match(location_match)
@@ -61,7 +61,7 @@ ServerLocation&	ServerLocation::operator=(const ServerLocation& other)
 {
 	if (&other == this)
 	{
-		content.str(other.content.str());
+		content->str(other.content->str());
 		exact_match = other.exact_match;
 		location_match = other.location_match;
 		methods = other.methods;
@@ -139,7 +139,7 @@ void	ServerLocation::_parse()
 {
 	std::string	line;
 
-	while (std::getline(content, line))
+	while (std::getline(*content, line))
 	{
 		std::cout << "[ServerLocation]line: " << line << std::endl;
 		line = format_line(line);

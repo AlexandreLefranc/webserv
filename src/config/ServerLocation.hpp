@@ -10,11 +10,11 @@
 class ServerLocation
 {
 public:
-	// static std::stringstream		DummySS;
 	static std::set<std::string>	KnownMethods;
+
 private:
 	//	Attributes
-	std::stringstream&			content;
+	std::stringstream*			content;
 	bool						exact_match;
 	std::string					location_match;
 	std::set<std::string>		methods;
@@ -25,14 +25,15 @@ private:
 
 	//	Constructors
 	ServerLocation();
+
 public:
 	//	Constructor
-	ServerLocation(std::stringstream& config, std::string& location_match, bool exact_match);
+	ServerLocation(std::stringstream* config, std::string& location_match, bool exact_match);
 	ServerLocation(const ServerLocation& other);
-	//	Destructor
-	~ServerLocation();
 	//	Assignment operator
 	ServerLocation&	operator=(const ServerLocation& other);
+	//	Destructor
+	~ServerLocation();
 
 	//	Getters
 	bool					get_exact_match() const;

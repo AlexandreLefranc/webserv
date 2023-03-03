@@ -19,13 +19,13 @@ private:
 
 	//	Constructors
 	HTTPConfig();
+	HTTPConfig(const HTTPConfig& other);
 	//Assignment operator
 	HTTPConfig&	operator=(const HTTPConfig& other);
 public:
 	// Member functions
 	//		Constructors
 	HTTPConfig(const std::string& confg_file);
-	HTTPConfig(const HTTPConfig& other);
 	//		Destructor
 	~HTTPConfig();
 	//		Getters

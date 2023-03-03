@@ -6,19 +6,16 @@
 
 ==============================================================================*/
 
-// std::stringstream&	ServerConfig::DummySS;
-
 /*==============================================================================
 	Constructors.
 ==============================================================================*/
 
 // ServerConfig::ServerConfig()
-// 	: content(DummySS)
 // {
 // 	return ;
 // }
 
-ServerConfig::ServerConfig(std::stringstream& config)
+ServerConfig::ServerConfig(std::stringstream* config)
 	: content(config)
 	, listen_port(std::make_pair(0, 80))
 {
@@ -28,8 +25,12 @@ ServerConfig::ServerConfig(std::stringstream& config)
 
 ServerConfig::ServerConfig(const ServerConfig& other)
 	: content(other.content)
+	, root(other.root)
+	, server_name(other.server_name)
+	, listen_port(other.listen_port)
+	, error_page(other.error_page)
+	, locations(other.locations)
 {
-	*this = other;
 	return ;
 }
 
@@ -120,7 +121,7 @@ void	ServerConfig::_parse()
 {
 	std::string		line;
 
-	while (std::getline(content, line))
+	while (std::getline(*content, line))
 	{
 		std::cout << line << std::endl;
 		line = format_line(line);

@@ -11,10 +11,8 @@
 class ServerConfig
 {
 private:
-	// static std::stringstream	DummySS;
-private:
 	//	Attribute
-	std::stringstream&			content;
+	std::stringstream*			content;
 	std::string					root;
 	std::string					server_name;
 	std::pair<int, short>		listen_port;
@@ -23,13 +21,13 @@ private:
 
 	//	Constructors
 	ServerConfig();
-	ServerConfig(const ServerConfig& other);
 	//	Assignment operator
 	ServerConfig&	operator=(const ServerConfig& other);
 public:
 	// Member functions
 	//		Constructor
-	ServerConfig(std::stringstream& config);
+	ServerConfig(std::stringstream* config);
+	ServerConfig(const ServerConfig& other);
 	//		Destructor
 	~ServerConfig();
 
