@@ -47,6 +47,7 @@ private:
 	void	_check_headers();
 
 	bool	_process_body();
+	bool	_process_body_chunk();
 
 public:
 	Request();

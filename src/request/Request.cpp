@@ -112,7 +112,7 @@ bool	Request::_process_header()
 		}
 		else
 		{
-			std::cout << YEL << "[Request] Listen for body" << CRESET << std::endl;
+			std::cout << YEL << "[Request] Listen for body (" << _body_type << ")" << CRESET << std::endl;
 			return false;
 		}
 	}
@@ -150,8 +150,11 @@ void	Request::_check_headers()
 
 	if (_headers.find("transfer-encoding") != _headers.end())
 	{
-		_has_body = true;
-		_body_type = "transfer-encoding";
+		if (_headers["transfer-encoding"] == "chunked")
+		{
+			_has_body = true;
+			_body_type = "chunked";
+		}
 	}
 
 	return;
@@ -182,7 +185,72 @@ bool	Request::_process_body()
 		}
 	}
 
-	return true;
+	if (_body_type == "chunked")
+	{
+		if (_process_body_chunk() == true)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	return false;
+}
+
+// Returns true if request is complete. false otherwise
+bool	Request::_process_body_chunk()
+{
+	static bool					got_size = false;
+	static unsigned long int	chunk_size;
+
+	while (_raw_s.find("\r\n") != std::string::npos)
+	{
+		if (got_size == false)
+		{
+			std::string	line = _get_line();
+			std::cout << "line = " << line << std::endl;
+
+			if (line == "0")
+			{
+				std::cout << "Chunked request complete" << std::endl;
+				_raw_d.clear();
+				_raw_s.clear();
+				got_size = false;
+				return true;
+			}
+
+			chunk_size = strtoul(line.c_str(), NULL, 16);
+			std::cout << "chunk_size = " << chunk_size << std::endl;
+			if (chunk_size == 0)
+			{
+				std::cout << "Could not convert " << line << " to decimal" << std::endl;
+				got_size = false;
+				throw CloseClientException();
+			}
+
+			got_size = true;
+		}
+
+		if (got_size == true && _raw_d.size() > chunk_size)
+		{
+			if (_raw_s.find("\r\n", chunk_size) != chunk_size)
+			{
+				std::cout << "Chunk size is not matching actual chunk" << std::endl;
+				got_size = false;
+				throw CloseClientException();
+			}
+
+			_body.insert(_body.end(), _raw_d.begin(), _raw_d.begin() + chunk_size);
+
+			_raw_d.erase(_raw_d.begin(), _raw_d.begin() + chunk_size + 2);
+			_raw_s.assign(_raw_d.begin(), _raw_d.end());
+			std::cout << "_raw_s = " << _raw_s << std::endl;
+
+			got_size = false;
+		}
+	}
+
+	return false;
 }
 
 /*******************************************************************************
