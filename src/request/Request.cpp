@@ -34,21 +34,21 @@ void	Request::_process_start_line()
 	if (splitted.size() != 3)
 	{
 		std::cout << YEL << "[Request] 501 Not Implemented" << CRESET << std::endl;
-		send(_client_fd, "501 Not Implemented\r\n", 22, 0);
+		ResponseGenerator::send_error(501, "Not Implemented", _client_fd);
 		throw CloseClientException();
 	}
 
 	if (splitted[0] != "GET" && splitted[0] != "POST" && splitted[0] != "DELETE")
 	{
 		std::cout << YEL << "[Request] 501 Not Implemented" << CRESET << std::endl;
-		send(_client_fd, "501 Not Implemented\r\n", 22, 0);
+		ResponseGenerator::send_error(501, "Not Implemented", _client_fd);
 		throw CloseClientException();
 	}
 
 	if (splitted[2] != "HTTP/1.1")
 	{
 		std::cout << YEL << "[Request] 505 HTTP Version Not Supported" << CRESET << std::endl;
-		send(_client_fd, "505 HTTP Version Not Supported\r\n", 33, 0);
+		ResponseGenerator::send_error(505, "HTTP Version Not Supported", _client_fd);
 		throw CloseClientException();
 	}
 
@@ -84,7 +84,7 @@ void	Request::_process_target(const std::string& target)
 		if (equal_split.size() == 1)
 		{
 			std::cout << YEL << "[Request] 400 Bad Request" << CRESET << std::endl;
-			send(_client_fd, "400 Bad Request\r\n", 18, 0);
+			ResponseGenerator::send_error(400, "Bad Request", _client_fd);
 			throw CloseClientException();
 		}
 
@@ -120,7 +120,7 @@ bool	Request::_process_header()
 	if (std::count(line.begin(), line.end(), ':') == 0)
 	{
 		std::cout << YEL << "[Request] 400 Bad Request" << CRESET << std::endl;
-		send(_client_fd, "400 Bad Request\r\n", 18, 0);
+		ResponseGenerator::send_error(400, "Bad Request", _client_fd);
 		throw CloseClientException();
 	}
 
@@ -225,18 +225,27 @@ bool	Request::_process_body_chunk()
 			{
 				std::cout << "Could not convert " << line << " to decimal" << std::endl;
 				got_size = false;
+				ResponseGenerator::send_error(400, "Bad Request", _client_fd);
 				throw CloseClientException();
 			}
 
 			got_size = true;
 		}
 
-		if (got_size == true && _raw_d.size() > chunk_size)
+		if (got_size == true)
 		{
-			if (_raw_s.find("\r\n", chunk_size) != chunk_size)
+			// std::cout << "raw_d.size() = " << _raw_d.size() << std::endl;
+			if (_raw_d.size() < chunk_size + 2)
 			{
-				std::cout << "Chunk size is not matching actual chunk" << std::endl;
+				return false;
+			}
+
+			size_t	next_crlf = _raw_s.find("\r\n", chunk_size);
+			if (next_crlf != std::string::npos && next_crlf != chunk_size)
+			{
+				std::cout << "Chunk size is not matching actual chunk:" << _raw_s.find("\r\n", chunk_size) << std::endl;
 				got_size = false;
+				ResponseGenerator::send_error(400, "Bad Request", _client_fd);
 				throw CloseClientException();
 			}
 

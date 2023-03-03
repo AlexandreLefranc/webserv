@@ -10,6 +10,7 @@
 
 # include "webserv.hpp"
 # include "utils/Exceptions.hpp"
+# include "request/ResponseGenerator.hpp"
 
 class Request
 {
