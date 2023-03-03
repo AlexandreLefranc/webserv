@@ -84,7 +84,7 @@ void	Response::create(const Request& request, const ServerConfig& config)
 	if (request.get_method() == "GET")
 		_serve_get(target);
 	else if (request.get_method() == "POST")
-		_serve_post(target, request.get_body(), request.get_header("Content-Length"));
+		_serve_post(target, request.get_body());
 	else if (request.get_method() == "DELETE")
 		_serve_delete(target);
 	return ;
@@ -111,7 +111,7 @@ void	Response::_serve_get(const std::string& target)
 	_fetch_ressource(target);
 	if (_body.size() > 0)
 	{
-		_add_header("Content-Length", _body.size());
+		_add_header("Content-Length", _itos(_body.size()));
 		// _add_header("Content-Type", _get_content_type(request.get_target()));
 	}
 	return ;
@@ -119,8 +119,9 @@ void	Response::_serve_get(const std::string& target)
 
 void	Response::_fetch_ressource(const std::string& target)
 {
-	std::ifstream		file(target);
+	std::ifstream		file(target.c_str());
 	std::stringstream	buffer;
+	std::string			buffer_str;
 	
 	if (!file.is_open())
 	{
@@ -128,29 +129,40 @@ void	Response::_fetch_ressource(const std::string& target)
 		return ;
 	}
 	buffer << file.rdbuf();
-	_body = buffer.str();
+	_body.insert(_body.begin(), buffer_str.begin(), buffer_str.end());
 	_status = Status::OK;
 	return ;
+}
+
+std::string	Response::_itos(int number) const
+{
+	char	str_nbr[12];
+
+	return (std::string(std::itoa(number, str_nbr, 10)));
 }
 
 /*==============================================================================
 								Post Response.
 ==============================================================================*/
 
-void	Response::_serve_post(const std::string& target, const char* content, size_t content_length)
+void	Response::_serve_post(const std::string& target, const std::vector<char>& content)
 {
 	std::ofstream	file(target, POST_mode);
-
+	
 	if (!file.is_open(target))
 	{
 		_status = Status::Forbidden;
 		return ;
 	}
-	file.write(content, content_length);
+	for (std::vector<char>::const_iterator it = content.begin(); it != content.end(); it++)
+		file.put(*it);
+	// file.write(content, content.size());
 	file.close();
 	_status = Status::OK;
 	return ;
 }
+
+
 
 /*==============================================================================
 								Delete Response.

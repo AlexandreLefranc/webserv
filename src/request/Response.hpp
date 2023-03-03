@@ -3,6 +3,8 @@
 # define RESPONSE_HPP
 
 # include <cstdio>
+# include <stdlib.h>
+# include <fstream>
 
 # include "webserv.hpp"
 # include "config/ServerConfig.hpp"
@@ -45,12 +47,13 @@ public:
 
 private:
 	//	Get Request
-	void	_serve_get(const std::string& target);
-	void	_fetch_ressource(const std::string& target);
+	void		_serve_get(const std::string& target);
+	void		_fetch_ressource(const std::string& target);
+	std::string	_itos(int number) const;
 	//	Post Request
-	void	_serve_post(const std::string& target, const std::string& content, size_t content_length);
+	void		_serve_post(const std::string& target, const std::vector<char>& content);
 	//	Delete Request
-	void	_serve_delete(const std::string& target);
+	void		_serve_delete(const std::string& target);
 
 	//	Utils
 	void	_add_header(std::string key, std::string value);

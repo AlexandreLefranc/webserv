@@ -270,3 +270,8 @@ std::string			Request::get_header(std::string key) const
 		throw (ResponseException());
 	}
 }
+
+const std::vector<char>&	Request::get_body() const
+{
+	return (_body);
+}
