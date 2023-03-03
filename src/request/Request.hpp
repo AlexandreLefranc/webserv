@@ -20,11 +20,13 @@ private: // Disable defaults behaviors
 private:
 	int									_client_fd;
 
-	std::string							_raw;
+	std::vector<char>					_raw_d;
+	std::string							_raw_s;
 
 	bool								_has_start_line;
 	std::string							_method;
 	std::string							_target;
+	std::map<std::string, std::string>	_target_param;
 	std::string							_protocol;
 
 	bool								_is_header_done;
@@ -33,12 +35,13 @@ private:
 	bool								_has_body;
 	std::string							_body_type;
 	size_t								_body_len;
-	std::string							_body;
+	std::vector<char>					_body;
 
 private:
 	std::string		_get_line();
 
 	void	_process_start_line();
+	void	_process_target(const std::string& target);
 
 	bool	_process_header();
 	void	_check_headers();
@@ -50,7 +53,7 @@ public:
 	~Request();
 
 	void	set_client_fd(int client_fd);
-	bool	parse_data(const std::string& str);
+	bool	parse_data(const std::vector<char>& data);
 };
 
 #endif
