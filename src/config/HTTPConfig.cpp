@@ -15,7 +15,6 @@ HTTPConfig::HTTPConfig(const std::string& config_file)
 {
 	std::cout << RED << "[HTTPConfig] Initiate Config" << CRESET << std::endl;
 	std::ifstream		config(config_file.c_str());
-	std::stringstream	content;
 
 	if (!config.is_open())
 		throw (ParsingException());
@@ -56,9 +55,13 @@ void	HTTPConfig::_parse()
 {
 	std::string		line;
 
+	std::cout << content.str() << std::endl;
+
 	while (std::getline(content, line))
 	{
+		std::cout << line << std::endl;
 		line = format_line(line);
+		std::cout << line << std::endl;
 		if (line.empty())
 			continue ;
 		_parse_line(line);
