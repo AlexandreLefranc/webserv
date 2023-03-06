@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Webserver tester</title>
+		<link href="tester.css", rel="stylesheet">
+		<script src="tester.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<section id="section1">
+			<div class="request" id='GET'>
+				<p>GET Request</p>
+					<label for="get_path">Ressource Path:</label><br>
+					<input type="url" id="get_path" name="get_path"><br>
+					<button id="get" onClick="go_GET()">
+						GET
+					</button>
+			</div>
+			<div class="request" id='POST'>
+				<p>POST Request</p>
+					<label for="post_url">Ressource Path:</label><br>
+					<input type="url" id="post_url" name="post_url"><br>
+					<label for="post_url">Ressource body:</label><br>
+					<input type="text" id="post_body" name="body"><br>
+					<p>Or choose a file to post:</p>
+					<input type="file" name="file" id="file_path">
+					<button id="post" onClick="alert('POST')">
+						POST
+					</button>
+			</div>
+			<div class="request" id='DELETE'>
+				<p>DELETE request</p>
+					<label for="delete_url">Ressource Path:</label><br>
+					<input type="url" id="delete_url" name="delete_url"><br>
+					<button id="delete" onClick="alert('DELETE')">
+						DELETE
+					</button>
+			</div>
+		</section>
+		<section id="section2">
+			<div class="response" id="status">
+				<p>Response status</p>
+				<input type="textbox" class="response_box" id="status_box">
+			</div>
+			<div class="response" id="msg">
+				<p>Response message</p>
+				<input type="textbox" class="response_box" id="msg_box">
+			</div>
+			<div class="response" id="body">
+				<p>Response body</p>
+				<input type="textbox" class="response_box" id="body_box">
+			</div>
+		</section>
+	</body>
+</html>
