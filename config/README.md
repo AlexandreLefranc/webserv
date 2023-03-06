@@ -19,3 +19,26 @@ List options that are related to one specific location for server. These include
 - `index`: redirection to another location. (1 argument)
 - `dir_ls`: bool to enable directory listing for given location.
 - `dir_default`: default fallback file if request is a folder and `dir_ls` is not enabled. (1 argument)
+
+## Example
+```
+http {
+  server {
+    listen 127.0.0.1:8080;
+    index index.html;
+    server_name toto.42.fr;
+    root /var/www;
+    error_page 404 404.html;
+    
+    location / {
+       dir_ls 1;
+       root www;
+    }
+
+    location = /toto/index.html {
+      methods GET;
+      root /var/toto;
+      index 404.html;
+    }
+  }
+}
