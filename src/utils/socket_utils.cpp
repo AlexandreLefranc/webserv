@@ -15,9 +15,9 @@ std::vector<char>	receive_all(int fd)
 
 	do
 	{
-		std::cout << "Reading socket: ";
+		// std::cout << "Reading socket: ";
 		ret = recv(fd, buffer, BUFF_SIZE, MSG_DONTWAIT);
-		std::cout << ret << " bytes" << std::endl;
+		// std::cout << ret << " bytes" << std::endl;
 		if (ret > 0)
 		{
 			// buffer[ret] = '\0';

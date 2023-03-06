@@ -10,6 +10,7 @@
 
 # include "webserv.hpp"
 # include "utils/Exceptions.hpp"
+# include "request/ResponseGenerator.hpp"
 
 class Request
 {
@@ -47,8 +48,7 @@ private:
 	void	_check_headers();
 
 	bool	_process_body();
-	
-	t_http_method	_process_method(std::string method);
+	bool	_process_body_chunk();
 
 public:
 	Request();

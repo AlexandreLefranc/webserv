@@ -15,11 +15,7 @@
 # define EPOLL_SIZE	200
 # define BUFF_SIZE	32
 
-enum	socket_type
-{
-	SERVER,
-	CLIENT
-};
+extern bool g_running;
 
 enum	t_http_method
 {
