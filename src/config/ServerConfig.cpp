@@ -168,6 +168,8 @@ void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 		listen_port = _parse_address(tokens[1]);
 	else if (tokens.front() == "error_page" && tokens.size() == 3)
 		error_page.insert(std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]));
+	else if (tokens.front() == "index" && tokens.size() == 2 && index.empty())
+		index = tokens[1];
 	else
 		throw (ParsingException());
 }

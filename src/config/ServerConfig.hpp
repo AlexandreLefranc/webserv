@@ -15,6 +15,7 @@ private:
 	std::stringstream*			content;
 	std::string					root;
 	std::string					server_name;
+	std::string					index;
 	std::pair<int, short>		listen_port;
 	std::map<int, std::string>	error_page;
 	std::vector<ServerLocation>	locations;

@@ -12,17 +12,11 @@ std::set<std::string>	ServerLocation::KnownMethods;
 	Constructors.
 ==============================================================================*/
 
-// ServerLocation::ServerLocation()
-// 	: content(DummySS)
-// {
-// 	return ;
-// }
-
 ServerLocation::ServerLocation(std::stringstream* config, std::string& location_match, bool exact_match)
 	: content(config)
 	, exact_match(exact_match)
 	, location_match(location_match)
-	, dir_ls(false)
+	, autoindex(false)
 {
 	KnownMethods.insert("GET");
 	KnownMethods.insert("POST");
@@ -38,8 +32,7 @@ ServerLocation::ServerLocation(const ServerLocation& other)
 	, methods(other.methods)
 	, root(other.root)
 	, index(other.index)
-	, dir_ls(other.dir_ls)
-	, dir_default(other.dir_default)
+	, autoindex(other.autoindex)
 {
 	return ;
 }
@@ -67,8 +60,7 @@ ServerLocation&	ServerLocation::operator=(const ServerLocation& other)
 		methods = other.methods;
 		root = other.root;
 		index = other.index;
-		dir_ls = other.dir_ls;
-		dir_default = other.dir_default;
+		autoindex = other.autoindex;
 	}
 	return (*this);
 }
@@ -102,14 +94,9 @@ const std::string&			ServerLocation::get_index() const
 	return (index);
 }
 
-bool						ServerLocation::get_dir_ls()
+bool						ServerLocation::get_autoindex()
 {
-	return (dir_ls);
-}
-
-const std::string&			ServerLocation::get_dir_default() const
-{
-	return (dir_default);
+	return (autoindex);
 }
 
 /*==============================================================================
@@ -170,17 +157,15 @@ void	ServerLocation::_parse_line(std::string& line)
 			methods.insert(*it);
 		}
 	}
-	else if (tokens.front() == "dir_ls" && tokens.size() <= 2)
+	else if (tokens.front() == "autoindex" && tokens.size() <= 2)
 	{
-		if (tokens.size() == 1 || tokens[1] == "true" || tokens[1] == "1")
-			dir_ls = true;
-		else if (tokens[1] == "false" || tokens[1] == "0")
-			dir_ls = false;
+		if (tokens.size() == 1 || tokens[1] == "on" || tokens[1] == "1")
+			autoindex = true;
+		else if (tokens[1] == "off" || tokens[1] == "0")
+			autoindex = false;
 		else
 			throw (ParsingException());
 	}
-	else if (tokens.front() == "dir_default" && tokens.size() == 2)
-		dir_default = tokens[1];
 	else
 		throw (ParsingException());
 }
