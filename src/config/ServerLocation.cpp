@@ -33,6 +33,7 @@ ServerLocation::ServerLocation(const ServerLocation& other)
 	, root(other.root)
 	, index(other.index)
 	, autoindex(other.autoindex)
+	, redirect(other.redirect)
 {
 	return ;
 }
@@ -61,6 +62,7 @@ ServerLocation&	ServerLocation::operator=(const ServerLocation& other)
 		root = other.root;
 		index = other.index;
 		autoindex = other.autoindex;
+		redirect = other.redirect;
 	}
 	return (*this);
 }
@@ -94,9 +96,14 @@ const std::string&			ServerLocation::get_index() const
 	return (index);
 }
 
-bool						ServerLocation::get_autoindex()
+bool						ServerLocation::get_autoindex() const
 {
 	return (autoindex);
+}
+
+const std::string&			ServerLocation::get_redirect() const
+{
+	return (redirect);
 }
 
 /*==============================================================================
@@ -166,6 +173,8 @@ void	ServerLocation::_parse_line(std::string& line)
 		else
 			throw (ParsingException());
 	}
+	else if (tokens.front() == "redirect" && redirect.empty())
+		redirect = tokens[1];
 	else
 		throw (ParsingException());
 }

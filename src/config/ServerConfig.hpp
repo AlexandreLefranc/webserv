@@ -40,7 +40,8 @@ public:
 	short					get_port() const;
 	const std::string&		get_server_name() const;
 	const std::string&		get_root() const;
-	std::string				get_target(std::string init_target, std::string method) const;
+	// std::string				get_target(std::string init_target, std::string method) const;
+	const ServerLocation*	get_location_addr(std::string target) const;
 
 private:
 	//	Parsing functions
@@ -49,7 +50,6 @@ private:
 	void						_insert_token(std::vector<std::string> tokens);
 	std::pair<int, short>		_parse_address(std::string& address);
 	void						_add_location(std::vector<std::string>& tokens);
-	const ServerLocation&		_get_location(std::string target) const;
 };
 
 #endif

@@ -19,11 +19,12 @@ Status::Status(int code, std::string msg)
 	return ;
 }
 
-const Status Status::Forbidden = Status(403, "Not Allowed");
-const Status Status::NotFound = Status(404, "Not Found");
 const Status Status::OK = Status(200, "OK");
 const Status Status::Created = Status(201, "Created");
 const Status Status::NoContent = Status(204, "No Content");
+const Status Status::MovedPermanently = Status(301, "Moved Permanently");
+const Status Status::Forbidden = Status(403, "Not Allowed");
+const Status Status::NotFound = Status(404, "Not Found");
 
 /*==============================================================================
 
@@ -45,49 +46,50 @@ Response::~Response()
 	return ;
 }
 
-Response::Response(const Response& other)
-{
-	if (this != &other)
-		*this = other;
-	return ;
-}
+// Response::Response(const Response& other)
+// {
+// 	if (this != &other)
+// 		*this = other;
+// 	return ;
+// }
 
-Response&	Response::operator=(const Response& other)
-{
-	if (this != &other)
-	{
-		_status = other._status;
-		_status = other._status;
-		_status = other._status;
-		_status = other._status;
+// Response&	Response::operator=(const Response& other)
+// {
+// 	if (this != &other)
+// 	{
+// 		response_status = other.response_status;
+// 		headers = other.headers;
+// 		body = other.body;
+// 		config = other.config;
+// 		location = other.location;
+// 	}
+// 	return (*this);
+// }
 
-	}
-	return (*this);
-}
-
-void	Response::create(const Request& request, const ServerConfig& config)
+void	Response::create(const Request& request, const ServerConfig& server_config)
 {
-	std::string	target;
+	std::string	target = request.get_target();
 	
-	// _config = &config;
+	config_addr = &server_config;
+	location_addr = config_addr->get_location_addr(target); // throws ResponseError();
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
-	try
+	if (location_addr->get_methods().count(request.get_method()) == 0)
 	{
-		target = config.get_target(request.get_target(), request.get_method());
-	}
-	catch (ParsingException& e)
-	{
-		_status = Status::Forbidden;
+		response_status = Status::Forbidden;
 		return ;
 	}
-	if (request.get_method() == "GET")
-		_serve_get(target);
-	else if (request.get_method() == "POST")
-		_serve_post(target, request.get_body());
-	else if (request.get_method() == "DELETE")
-		_serve_delete(target);
-	return ;
+	if (!location_addr->get_redirect().empty())
+	{
+		response_status = Status::MovedPermanently;
+		_add_header("Location", location_addr->get_redirect());
+		return ;
+	}
+	if (!location_addr->get_root().empty())
+		target = location_addr->get_root() + target;
+	else if (!config_addr->get_root().empty())
+		target = config_addr->get_root() + target;
+	_serve(request, target);
 }
 
 void	Response::send(int fd) const
@@ -106,12 +108,24 @@ void	Response::send(int fd) const
 								Get Response.
 ==============================================================================*/
 
+void	Response::_serve(const Request& request, std::string target)
+{
+	if (request.get_method() == "GET")
+		_serve_get(target);
+	else if (request.get_method() == "POST")
+		_serve_post(target, request.get_body());
+	else if (request.get_method() == "DELETE")
+		_serve_delete(target);
+	return ;
+}
+
 void	Response::_serve_get(const std::string& target)
 {
+	// if (_is_directory(target))
 	_fetch_ressource(target);
-	if (_body.size() > 0)
+	if (body.size() > 0)
 	{
-		_add_header("Content-Length", _itos(_body.size()));
+		_add_header("Content-Length", _itos(body.size()));
 		// _add_header("Content-Type", _get_content_type(request.get_target()));
 	}
 	return ;
@@ -125,12 +139,12 @@ void	Response::_fetch_ressource(const std::string& target)
 	
 	if (!file.is_open())
 	{
-		_status = Status::NotFound;
+		response_status = Status::NotFound;
 		return ;
 	}
 	buffer << file.rdbuf();
-	_body.insert(_body.begin(), buffer_str.begin(), buffer_str.end());
-	_status = Status::OK;
+	body.insert(body.begin(), buffer_str.begin(), buffer_str.end());
+	response_status = Status::OK;
 	return ;
 }
 
@@ -152,14 +166,14 @@ void	Response::_serve_post(const std::string& target, const std::vector<char>& c
 	
 	if (!file.is_open())
 	{
-		_status = Status::Forbidden;
+		response_status = Status::Forbidden;
 		return ;
 	}
 	for (std::vector<char>::const_iterator it = content.begin(); it != content.end(); it++)
 		file.put(*it);
 	// file.write(content, content.size());
 	file.close();
-	_status = Status::OK;
+	response_status = Status::OK;
 	return ;
 }
 
@@ -172,9 +186,9 @@ void	Response::_serve_post(const std::string& target, const std::vector<char>& c
 void	Response::_serve_delete(const std::string& target)
 {
 	if (std::remove(target.c_str()) == 0)
-		_status = Status::OK;
+		response_status = Status::OK;
 	else
-		_status = Status::NoContent;
+		response_status = Status::NoContent;
 	return ;
 }
 
@@ -184,6 +198,14 @@ void	Response::_serve_delete(const std::string& target)
 
 void	Response::_add_header(std::string key, std::string value)
 {
-	_headers[key] = value;
+	headers[key] = value;
 	return ;
 }
+
+// bool	Response::_is_directory(std::string location) const
+// {
+// 	if (location.find(".") == std::npos)
+// 		return (true);
+// 	else
+// 		return (false);
+// }
