@@ -28,6 +28,7 @@ enum	t_http_method
 // utils/debug.cpp
 void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "");
 void	display_epoll_event(const struct epoll_event& event, const std::string& msg = "");
+void	display_cstyle_string_array(char** array, const std::string& name);
 void	send_example_page(int client_fd);
 
 // utils/filesystem_utils.cpp
@@ -39,6 +40,7 @@ std::vector<std::string> split(std::string s, std::string delimiter);
 std::vector<std::string>	split_first(std::string s, std::string delimiter);
 std::string trim(const std::string& str);
 std::string tolowerstr(const std::string& str);
+std::string	toupperstr(const std::string& str);
 
 // utils/socket_utils.cpp
 std::vector<char>	receive_all(int fd);

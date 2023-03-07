@@ -16,5 +16,5 @@ EXPOSE 8002
 CMD ["nginx", "-g", "daemon off;"]
 
 
-# docker build -t test .
-# docker run -d -v /mnt/nfs/homes/alefranc/Documents/cursus42/5_webserv/webserv/www:/var/www/ -p 8001:8001 -p 8002:8002 test
+# docker buildx build -t test .
+# docker run -d -v $PWD/../www:/var/www/ -p 8001:8001 -p 8002:8002 test

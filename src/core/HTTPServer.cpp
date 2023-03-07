@@ -77,7 +77,10 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 	if ((event.events & EPOLLOUT) != 0 && client.request_complete == true)
 	{
 		std::cout << CYN << "[HTTPServer] Sending data to client!" << CRESET << std::endl;
-		send_example_page(client_fd);
+		// send_example_page(client_fd);
+		CGI	cgi("/usr/bin/php-cgi", client.config, client.request);
+		cgi.process();
+
 		_remove_client(client_fd);
 		return -1;
 	}

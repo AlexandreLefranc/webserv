@@ -54,6 +54,22 @@ void	display_epoll_event(const struct epoll_event& event, const std::string& msg
 	std::cout << std::endl;
 }
 
+void	display_cstyle_string_array(char** array, const std::string& name)
+{
+	if (array == NULL)
+	{
+		std::cout << "NULL" << std::endl;
+		return;
+	}
+
+	int	i = 0;
+	while (array[i] != NULL)
+	{
+		std::cout << name << "[" << i << "] = " << array[i] << std::endl;
+		i++;
+	}
+}
+
 void	send_example_page(int client_fd)
 {
 	std::string body = "<!doctype html>\n\

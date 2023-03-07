@@ -64,3 +64,13 @@ std::string		tolowerstr(const std::string& str)
 
 	return copy;
 }
+
+std::string		toupperstr(const std::string& str)
+{
+	std::string	copy(str);
+	for (size_t i = 0; i < copy.length(); i++) {
+        copy[i] = std::toupper(copy[i]);
+    }
+
+	return copy;
+}
