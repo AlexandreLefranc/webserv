@@ -160,9 +160,9 @@ void	ServerLocation::_parse_line(std::string& line)
 	else if (tokens.front() == "autoindex" && tokens.size() <= 2)
 	{
 		if (tokens.size() == 1 || tokens[1] == "on" || tokens[1] == "1")
-			dir_ls = true;
+			autoindex = true;
 		else if (tokens[1] == "off" || tokens[1] == "0")
-			dir_ls = false;
+			autoindex = false;
 		else
 			throw (ParsingException());
 	}
