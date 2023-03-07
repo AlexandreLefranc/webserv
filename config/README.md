@@ -17,8 +17,7 @@ List options that are related to one specific location for server. These include
 - `methods`: list of upper case methods to be accepted by the location (include `GET`, `POST` and `DELETE`).
 - `root`: location specific root to replace the server default root. (1 argument)
 - `index`: redirection to another location. (1 argument)
-- `dir_ls`: bool to enable directory listing for given location.
-- `dir_default`: default fallback file if request is a folder and `dir_ls` is not enabled. (1 argument)
+- `autoindex`: bool to enable directory listing for given location.
 
 ## Example
 ```

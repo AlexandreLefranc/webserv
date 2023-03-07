@@ -20,8 +20,7 @@ private:
 	std::set<std::string>		methods;
 	std::string					root;
 	std::string					index;
-	bool						dir_ls;
-	std::string					dir_default;
+	bool						autoindex;
 
 	//	Constructors
 	ServerLocation();
