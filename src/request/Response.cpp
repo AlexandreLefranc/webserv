@@ -46,26 +46,6 @@ Response::~Response()
 	return ;
 }
 
-// Response::Response(const Response& other)
-// {
-// 	if (this != &other)
-// 		*this = other;
-// 	return ;
-// }
-
-// Response&	Response::operator=(const Response& other)
-// {
-// 	if (this != &other)
-// 	{
-// 		response_status = other.response_status;
-// 		headers = other.headers;
-// 		body = other.body;
-// 		config = other.config;
-// 		location = other.location;
-// 	}
-// 	return (*this);
-// }
-
 void	Response::create(const Request& request, const ServerConfig& server_config)
 {
 	std::string	target = request.get_target();
@@ -89,7 +69,7 @@ void	Response::create(const Request& request, const ServerConfig& server_config)
 	}
 	target = location_addr->get_root() + target;
 	std::cout << YEL << "Target: " << target << CRESET << std::endl;
-	// _serve(request, target);
+	_serve(request, target);
 }
 
 void	Response::send(int fd) const
@@ -121,11 +101,11 @@ void	Response::_serve(const Request& request, std::string target)
 
 void	Response::_serve_get(const std::string& target)
 {
-	// if (_is_directory(target))
-	// {
-	// 	// make directory listing body.
-	// 	return ;
-	// }
+	if (_is_directory(target) && location_addr->autoindex)
+	{
+		// make directory listing body.
+		return ;
+	}
 	_fetch_ressource(target + location_addr->get_index());
 	if (body.size() > 0)
 	{
@@ -146,9 +126,15 @@ void	Response::_fetch_ressource(const std::string& target)
 		response_status = Status::NotFound;
 		return ;
 	}
-	buffer << file.rdbuf();
-	// buffer_str = buffer.str();
-	body.insert(body.begin(), buffer_str.begin(), buffer_str.end());
+	try
+	{
+		body = read_file(file);
+	}
+	catch (std::ios::failure& e)
+	{
+		response_status = Status::Forbidden;
+		return ;
+	}
 	response_status = Status::OK;
 	return ;
 }
@@ -199,10 +185,10 @@ void	Response::_add_header(std::string key, std::string value)
 	return ;
 }
 
-// bool	Response::_is_directory(std::string location) const
-// {
-// 	if (location.back() == "/")
-// 		return (true);
-// 	else
-// 		return (false);
-// }
+bool	Response::_is_directory(std::string location) const
+{
+	if (location.back() == "/")
+		return (true);
+	else
+		return (false);
+}

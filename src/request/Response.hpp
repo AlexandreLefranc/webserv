@@ -4,7 +4,7 @@
 # include <cstdio>
 # include <stdlib.h>
 # include <fstream>
-# include <sys/stat.h>
+# include <ios>
 
 # include "webserv.hpp"
 # include "config/ServerConfig.hpp"
@@ -34,7 +34,7 @@ class Response
 private:
 	Status								response_status;
 	std::map<std::string, std::string>	headers;
-	std::vector<char>					body;
+	std::vector<unsigned char>					body;
 	const ServerConfig*					config_addr;
 	const ServerLocation*				location_addr;
 

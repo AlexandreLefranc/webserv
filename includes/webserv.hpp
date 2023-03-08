@@ -33,6 +33,7 @@ void	send_example_page(int client_fd);
 // utils/filesystem_utils.cpp
 std::vector<std::string>	get_dir_list(std::string path);
 std::string					gen_dir_list_html(std::vector<std::string> dirlist, const std::string& path);
+std::vector<unsigned char>	read_file(std::ifstream& ifs);
 
 // utils/string_utils.cpp
 std::vector<std::string>	split(std::string s, std::string delimiter);
