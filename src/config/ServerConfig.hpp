@@ -7,18 +7,20 @@
 
 # include "parse_utils.hpp"
 # include "ServerLocation.hpp"
+# include "webserv.hpp"
 
 class ServerConfig
 {
 private:
 	//	Attribute
-	std::stringstream*			content;
-	std::string					root;
-	std::string					server_name;
-	std::string					index;
-	std::pair<int, short>		listen_port;
-	std::map<int, std::string>	error_page;
-	std::vector<ServerLocation>	locations;
+	std::stringstream*					content;
+	std::string							root;
+	std::string							server_name;
+	std::string							index;
+	std::pair<int, short>				listen_port;
+	std::map<int, std::string>			error_page;
+	std::vector<ServerLocation>			locations;
+	string_pair							cgi;
 
 	//	Constructors
 	ServerConfig();
@@ -40,6 +42,7 @@ public:
 	short					get_port() const;
 	const std::string&		get_server_name() const;
 	const std::string&		get_root() const;
+	const string_pair&		get_cgi() const;
 	// std::string				get_target(std::string init_target, std::string method) const;
 	const ServerLocation*	get_location_addr(std::string target) const;
 

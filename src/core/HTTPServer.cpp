@@ -80,7 +80,10 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 		client.create_response();
 		std::cout << CYN << "[HTTPServer] Created response!" << CRESET << std::endl;
 		// client.send_response();
-		// send_example_page(client_fd);
+		// // send_example_page(client_fd);
+		// CGI	cgi("/usr/bin/php-cgi", client.config, client.request);
+		// cgi.process();
+
 		_remove_client(client_fd);
 		return -1;
 	}

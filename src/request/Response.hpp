@@ -9,6 +9,7 @@
 # include "webserv.hpp"
 # include "config/ServerConfig.hpp"
 # include "request/Request.hpp"
+# include "cgi/CGI.hpp"
 
 // # define POST_mode	std::ios_base::out
 
@@ -34,24 +35,26 @@ class Response
 private:
 	Status								response_status;
 	std::map<std::string, std::string>	headers;
-	std::vector<unsigned char>					body;
-	const ServerConfig*					config_addr;
+	std::vector<char>					body;
+	const Request&						request;
+	const ServerConfig&					config;
 	const ServerLocation*				location_addr;
 
+	Response();
 	Response(const Response& other);
 	Response&	operator=(const Response& other);
 
 public:
-	Response();
+	Response(const Request& request, const ServerConfig& config);
 	~Response();
 
-	void	create(const Request& request, const ServerConfig& config);
+	void	create();
 	void	send(int fd) const;
 
 private:
-	void		_serve(const Request& request, std::string target);
+	void		_serve(std::string& target);
 	//	Get Request
-	void		_serve_get(const std::string& target);
+	void		_serve_get(std::string& target);
 	void		_fetch_ressource(const std::string& target);
 	//	Post Request
 	void		_serve_post(const std::string& target, const std::vector<char>& content);
@@ -59,8 +62,8 @@ private:
 	void		_serve_delete(const std::string& target);
 
 	//	Utils
-	void	_add_header(std::string key, std::string value);
-	bool	_is_directory(std::string location) const;
+	void	_add_header(const std::string& key, const std::string& value);
+	bool	_is_directory(const std::string& location) const;
 };
 
 #endif

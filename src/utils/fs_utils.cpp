@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <ios>
+#include <fstream>
 
 #include "webserv.hpp"
 #include "Exceptions.hpp"
@@ -50,7 +51,7 @@ std::vector<std::string> get_dir_list(std::string path)
 	return directories;
 }
 
-std::vector<unsigned char>	read_file(std::ifstream& ifs)
+std::vector<char>	read_file(std::ifstream& ifs)
 {
 	size_t	file_size;
 
@@ -58,8 +59,8 @@ std::vector<unsigned char>	read_file(std::ifstream& ifs)
 	file_size = ifs.tellg();
 	ifs.seekg(0, std::ios::beg);
 
-	std::vector<unsigned char>	content(file_size);
+	std::vector<char>	content(file_size);
 
-	ifs.read(reinterpret_cast<unsigned char *>(&content[0]), file_size);
+	ifs.read(reinterpret_cast<char *>(&content[0]), file_size);
 	return (content);
 }

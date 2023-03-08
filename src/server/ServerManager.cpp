@@ -5,6 +5,11 @@ ServerManager::ServerManager(const HTTPConfig& conf)
 	std::list<ServerConfig>::const_iterator it = conf.get_virtual_server_config().begin();
 	std::list<ServerConfig>::const_iterator end = conf.get_virtual_server_config().end();
 
+	if (it == end)
+	{
+		throw std::runtime_error("No virtual server");
+	}
+
 	for ( ; it != end; it++)
 	{
 		_create_virtual_server(*it);
@@ -36,6 +41,8 @@ void	ServerManager::_create_virtual_server(const ServerConfig& sconf)
 	std::string		ip			= ssip.str();
 	std::string		port		= ssport.str();
 	std::string		server_name	= sconf.get_server_name();
+
+	std::cout << ip+":"+port << std::endl;
 
 	if (_servers.find(ip+":"+port) == _servers.end())
 	{

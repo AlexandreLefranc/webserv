@@ -8,6 +8,15 @@ void	display_map(const std::map<T, U>& map, const std::string& name)
 }
 
 template <class T>
+void	display_vector(const std::vector<T>& vec, const std::string& name)
+{
+	for (size_t	i = 0; i < vec.size(); ++i)
+	{
+		std::cout << name << "[" << i << "] = " << vec[i] << std::endl;
+	}
+}
+
+template <class T>
 void	display_bits(const T& obj)
 {
 	// size_t	nbits = sizeof(obj) * 8;

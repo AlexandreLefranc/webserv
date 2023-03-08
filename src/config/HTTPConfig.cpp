@@ -56,9 +56,13 @@ void	HTTPConfig::_parse()
 {
 	std::string		line;
 
+	std::cout << content.str() << std::endl;
+
 	while (std::getline(content, line))
 	{
+		std::cout << line << std::endl;
 		line = format_line(line);
+		std::cout << line << std::endl;
 		if (line.empty())
 			continue ;
 		_parse_line(line);
@@ -70,6 +74,7 @@ void	HTTPConfig::_parse_block(std::string& line)
 	if (line.find("server") != std::string::npos)
 	{
 		virtual_server_config.push_back(ServerConfig(&content));
+		std::cout << "cgi ?? " << virtual_server_config.back().get_cgi().first << std::endl;
 	}
 	else if (line.find("http"))
 	{

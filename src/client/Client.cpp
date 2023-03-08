@@ -5,6 +5,7 @@ Client::Client(int server_fd, const ServerConfig& config)
 	, config(config)
 	, request()
 	, request_complete(false)
+	, response(request, config)
 {
 	std::cout << YEL << "[Client] Accept client" << CRESET << std::endl;
 	std::cout << YEL << "[Client] OPENING fd: " << CRESET;
@@ -42,6 +43,6 @@ void	Client::parse_request()
 
 void	Client::create_response()
 {
-	response.create(request, config);
+	response.create();
 	return ;
 }

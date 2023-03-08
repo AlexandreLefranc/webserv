@@ -14,14 +14,14 @@ public:
 
 private:
 	//	Attributes
-	std::stringstream*		content;
-	bool					exact_match;
-	std::string				location_match;
-	std::set<std::string>	methods;
-	std::string				root;
-	std::string				index;
-	bool					autoindex;
-	std::string				redirect;
+	std::stringstream*					content;
+	bool								exact_match;
+	std::string							location_match;
+	std::set<std::string>				methods;
+	std::string							root;
+	std::string							index;
+	bool								autoindex;
+	std::string							redirect;
 
 	//	Constructors
 	ServerLocation();
