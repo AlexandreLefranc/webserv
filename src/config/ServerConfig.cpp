@@ -6,23 +6,35 @@
 
 ==============================================================================*/
 
-
 /*==============================================================================
 	Constructors.
 ==============================================================================*/
 
-ServerConfig::ServerConfig(std::stringstream& config)
+// ServerConfig::ServerConfig()
+// {
+// 	return ;
+// }
+
+ServerConfig::ServerConfig(std::stringstream* config)
 	: content(config)
+	, index("index.html")
 	, listen_port(std::make_pair(0, 80))
 {
 	std::cout << RED << "[ServerConfig] Initiate Config" << CRESET << std::endl;
 	_parse();
+	if (root.empty())
+		throw (ParsingException());
 }
 
 ServerConfig::ServerConfig(const ServerConfig& other)
 	: content(other.content)
+	, root(other.root)
+	, server_name(other.server_name)
+	, listen_port(other.listen_port)
+	, error_page(other.error_page)
+	, locations(other.locations)
+	, cgi(other.cgi)
 {
-	*this = other;
 	return ;
 }
 
@@ -39,19 +51,19 @@ ServerConfig::~ServerConfig()
 	Assignment operator.
 ==============================================================================*/
 
-ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
-{
-	if (this != &other)
-	{
-		// content = other.content;
-		root = other.root;
-		server_name = other.server_name;
-		listen_port = other.listen_port;
-		index = other.index;
-		locations = other.locations;
-	}
-	return (*this);
-}
+// ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
+// {
+// 	if (this != &other)
+// 	{
+// 		// content = other.content;
+// 		root = other.root;
+// 		server_name = other.server_name;
+// 		listen_port = other.listen_port;
+// 		error_page = other.error_page;
+// 		locations = other.locations;
+// 	}
+// 	return (*this);
+// }
 
 /*==============================================================================
 	Getters.
@@ -59,17 +71,40 @@ ServerConfig&	ServerConfig::operator=(const ServerConfig& other)
 
 int		ServerConfig::get_ip() const
 {
-	return listen_port.first;
+	return (listen_port.first);
 }
 
 short	ServerConfig::get_port() const
 {
-	return listen_port.second;
+	return (listen_port.second);
 }
 
 const std::string&	ServerConfig::get_server_name() const
 {
-	return server_name;
+	return (server_name);
+}
+
+const std::string&	ServerConfig::get_root() const
+{
+	return (root);
+}
+
+const string_pair&	ServerConfig::get_cgi() const
+{
+	return (cgi);
+}
+
+const ServerLocation*	ServerConfig::get_location_addr(std::string target) const
+{
+	std::vector<ServerLocation>::const_iterator	it = locations.begin();
+
+	while (it != locations.end())
+	{
+		if (it->location_is_match(target))
+			return (it.base()) ;
+		it++;
+	}
+	throw (ResponseException());
 }
 
 /*==============================================================================
@@ -86,9 +121,9 @@ void	ServerConfig::_parse()
 {
 	std::string		line;
 
-	while (std::getline(content, line))
+	while (std::getline(*content, line))
 	{
-		std::cout << line << std::endl;
+		// std::cout << line << std::endl;
 		line = format_line(line);
 		if (line.empty())
 			continue ;
@@ -105,7 +140,7 @@ void	ServerConfig::_parse_line(std::string& line)
 	if (line.find("{") != std::string::npos)
 	{
 		tokens = split_tokens(line);
-		if (tokens.front() == "location" && tokens.size() <= 4)
+		if (tokens.front() == "location" && tokens.size() <= 4 && !root.empty())
 			_add_location(tokens);
 		else
 			throw (ParsingException());
@@ -117,7 +152,7 @@ void	ServerConfig::_parse_line(std::string& line)
 		tokens = split_tokens(line);
 		if (tokens.size() == 0)
 			throw (ParsingException());
-		std::cout << "Splitted token length: " << tokens.size() << std::endl	;
+		// std::cout << "Splitted token length: " << tokens.size() << std::endl	;
 		_insert_token(tokens);
 	}
 	return ;
@@ -131,8 +166,15 @@ void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 		server_name = tokens[1];
 	else if (tokens.front() == "listen" && tokens.size() == 2 && listen_port == std::make_pair<int, short>(0, 80))
 		listen_port = _parse_address(tokens[1]);
-	else if (tokens.front() == "index" && index.empty())
-		index = std::vector<std::string>(tokens.begin() + 1, tokens.end());
+	else if (tokens.front() == "error_page" && tokens.size() == 3)
+		error_page.insert(std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]));
+	else if (tokens.front() == "index" && tokens.size() == 2 && index == "index.html")
+		index = tokens[1];
+	else if (tokens.front() == "cgi" && tokens.size() == 3 && cgi.first.empty())
+	{
+		cgi = std::make_pair(tokens[1], tokens[2]);
+		std::cout << "cgi= (" << cgi.first << ", " << cgi.second << ")" << std::endl;
+	}
 	else
 		throw (ParsingException());
 }
@@ -155,7 +197,7 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 	std::string								location;
 	std::vector<ServerLocation>::iterator	pos;
 
-	std::cout << "[_add_location]tokens size: " << tokens.size() << std::endl;
+	// std::cout << "[_add_location]tokens size: " << tokens.size() << std::endl;
 	location = tokens[1];
 	if (tokens.size() == 3)
 	{
@@ -185,5 +227,6 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 			continue ;
 	}
 	locations.insert(pos, ServerLocation(content, location, exact_match));
+	locations.back().fill_default(root, index);
 	return ;
 }

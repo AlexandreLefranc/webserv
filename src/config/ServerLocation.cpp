@@ -6,16 +6,21 @@
 
 ==============================================================================*/
 
+std::set<std::string>	ServerLocation::KnownMethods;
 
 /*==============================================================================
 	Constructors.
 ==============================================================================*/
 
-ServerLocation::ServerLocation(std::stringstream& config, std::string& location_match, bool exact_match)
+ServerLocation::ServerLocation(std::stringstream* config, std::string& location_match, bool exact_match)
 	: content(config)
 	, exact_match(exact_match)
 	, location_match(location_match)
+	, autoindex(false)
 {
+	KnownMethods.insert("GET");
+	KnownMethods.insert("POST");
+	KnownMethods.insert("DELETE");
 	_parse();
 	return ;
 }
@@ -24,10 +29,11 @@ ServerLocation::ServerLocation(const ServerLocation& other)
 	: content(other.content)
 	, exact_match(other.exact_match)
 	, location_match(other.location_match)
+	, methods(other.methods)
 	, root(other.root)
 	, index(other.index)
-	, try_files(other.try_files)
-	, error_page(other.error_page)
+	, autoindex(other.autoindex)
+	, redirect(other.redirect)
 {
 	return ;
 }
@@ -49,13 +55,14 @@ ServerLocation&	ServerLocation::operator=(const ServerLocation& other)
 {
 	if (&other == this)
 	{
-		content.str(other.content.str());
+		content->str(other.content->str());
 		exact_match = other.exact_match;
 		location_match = other.location_match;
+		methods = other.methods;
 		root = other.root;
-		error_page = other.error_page;
 		index = other.index;
-		try_files = other.try_files;
+		autoindex = other.autoindex;
+		redirect = other.redirect;
 	}
 	return (*this);
 }
@@ -69,29 +76,55 @@ bool						ServerLocation::get_exact_match() const
 	return (exact_match);
 }
 
-std::string					ServerLocation::get_location_match() const
+const std::string&			ServerLocation::get_location_match() const
 {
 	return (location_match);
 }
 
-std::string					ServerLocation::get_root() const
+std::set<std::string>		ServerLocation::get_methods() const
+{
+	return (methods);
+}
+
+const std::string&			ServerLocation::get_root() const
 {
 	return (root);
 }
 
-std::vector<std::string>	ServerLocation::get_index() const
+const std::string&			ServerLocation::get_index() const
 {
 	return (index);
 }
 
-std::vector<std::string>	ServerLocation::get_try_files() const
+bool						ServerLocation::get_autoindex() const
 {
-	return (try_files);
+	return (autoindex);
 }
 
-std::pair<int, std::string>	ServerLocation::get_error_page() const
+const std::string&			ServerLocation::get_redirect() const
 {
-	return (error_page);
+	return (redirect);
+}
+
+/*==============================================================================
+	Location matching.
+==============================================================================*/
+
+bool	ServerLocation::location_is_match(const std::string& target) const
+{
+	if (exact_match && location_match == target)
+		return (true);
+	if (location_match == target.substr(0, location_match.length()))
+		return (true);
+	return (false);
+}
+
+void	ServerLocation::fill_default(std::string serv_root, std::string serv_index)
+{
+	if (root.empty())
+		root = serv_root;
+	if (index.empty() && autoindex == false)
+		index = serv_index;
 }
 
 /*==============================================================================
@@ -108,9 +141,9 @@ void	ServerLocation::_parse()
 {
 	std::string	line;
 
-	while (std::getline(content, line))
+	while (std::getline(*content, line))
 	{
-		std::cout << "[ServerLocation]line: " << line << std::endl;
+		// std::cout << "[ServerLocation]line: " << line << std::endl;
 		line = format_line(line);
 		if (line.empty())
 			continue ;
@@ -126,14 +159,30 @@ void	ServerLocation::_parse_line(std::string& line)
 
 	if (tokens.size() == 0)
 		throw (ParsingException());
-	if (tokens.front() == "index" && index.empty())
-		index.assign(tokens.begin() + 1, tokens.end());
-	else if (tokens.front() == "try_files" && try_files.empty())
-		try_files.assign(tokens.begin() + 1, tokens.end());
+	if (tokens.front() == "index" && tokens.size() == 2 && index.empty())
+		index = tokens[1];
 	else if (tokens.front() == "root" && tokens.size() == 2 && root.empty())
 		root = tokens[1];
-	else if (tokens.front() == "error_page" && tokens.size() == 3 && error_page.second.empty())
-		error_page = std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]);
+	else if (tokens.front() == "methods" && methods.empty())
+	{
+		for (std::vector<std::string>::iterator	it = tokens.begin() + 1; it != tokens.end(); it++)
+		{
+			if (KnownMethods.count(*it) == 0)
+				throw (ParsingException());
+			methods.insert(*it);
+		}
+	}
+	else if (tokens.front() == "autoindex" && tokens.size() <= 2)
+	{
+		if (tokens.size() == 1 || tokens[1] == "on" || tokens[1] == "1")
+			autoindex = true;
+		else if (tokens[1] == "off" || tokens[1] == "0")
+			autoindex = false;
+		else
+			throw (ParsingException());
+	}
+	else if (tokens.front() == "redirect" && redirect.empty())
+		redirect = tokens[1];
 	else
 		throw (ParsingException());
 }

@@ -1,15 +1,6 @@
 # include "parse_utils.hpp"
 
 /*==============================================================================
-	Exception.
-==============================================================================*/
-
-const char*	ParsingException::what() const throw()
-{
-	return ("HTTP parsing error.");
-}
-
-/*==============================================================================
 	Parse functions.
 ==============================================================================*/
 
@@ -54,19 +45,19 @@ std::vector<std::string>	split_tokens(std::string line)
 			quote = !quote;
 		else if (seps.find(*it) != std::string::npos && !quote)
 		{
-			std::cout << "[split]found sep for:\'" << std::string(line.begin(), it) << "\'" << std::endl;
+			// std::cout << "[split]found sep for:\'" << std::string(line.begin(), it) << "\'" << std::endl;
 			tokens.push_back(std::string(line.begin(), it));
-			std::cout << "[split]tokens size: " << tokens.size() << std::endl;
+			// std::cout << "[split]tokens size: " << tokens.size() << std::endl;
 			line.erase(line.begin(), it);
 			format_line(line);
-			std::cout << "[split]line after split: " << line << std::endl;
+			// std::cout << "[split]line after split: " << line << std::endl;
 			it = line.begin();
 			continue ;
 		}
 		it++;
 	}
 	tokens.push_back(line);
-	std::cout << "[split]tokens size after split: " << tokens.size() << std::endl;
+	// std::cout << "[split]tokens size after split: " << tokens.size() << std::endl;
 	if (tokens.size() < 2)
 		return (std::vector<std::string>());
 	if (tokens[tokens.size() - 1] == ";" || tokens[tokens.size() - 1] == "{" )

@@ -14,3 +14,13 @@ const char* CloseClientException::what() const throw()
 {
 	return "CloseClientException";
 }
+
+const char* ParsingException::what() const throw()
+{
+	return "ParsingException";
+}
+
+const char* ResponseException::what() const throw()
+{
+	return "ResponseException";
+}

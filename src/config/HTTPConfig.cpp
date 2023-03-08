@@ -13,19 +13,15 @@
 
 HTTPConfig::HTTPConfig(const std::string& config_file)
 {
-	std::ifstream	config(config_file.c_str());
 	std::cout << RED << "[HTTPConfig] Initiate Config" << CRESET << std::endl;
+	std::ifstream		config(config_file.c_str());
+	// std::stringstream	content;
+
 	if (!config.is_open())
 		throw (ParsingException());
 	content << config.rdbuf();
 	config.close();
 	_parse();
-}
-
-HTTPConfig::HTTPConfig(const HTTPConfig& other)
-	: content(other.content.str())
-{
-	return ;
 }
 
 /*==============================================================================
@@ -38,26 +34,12 @@ HTTPConfig::~HTTPConfig()
 }
 
 /*==============================================================================
-	Exception.
-==============================================================================*/
-
-HTTPConfig&	HTTPConfig::operator=(const HTTPConfig& other)
-{
-	if (this != &other)
-	{
-		content.str(other.content.str());
-		virtual_server_config = other.virtual_server_config;
-	}
-	return (*this);
-}
-
-/*==============================================================================
 	Getters.
 ==============================================================================*/
 
 const std::list<ServerConfig>&	HTTPConfig::get_virtual_server_config() const
 {
-	return virtual_server_config;
+	return (virtual_server_config);
 }
 
 /*==============================================================================
@@ -74,9 +56,13 @@ void	HTTPConfig::_parse()
 {
 	std::string		line;
 
+	std::cout << content.str() << std::endl;
+
 	while (std::getline(content, line))
 	{
+		std::cout << line << std::endl;
 		line = format_line(line);
+		std::cout << line << std::endl;
 		if (line.empty())
 			continue ;
 		_parse_line(line);
@@ -86,7 +72,10 @@ void	HTTPConfig::_parse()
 void	HTTPConfig::_parse_block(std::string& line)
 {
 	if (line.find("server") != std::string::npos)
-		virtual_server_config.push_back(ServerConfig(content));
+	{
+		virtual_server_config.push_back(ServerConfig(&content));
+		std::cout << "cgi ?? " << virtual_server_config.back().get_cgi().first << std::endl;
+	}
 	else if (line.find("http"))
 	{
 		std::getline(content, line);

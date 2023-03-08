@@ -62,7 +62,6 @@ void	Request::_process_start_line()
 	display_map(_target_param, "target_param");
 }
 
-
 void	Request::_process_target(const std::string& target)
 {
 	std::vector<std::string>	target_split = split_first(target, "?");
@@ -91,7 +90,6 @@ void	Request::_process_target(const std::string& target)
 		_target_param[equal_split[0]] = equal_split[1];
 	}
 }
-
 
 // Returns true if request is complete. false otherwise
 bool	Request::_process_header()
@@ -322,4 +320,35 @@ bool	Request::parse_data(const std::vector<char>& data)
 	}
 
 	return false;
+}
+
+/*==============================================================================
+	Getters.
+==============================================================================*/
+
+const std::string&	Request::get_target() const
+{
+	return (_target);
+}
+
+const std::string&	Request::get_method() const
+{
+	return (_method);
+}
+
+std::string			Request::get_header(std::string key) const
+{
+	try
+	{
+		return (_headers.at(key));
+	}
+	catch (std::out_of_range& e)
+	{
+		throw (ResponseException());
+	}
+}
+
+const std::vector<char>&	Request::get_body() const
+{
+	return (_body);
 }

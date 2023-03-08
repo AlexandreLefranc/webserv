@@ -25,19 +25,23 @@ private:
 	std::string							_raw_s;
 
 	bool								_has_start_line;
+
+	bool								_is_header_done;
+
+	bool								_has_body;
+	std::string							_body_type;
+	size_t								_body_len;
+
+public:
 	std::string							_method;
 	std::string							_target;
 	std::map<std::string, std::string>	_target_param;
 	std::string							_protocol;
 
-	bool								_is_header_done;
 	std::map<std::string, std::string>	_headers;
 
-	bool								_has_body;
-	std::string							_body_type;
-	size_t								_body_len;
 	std::vector<char>					_body;
-
+	
 private:
 	std::string		_get_line();
 
@@ -56,6 +60,12 @@ public:
 
 	void	set_client_fd(int client_fd);
 	bool	parse_data(const std::vector<char>& data);
+
+	//	Getters
+	const std::string&			get_target() const;
+	const std::string&			get_method() const;
+	std::string					get_header(std::string key) const;
+	const std::vector<char>&	get_body() const;
 };
 
 #endif

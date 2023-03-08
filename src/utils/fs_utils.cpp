@@ -2,8 +2,12 @@
 
 #include <algorithm>
 #include <sstream>
+#include <vector>
+#include <ios>
+#include <fstream>
 
 #include "webserv.hpp"
+#include "Exceptions.hpp"
 
 static std::string	append_slash(std::string elem)
 {
@@ -45,4 +49,18 @@ std::vector<std::string> get_dir_list(std::string path)
 
 	directories.insert(directories.end(), regular_files.begin(), regular_files.end());
 	return directories;
+}
+
+std::vector<char>	read_file(std::ifstream& ifs)
+{
+	size_t	file_size;
+
+	ifs.seekg(0, std::ios::end);
+	file_size = ifs.tellg();
+	ifs.seekg(0, std::ios::beg);
+
+	std::vector<char>	content(file_size);
+
+	ifs.read(reinterpret_cast<char *>(&content[0]), file_size);
+	return (content);
 }

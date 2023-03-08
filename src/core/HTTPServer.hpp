@@ -6,6 +6,7 @@
 # include <iostream>
 
 # include "webserv.hpp"
+# include "cgi/CGI.hpp"
 # include "client/Client.hpp"
 # include "client/ClientManager.hpp"
 # include "core/Epoll.hpp"

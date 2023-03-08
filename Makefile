@@ -29,6 +29,7 @@ SRCFILE		=	\
 				utils/string_utils.cpp
 
 CLASSFILE	=	\
+				cgi/CGI.cpp \
 				client/Client.cpp \
 				client/ClientManager.cpp \
 				config/HTTPConfig.cpp \
@@ -38,6 +39,7 @@ CLASSFILE	=	\
 				core/HTTPServer.cpp \
 				request/HTMLGenerator.cpp \
 				request/Request.cpp \
+				request/Response.cpp \
 				request/ResponseGenerator.cpp \
 				server/ServerManager.cpp \
 				server/VirtualServer.cpp \
