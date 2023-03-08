@@ -39,3 +39,9 @@ void	Client::parse_request()
 		std::cout << YEL << "[Request] Request complete!"<< CRESET << std::endl;
 	}
 }
+
+void	Client::create_response()
+{
+	response.create(request, config);
+	return ;
+}

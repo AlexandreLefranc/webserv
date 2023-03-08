@@ -17,10 +17,13 @@
 
 ServerConfig::ServerConfig(std::stringstream* config)
 	: content(config)
+	, index("index.html")
 	, listen_port(std::make_pair(0, 80))
 {
 	std::cout << RED << "[ServerConfig] Initiate Config" << CRESET << std::endl;
 	_parse();
+	if (root.empty())
+		throw (ParsingException());
 }
 
 ServerConfig::ServerConfig(const ServerConfig& other)
@@ -85,26 +88,39 @@ const std::string&	ServerConfig::get_root() const
 	return (root);
 }
 
-std::string	ServerConfig::get_target(std::string init_target, std::string method) const
-{
-	const ServerLocation*	matched_location;
+// std::string	ServerConfig::get_target(std::string init_target, std::string method) const
+// {
+// 	const ServerLocation*	matched_location;
 
-	try
+// 	try
+// 	{
+// 		matched_location = get_location(init_target);
+// 	}
+// 	catch (ResponseException& e)
+// 	{
+// 		return (init_target);
+// 	}
+// 	if (matched_location->get_methods().count(method) == 0)
+// 		throw (ResponseException());
+// 	// if (!matched_location->get_index().empty())
+// 	// 	return (get_target(matched_location->get_index(), method));
+// 	if (!matched_location->get_root().empty())
+// 		return (init_target.replace(0, \
+// 		matched_location->get_location_match().length(), matched_location->get_root()));
+// 	return (init_target);
+// }
+
+const ServerLocation*	ServerConfig::get_location_addr(std::string target) const
+{
+	std::vector<ServerLocation>::const_iterator	it = locations.begin();
+
+	while (it != locations.end())
 	{
-		matched_location = &_get_location(init_target);
+		if (it->location_is_match(target))
+			return (it.base()) ;
+		it++;
 	}
-	catch (ResponseException& e)
-	{
-		return (init_target);
-	}
-	if (matched_location->get_methods().count(method) == 0)
-		throw (ResponseException());// return ("");
-	if (!matched_location->get_index().empty())
-		return (get_target(matched_location->get_index(), method));
-	if (!matched_location->get_root().empty())
-		return (init_target.replace(0, \
-		matched_location->get_location_match().length(), matched_location->get_root()));
-	return (init_target);
+	throw (ResponseException());
 }
 
 /*==============================================================================
@@ -140,7 +156,7 @@ void	ServerConfig::_parse_line(std::string& line)
 	if (line.find("{") != std::string::npos)
 	{
 		tokens = split_tokens(line);
-		if (tokens.front() == "location" && tokens.size() <= 4)
+		if (tokens.front() == "location" && tokens.size() <= 4 && !root.empty())
 			_add_location(tokens);
 		else
 			throw (ParsingException());
@@ -168,7 +184,7 @@ void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 		listen_port = _parse_address(tokens[1]);
 	else if (tokens.front() == "error_page" && tokens.size() == 3)
 		error_page.insert(std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]));
-	else if (tokens.front() == "index" && tokens.size() == 2 && index.empty())
+	else if (tokens.front() == "index" && tokens.size() == 2 && index == "index.html")
 		index = tokens[1];
 	else
 		throw (ParsingException());
@@ -222,18 +238,6 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 			continue ;
 	}
 	locations.insert(pos, ServerLocation(content, location, exact_match));
+	locations.back().fill_default(root, index);
 	return ;
-}
-
-const ServerLocation&	ServerConfig::_get_location(std::string target) const
-{
-	std::vector<ServerLocation>::const_iterator	it = locations.begin();
-
-	while (it != locations.end())
-	{
-		if (it->location_is_match(target))
-			return (*it) ;
-		it++;
-	}
-	throw (ResponseException());
 }

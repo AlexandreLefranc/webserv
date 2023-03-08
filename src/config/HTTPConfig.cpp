@@ -72,7 +72,9 @@ void	HTTPConfig::_parse()
 void	HTTPConfig::_parse_block(std::string& line)
 {
 	if (line.find("server") != std::string::npos)
+	{
 		virtual_server_config.push_back(ServerConfig(&content));
+	}
 	else if (line.find("http"))
 	{
 		std::getline(content, line);

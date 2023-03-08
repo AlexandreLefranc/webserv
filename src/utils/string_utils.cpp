@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <sstream>
 
 std::vector<std::string>	split(std::string s, std::string delimiter)
 {
@@ -46,21 +47,21 @@ std::vector<std::string>	split_first(std::string s, std::string delimiter)
 
 std::string		trim(const std::string& str)
 {
-    size_t first = str.find_first_not_of(" \t\v\r\f");
-    if (std::string::npos == first)
-    {
-        return str;
-    }
-    size_t last = str.find_last_not_of(" \t\v\r\f");
-    return str.substr(first, (last - first + 1));
+	size_t first = str.find_first_not_of(" \t\v\r\f");
+	if (std::string::npos == first)
+	{
+		return str;
+	}
+	size_t last = str.find_last_not_of(" \t\v\r\f");
+	return str.substr(first, (last - first + 1));
 }
 
 std::string		tolowerstr(const std::string& str)
 {
 	std::string	copy(str);
 	for (size_t i = 0; i < copy.length(); i++) {
-        copy[i] = std::tolower(copy[i]);
-    }
+		copy[i] = std::tolower(copy[i]);
+	}
 
 	return copy;
 }
@@ -73,4 +74,12 @@ std::string		toupperstr(const std::string& str)
     }
 
 	return copy;
+}
+
+std::string	itos(int number)
+{
+	std::stringstream	ss;
+
+	ss << number;
+	return (ss.str());
 }

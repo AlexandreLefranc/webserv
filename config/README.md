@@ -14,10 +14,11 @@ List options that are related to one server. These include:
 
 ## Location
 List options that are related to one specific location for server. These include:
+- `redirect`: indicates the new URI for the location. In case redirect is defined, `301 Moved Permanently` is returned.
 - `methods`: list of upper case methods to be accepted by the location (include `GET`, `POST` and `DELETE`).
 - `root`: location specific root to replace the server default root. (1 argument)
-- `index`: redirection to another location. (1 argument)
-- `autoindex`: bool to enable directory listing for given location.
+- `index`: ressource to serve if URI is directory. (1 argument)
+- `autoindex`: bool to enable directory listing for given location. (on/off or 0/1)
 
 ## Example
 ```
@@ -30,7 +31,7 @@ http {
     error_page 404 404.html;
     
     location / {
-       dir_ls 1;
+       autoindex 1; /* or `on`*/
        root www;
     }
 
