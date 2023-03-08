@@ -33,6 +33,7 @@ ServerConfig::ServerConfig(const ServerConfig& other)
 	, listen_port(other.listen_port)
 	, error_page(other.error_page)
 	, locations(other.locations)
+	, cgi(other.cgi)
 {
 	return ;
 }
@@ -88,27 +89,10 @@ const std::string&	ServerConfig::get_root() const
 	return (root);
 }
 
-// std::string	ServerConfig::get_target(std::string init_target, std::string method) const
-// {
-// 	const ServerLocation*	matched_location;
-
-// 	try
-// 	{
-// 		matched_location = get_location(init_target);
-// 	}
-// 	catch (ResponseException& e)
-// 	{
-// 		return (init_target);
-// 	}
-// 	if (matched_location->get_methods().count(method) == 0)
-// 		throw (ResponseException());
-// 	// if (!matched_location->get_index().empty())
-// 	// 	return (get_target(matched_location->get_index(), method));
-// 	if (!matched_location->get_root().empty())
-// 		return (init_target.replace(0, \
-// 		matched_location->get_location_match().length(), matched_location->get_root()));
-// 	return (init_target);
-// }
+const string_pair&	ServerConfig::get_cgi() const
+{
+	return (cgi);
+}
 
 const ServerLocation*	ServerConfig::get_location_addr(std::string target) const
 {
@@ -139,7 +123,7 @@ void	ServerConfig::_parse()
 
 	while (std::getline(*content, line))
 	{
-		std::cout << line << std::endl;
+		// std::cout << line << std::endl;
 		line = format_line(line);
 		if (line.empty())
 			continue ;
@@ -168,7 +152,7 @@ void	ServerConfig::_parse_line(std::string& line)
 		tokens = split_tokens(line);
 		if (tokens.size() == 0)
 			throw (ParsingException());
-		std::cout << "Splitted token length: " << tokens.size() << std::endl	;
+		// std::cout << "Splitted token length: " << tokens.size() << std::endl	;
 		_insert_token(tokens);
 	}
 	return ;
@@ -186,6 +170,11 @@ void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 		error_page.insert(std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]));
 	else if (tokens.front() == "index" && tokens.size() == 2 && index == "index.html")
 		index = tokens[1];
+	else if (tokens.front() == "cgi" && tokens.size() == 3 && cgi.first.empty())
+	{
+		cgi = std::make_pair(tokens[1], tokens[2]);
+		std::cout << "cgi= (" << cgi.first << ", " << cgi.second << ")" << std::endl;
+	}
 	else
 		throw (ParsingException());
 }
@@ -208,7 +197,7 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 	std::string								location;
 	std::vector<ServerLocation>::iterator	pos;
 
-	std::cout << "[_add_location]tokens size: " << tokens.size() << std::endl;
+	// std::cout << "[_add_location]tokens size: " << tokens.size() << std::endl;
 	location = tokens[1];
 	if (tokens.size() == 3)
 	{

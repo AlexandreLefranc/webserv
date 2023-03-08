@@ -10,7 +10,7 @@
 
 NAME = webserv
 
-CXX 		= c++
+CXX 		= g++
 CXXFLAGS	= -Wall -Wextra -Werror -std=c++98 -g3
 
 LDFLAGS		=

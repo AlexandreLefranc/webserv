@@ -36,7 +36,9 @@ const Status Status::NotFound = Status(404, "Not Found");
 								Constructors.
 ==============================================================================*/
 
-Response::Response()
+Response::Response(const Request& request, const ServerConfig& config)
+	: request(request)
+	, config(config)
 {
 	return ;
 }
@@ -46,32 +48,17 @@ Response::~Response()
 	return ;
 }
 
-// Response::Response(const Response& other)
-// {
-// 	if (this != &other)
-// 		*this = other;
-// 	return ;
-// }
+/*==============================================================================
+							Public Member functions.
+==============================================================================*/
 
-// Response&	Response::operator=(const Response& other)
-// {
-// 	if (this != &other)
-// 	{
-// 		response_status = other.response_status;
-// 		headers = other.headers;
-// 		body = other.body;
-// 		config = other.config;
-// 		location = other.location;
-// 	}
-// 	return (*this);
-// }
-
-void	Response::create(const Request& request, const ServerConfig& server_config)
+void	Response::create()
 {
+	std::cout << "first:" << config.get_cgi().first << std::endl;
+
 	std::string	target = request.get_target();
 	
-	config_addr = &server_config;
-	location_addr = config_addr->get_location_addr(target); // throws ResponseError();
+	location_addr = config.get_location_addr(target); // throws ResponseError();
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
 	if (location_addr->get_methods().count(request.get_method()) == 0)
@@ -89,7 +76,7 @@ void	Response::create(const Request& request, const ServerConfig& server_config)
 	}
 	target = location_addr->get_root() + target;
 	std::cout << YEL << "Target: " << target << CRESET << std::endl;
-	// _serve(request, target);
+	_serve(target);
 }
 
 void	Response::send(int fd) const
@@ -108,7 +95,7 @@ void	Response::send(int fd) const
 								Get Response.
 ==============================================================================*/
 
-void	Response::_serve(const Request& request, std::string target)
+void	Response::_serve(std::string& target)
 {
 	if (request.get_method() == "GET")
 		_serve_get(target);
@@ -119,14 +106,41 @@ void	Response::_serve(const Request& request, std::string target)
 	return ;
 }
 
-void	Response::_serve_get(const std::string& target)
+void	Response::_serve_get(std::string& target)
 {
-	// if (_is_directory(target))
-	// {
-	// 	// make directory listing body.
-	// 	return ;
-	// }
-	_fetch_ressource(target + location_addr->get_index());
+	std::cout << "Serving GET" << std::endl;
+	if (_is_directory(target) && location_addr->get_autoindex() == true)
+	{
+		std::cout << "Dir + autoindex" << std::endl;
+		// make directory listing body.
+		return ;
+	}
+	if (_is_directory(target))
+	{
+		std::cout << "Dir - autoindex" << std::endl;
+		target = target + location_addr->get_index();
+	}
+	std::cout << target.substr(target.find_last_of('.')) << std::endl;
+	std::cout << config.get_cgi().first << std::endl;
+	if (target.substr(target.find_last_of('.')) == config.get_cgi().first)
+	{
+		std::cout << YEL << "[Response]Called CGI." << CRESET << std::endl;
+		CGI cgi(config.get_cgi().second, location_addr->get_root(), config, request);
+		cgi.process();
+		if (cgi.cgi_headers.find("Status") != cgi.cgi_headers.end())
+		{
+			// Get Status header.
+			response_status = Status::Forbidden;
+			return ;
+		}
+		headers.insert(cgi.cgi_headers.begin(), cgi.cgi_headers.end());
+		body = cgi.cgi_body;
+	}
+	else
+	{
+		std::cout << "File no cgi" << std::endl;
+		_fetch_ressource(target);
+	}
 	if (body.size() > 0)
 	{
 		_add_header("Content-Length", itos(body.size()));
@@ -193,16 +207,17 @@ void	Response::_serve_delete(const std::string& target)
 								Utils.
 ==============================================================================*/
 
-void	Response::_add_header(std::string key, std::string value)
+void	Response::_add_header(const std::string& key, const std::string& value)
 {
-	headers[key] = value;
+	if (headers.find(key) == headers.end())
+		headers[key] = value;
 	return ;
 }
 
-// bool	Response::_is_directory(std::string location) const
-// {
-// 	if (location.back() == "/")
-// 		return (true);
-// 	else
-// 		return (false);
-// }
+bool	Response::_is_directory(const std::string& location) const
+{
+	if (location.size() && location[location.size() - 1] == '/')
+		return (true);
+	else
+		return (false);
+}

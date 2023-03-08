@@ -143,7 +143,7 @@ void	ServerLocation::_parse()
 
 	while (std::getline(*content, line))
 	{
-		std::cout << "[ServerLocation]line: " << line << std::endl;
+		// std::cout << "[ServerLocation]line: " << line << std::endl;
 		line = format_line(line);
 		if (line.empty())
 			continue ;

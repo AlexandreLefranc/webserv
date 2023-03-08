@@ -74,6 +74,7 @@ void	HTTPConfig::_parse_block(std::string& line)
 	if (line.find("server") != std::string::npos)
 	{
 		virtual_server_config.push_back(ServerConfig(&content));
+		std::cout << "cgi ?? " << virtual_server_config.back().get_cgi().first << std::endl;
 	}
 	else if (line.find("http"))
 	{

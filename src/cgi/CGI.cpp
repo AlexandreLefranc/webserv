@@ -1,7 +1,7 @@
 #include "cgi/CGI.hpp"
 
-CGI::CGI(const std::string& exec, const ServerConfig& conf, const Request& req)
-	: _exec(exec), _conf(conf), _req(req)
+CGI::CGI(const std::string& exec, const std::string& root, const ServerConfig& conf, const Request& req)
+	: _exec(exec), _root(root), _conf(conf), _req(req)
 {
 	std::cout << "Construct CGI" << std::endl;
 
@@ -16,15 +16,13 @@ CGI::~CGI()
 
 std::vector<char>	CGI::process()
 {
-	std::string root("/home/alex/Data/Documents/42/Cursus42/5_webserv/webserv/www/site1");
-
 	std::vector<std::string> env;
 	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	env.push_back("REQUEST_METHOD=" + _req._method);
 	env.push_back("REQUEST_URI=" + _req._target);
-	env.push_back("SCRIPT_FILENAME=" + root + _req._target);
-	env.push_back("DOCUMENT_ROOT=" + root);
+	env.push_back("SCRIPT_FILENAME=" + _root + _req._target);
+	env.push_back("DOCUMENT_ROOT=" + _root);
 	env.push_back("REDIRECT_STATUS=301");
 
 	std::string	query_string("");
@@ -59,7 +57,7 @@ std::vector<char>	CGI::process()
 
 	display_cstyle_string_array(envp, "envp");
 
-	std::string	fullpath = root + _req._target;
+	std::string	fullpath = _root + _req._target;
 	const char* cmd[] = {_exec.c_str(), fullpath.c_str(), NULL};
 
 	display_cstyle_string_array(const_cast<char**>(cmd), "cmd");

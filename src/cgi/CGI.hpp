@@ -28,6 +28,7 @@ private: // Disable defaults behaviors
 
 private:
 	const std::string	_exec;
+	const std::string	_root;
 	const ServerConfig&	_conf;
 	const Request&		_req;
 
@@ -41,7 +42,7 @@ private:
 	void	_format_output();
 
 public:
-	CGI(const std::string& exec, const ServerConfig& conf, const Request& req);
+	CGI(const std::string& exec, const std::string& root, const ServerConfig& conf, const Request& req);
 	~CGI();
 
 	std::vector<char>	process();

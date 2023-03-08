@@ -8,6 +8,7 @@
 # include <string>
 # include <vector>
 # include <map>
+# include <utility>
 
 # include "ansi_colors.hpp"
 # include "utils/Exceptions.hpp"
@@ -17,13 +18,8 @@
 
 extern bool g_running;
 
-enum	t_http_method
-{
-	DELETE,
-	GET,
-	// HEAD,
-	POST
-};
+typedef std::map<std::string, std::string>	string_map;
+typedef std::pair<std::string, std::string>	string_pair;
 
 // utils/debug.cpp
 void	display_sockaddr_in(const struct sockaddr_in& addr, const std::string& msg = "");
