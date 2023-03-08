@@ -14,14 +14,14 @@ public:
 
 private:
 	//	Attributes
-	std::stringstream*			content;
-	bool						exact_match;
-	std::string					location_match;
-	std::set<std::string>		methods;
-	std::string					root;
-	std::string					index;
-	bool						dir_ls;
-	std::string					dir_default;
+	std::stringstream*		content;
+	bool					exact_match;
+	std::string				location_match;
+	std::set<std::string>	methods;
+	std::string				root;
+	std::string				index;
+	bool					autoindex;
+	std::string				redirect;
 
 	//	Constructors
 	ServerLocation();
@@ -41,8 +41,8 @@ public:
 	std::set<std::string>	get_methods() const;
 	const std::string&		get_root() const;
 	const std::string&		get_index() const;
-	bool					get_dir_ls();
-	const std::string&		get_dir_default() const;
+	bool					get_autoindex() const;
+	const std::string&		get_redirect() const;
 
 	//	Location matching
 	bool	location_is_match(const std::string& target) const;

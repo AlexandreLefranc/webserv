@@ -85,26 +85,39 @@ const std::string&	ServerConfig::get_root() const
 	return (root);
 }
 
-std::string	ServerConfig::get_target(std::string init_target, std::string method) const
-{
-	const ServerLocation*	matched_location;
+// std::string	ServerConfig::get_target(std::string init_target, std::string method) const
+// {
+// 	const ServerLocation*	matched_location;
 
-	try
+// 	try
+// 	{
+// 		matched_location = get_location(init_target);
+// 	}
+// 	catch (ResponseException& e)
+// 	{
+// 		return (init_target);
+// 	}
+// 	if (matched_location->get_methods().count(method) == 0)
+// 		throw (ResponseException());
+// 	// if (!matched_location->get_index().empty())
+// 	// 	return (get_target(matched_location->get_index(), method));
+// 	if (!matched_location->get_root().empty())
+// 		return (init_target.replace(0, \
+// 		matched_location->get_location_match().length(), matched_location->get_root()));
+// 	return (init_target);
+// }
+
+const ServerLocation*	ServerConfig::get_location_addr(std::string target) const
+{
+	std::vector<ServerLocation>::const_iterator	it = locations.begin();
+
+	while (it != locations.end())
 	{
-		matched_location = &_get_location(init_target);
+		if (it->location_is_match(target))
+			return (it.base()) ;
+		it++;
 	}
-	catch (ResponseException& e)
-	{
-		return (init_target);
-	}
-	if (matched_location->get_methods().count(method) == 0)
-		throw (ResponseException());// return ("");
-	if (!matched_location->get_index().empty())
-		return (get_target(matched_location->get_index(), method));
-	if (!matched_location->get_root().empty())
-		return (init_target.replace(0, \
-		matched_location->get_location_match().length(), matched_location->get_root()));
-	return (init_target);
+	throw (ResponseException());
 }
 
 /*==============================================================================
@@ -224,17 +237,4 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 	locations.insert(pos, ServerLocation(content, location, exact_match));
 	locations.back().fill_default();
 	return ;
-}
-
-const ServerLocation&	ServerConfig::_get_location(std::string target) const
-{
-	std::vector<ServerLocation>::const_iterator	it = locations.begin();
-
-	while (it != locations.end())
-	{
-		if (it->location_is_match(target))
-			return (*it) ;
-		it++;
-	}
-	throw (ResponseException());
 }
