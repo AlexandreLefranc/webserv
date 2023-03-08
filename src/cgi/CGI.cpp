@@ -38,7 +38,7 @@ std::vector<char>	CGI::process()
 		query_string.erase(query_string.length() - 1);
 	}
 
-	std::cout << query_string << std::endl;
+	std::cout << "query_string=" << query_string << std::endl;
 	env.push_back("QUERY_STRING=" + query_string);
 
 	for (it = _req._headers.begin(); it != _req._headers.end(); ++it)

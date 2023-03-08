@@ -54,8 +54,6 @@ Response::~Response()
 
 void	Response::create()
 {
-	std::cout << "first:" << config.get_cgi().first << std::endl;
-
 	std::string	target = request.get_target();
 	
 	location_addr = config.get_location_addr(target); // throws ResponseError();
@@ -75,7 +73,7 @@ void	Response::create()
 		return ;
 	}
 	target = location_addr->get_root() + target;
-	std::cout << YEL << "Target: " << target << CRESET << std::endl;
+	std::cout << YEL << "[Response] Target: " << target << CRESET << std::endl;
 	_serve(target);
 }
 
