@@ -222,6 +222,7 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 			continue ;
 	}
 	locations.insert(pos, ServerLocation(content, location, exact_match));
+	locations.back().fill_default();
 	return ;
 }
 
