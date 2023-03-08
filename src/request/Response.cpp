@@ -160,9 +160,15 @@ void	Response::_fetch_ressource(const std::string& target)
 		response_status = Status::NotFound;
 		return ;
 	}
-	buffer << file.rdbuf();
-	// buffer_str = buffer.str();
-	body.insert(body.begin(), buffer_str.begin(), buffer_str.end());
+	try
+	{
+		body = read_file(file);
+	}
+	catch (std::ios::failure& e)
+	{
+		response_status = Status::Forbidden;
+		return ;
+	}
 	response_status = Status::OK;
 	return ;
 }
