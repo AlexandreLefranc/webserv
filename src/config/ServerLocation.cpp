@@ -119,11 +119,12 @@ bool	ServerLocation::location_is_match(const std::string& target) const
 	return (false);
 }
 
-void	ServerLocation::fill_default(std::string serv_root);
+void	ServerLocation::fill_default(std::string serv_root, std::string serv_index)
 {
 	if (root.empty())
 		root = serv_root;
-	if (index.empty() && !)
+	if (index.empty() && autoindex == false)
+		index = serv_index;
 }
 
 /*==============================================================================

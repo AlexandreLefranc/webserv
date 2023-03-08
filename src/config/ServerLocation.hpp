@@ -46,6 +46,7 @@ public:
 
 	//	Location matching
 	bool	location_is_match(const std::string& target) const;
+	void	fill_default(std::string serv_root, std::string serv_index);
 
 private:
 	void	_parse();

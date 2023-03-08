@@ -10,6 +10,7 @@
 
 # include "webserv.hpp"
 # include "request/Request.hpp"
+# include "request/Response.hpp"
 # include "config/ServerConfig.hpp"
 
 // Purpose: Keep all info relative to a Client
@@ -29,13 +30,13 @@ public:
 	Request		request;
 	bool		request_complete;
 	
-	// Response	response;
+	Response	response;
 
 	Client(int server_fd, const ServerConfig& config);
 	~Client();
 
 	void	parse_request();
-	// void		create_response();
+	void	create_response();
 	// int/bool	send_response();
 };
 

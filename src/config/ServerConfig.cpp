@@ -17,10 +17,13 @@
 
 ServerConfig::ServerConfig(std::stringstream* config)
 	: content(config)
+	, index("index.html")
 	, listen_port(std::make_pair(0, 80))
 {
 	std::cout << RED << "[ServerConfig] Initiate Config" << CRESET << std::endl;
 	_parse();
+	if (root.empty())
+		throw (ParsingException());
 }
 
 ServerConfig::ServerConfig(const ServerConfig& other)
@@ -153,7 +156,7 @@ void	ServerConfig::_parse_line(std::string& line)
 	if (line.find("{") != std::string::npos)
 	{
 		tokens = split_tokens(line);
-		if (tokens.front() == "location" && tokens.size() <= 4)
+		if (tokens.front() == "location" && tokens.size() <= 4 && !root.empty())
 			_add_location(tokens);
 		else
 			throw (ParsingException());
@@ -181,7 +184,7 @@ void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 		listen_port = _parse_address(tokens[1]);
 	else if (tokens.front() == "error_page" && tokens.size() == 3)
 		error_page.insert(std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]));
-	else if (tokens.front() == "index" && tokens.size() == 2 && index.empty())
+	else if (tokens.front() == "index" && tokens.size() == 2 && index == "index.html")
 		index = tokens[1];
 	else
 		throw (ParsingException());
@@ -235,6 +238,6 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 			continue ;
 	}
 	locations.insert(pos, ServerLocation(content, location, exact_match));
-	locations.back().fill_default();
+	locations.back().fill_default(root, index);
 	return ;
 }

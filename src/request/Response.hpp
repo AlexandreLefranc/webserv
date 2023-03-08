@@ -53,7 +53,6 @@ private:
 	//	Get Request
 	void		_serve_get(const std::string& target);
 	void		_fetch_ressource(const std::string& target);
-	std::string	_itos(int number) const;
 	//	Post Request
 	void		_serve_post(const std::string& target, const std::vector<char>& content);
 	//	Delete Request

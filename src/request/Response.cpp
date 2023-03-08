@@ -76,20 +76,20 @@ void	Response::create(const Request& request, const ServerConfig& server_config)
 	_add_header("Connection", "close");
 	if (location_addr->get_methods().count(request.get_method()) == 0)
 	{
+		std::cout << YEL << "[Response]Forbidden" << CRESET << std::endl;
 		response_status = Status::Forbidden;
 		return ;
 	}
 	if (!location_addr->get_redirect().empty())
 	{
+		std::cout << YEL << "[Response]MovedPermanently" << CRESET << std::endl;
 		response_status = Status::MovedPermanently;
 		_add_header("Location", location_addr->get_redirect());
 		return ;
 	}
-	if (!location_addr->get_root().empty())
-		target = location_addr->get_root() + target;
-	else if (!config_addr->get_root().empty())
-		target = config_addr->get_root() + target;
-	_serve(request, target);
+	target = location_addr->get_root() + target;
+	std::cout << YEL << "Target: " << target << CRESET << std::endl;
+	// _serve(request, target);
 }
 
 void	Response::send(int fd) const
@@ -122,10 +122,14 @@ void	Response::_serve(const Request& request, std::string target)
 void	Response::_serve_get(const std::string& target)
 {
 	// if (_is_directory(target))
-	_fetch_ressource(target);
+	// {
+	// 	// make directory listing body.
+	// 	return ;
+	// }
+	_fetch_ressource(target + location_addr->get_index());
 	if (body.size() > 0)
 	{
-		_add_header("Content-Length", _itos(body.size()));
+		_add_header("Content-Length", itos(body.size()));
 		// _add_header("Content-Type", _get_content_type(request.get_target()));
 	}
 	return ;
@@ -143,17 +147,10 @@ void	Response::_fetch_ressource(const std::string& target)
 		return ;
 	}
 	buffer << file.rdbuf();
+	// buffer_str = buffer.str();
 	body.insert(body.begin(), buffer_str.begin(), buffer_str.end());
 	response_status = Status::OK;
 	return ;
-}
-
-std::string	Response::_itos(int number) const
-{
-	std::stringstream	ss;
-
-	ss << number;
-	return (ss.str());
 }
 
 /*==============================================================================
@@ -204,7 +201,7 @@ void	Response::_add_header(std::string key, std::string value)
 
 // bool	Response::_is_directory(std::string location) const
 // {
-// 	if (location.find(".") == std::npos)
+// 	if (location.back() == "/")
 // 		return (true);
 // 	else
 // 		return (false);
