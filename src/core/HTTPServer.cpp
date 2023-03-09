@@ -117,10 +117,19 @@ void	HTTPServer::run()
 			
 			if (_fds[event[i].data.fd] == "CLIENT")
 			{
-				int ret = _communicate_with_client(event[i]);
-				if (ret == -1)
+				try
 				{
-					continue;
+					int ret = _communicate_with_client(event[i]);
+					if (ret == -1)
+					{
+						continue;
+					}
+				}
+				catch (const std::runtime_error& e)
+				{
+					std::cout << BRED << "[HTTPServer] Runtime error: " << e.what() << CRESET << std::endl;
+					// send internal server error;
+					_remove_client(event[i].data.fd);
 				}
 			}
 		}
