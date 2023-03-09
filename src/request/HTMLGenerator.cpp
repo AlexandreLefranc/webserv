@@ -1,8 +1,10 @@
 #include "HTMLGenerator.hpp"
 
-std::string	HTMLGenerator::error(int code, const std::string& desc)
+std::vector<char>	HTMLGenerator::error(int code, const std::string& desc)
 {
 	std::ostringstream	ss;
+	std::string			buffer;
+	std::vector<char>	content;
 
 	ss << "<!doctype html>\n";
 	ss << "<html>\n";
@@ -13,14 +15,19 @@ std::string	HTMLGenerator::error(int code, const std::string& desc)
 	ss << "  </body>\n";
 	ss << "</html>\n";
 
-	return ss.str();
+	buffer = ss.str();
+	content.reserve(buffer.size());
+	content.assign(buffer.begin(), buffer.end());
+	return (content);
 }
 
-std::string	HTMLGenerator::dirlist(const std::string& fullpath)
+std::vector<char>	HTMLGenerator::dirlist(const std::string& fullpath)
 {
 	std::vector<std::string> dirlist = get_dir_list(fullpath);
 
 	std::ostringstream	ss;
+	std::string			buffer;
+	std::vector<char>	content;
 
 	ss << "<!doctype html>\n";
 	ss << "<html>\n";
@@ -41,5 +48,8 @@ std::string	HTMLGenerator::dirlist(const std::string& fullpath)
 	ss << "  </body>\n";
 	ss << "</html>\n";
 
-	return ss.str();
+	buffer = ss.str();
+	content.reserve(buffer.size());
+	content.assign(buffer.begin(), buffer.end());
+	return (content);
 }
