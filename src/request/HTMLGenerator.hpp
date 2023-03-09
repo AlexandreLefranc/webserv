@@ -13,8 +13,8 @@ private: // Non instanciable
 	HTMLGenerator();
 
 public:
-	static std::string	error(int code, const std::string& desc);
-	static std::string	dirlist(const std::string& fullpath);
+	static std::vector<char>	error(int code, const std::string& desc);
+	static std::vector<char>	dirlist(const std::string& fullpath);
 };
 
 #endif
