@@ -144,6 +144,10 @@ void	Request::_check_headers()
 		_has_body = true;
 		_body_len = std::atol(_headers["content-length"].c_str());
 		_body_type = "content-length";
+		if (_headers.find("content-type") != _headers.end())
+		{
+			_process_content_type();
+		}
 	}
 
 	if (_headers.find("transfer-encoding") != _headers.end())
@@ -156,6 +160,20 @@ void	Request::_check_headers()
 	}
 
 	return;
+}
+
+void	Request::_process_content_type()
+{
+	if (_headers["content-type"].compare(0, 33, "application/x-www-form-urlencoded") == 0)
+	{
+		std::cout << "urlencoded" << std::endl;
+		_body_type = "urlencoded";
+	}
+	else if (_headers["content-type"].compare(0, 19, "multipart/form-data") == 0)
+	{
+		std::cout << "form-data" << std::endl;
+		_body_type = "form-data";
+	}
 }
 
 // Returns true if request is complete. false otherwise
