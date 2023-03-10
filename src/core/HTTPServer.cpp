@@ -79,8 +79,7 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 		std::cout << CYN << "[HTTPServer] Sending data to client!" << CRESET << std::endl;
 		client.create_response();
 		std::cout << CYN << "[HTTPServer] Created response!" << CRESET << std::endl;
-		// client.send_response();
-		// send_example_page(client_fd);
+		client.send_response();
 
 		_remove_client(client_fd);
 		return -1;

@@ -37,7 +37,7 @@ public:
 
 	void	parse_request();
 	void	create_response();
-	// int/bool	send_response();
+	void	send_response();
 };
 
 #endif

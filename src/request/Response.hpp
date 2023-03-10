@@ -33,12 +33,12 @@ struct Status
 class Response
 {
 private:
-	Status								response_status;
-	std::map<std::string, std::string>	headers;
-	std::vector<char>					body;
-	const Request&						request;
-	const ServerConfig&					config;
-	const ServerLocation*				location_addr;
+	Status					response_status;
+	string_map				headers;
+	std::vector<char>		body;
+	const Request&			request;
+	const ServerConfig&		config;
+	const ServerLocation*	location_addr;
 
 	Response();
 	Response(const Response& other);
@@ -50,6 +50,11 @@ public:
 
 	void	create();
 	void	send(int fd) const;
+
+	// Getters
+	const Status&				get_status() const;
+	const string_map&			get_headers() const;
+	const std::vector<char>&	get_body() const;
 
 private:
 	void		_serve(std::string& target);

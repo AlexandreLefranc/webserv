@@ -21,7 +21,7 @@ std::vector<char>	HTMLGenerator::error(int code, const std::string& desc)
 	return (content);
 }
 
-std::vector<char>	HTMLGenerator::dirlist(const std::string& fullpath)
+std::vector<char>	HTMLGenerator::dirlist(const std::string& fullpath, const std::string& target)
 {
 	std::vector<std::string> dirlist = get_dir_list(fullpath);
 
@@ -33,7 +33,7 @@ std::vector<char>	HTMLGenerator::dirlist(const std::string& fullpath)
 	ss << "<html>\n";
 	ss << "  <body>\n";
 	ss << "	<h1>\n";
-	ss << "	  Index of " << fullpath << "\n";
+	ss << "	  Index of " << target << "\n";
 	ss << "	</h1>\n";
 	ss << "	<hr>\n";
 

@@ -179,7 +179,7 @@ void	Request::_process_content_type()
 // Returns true if request is complete. false otherwise
 bool	Request::_process_body()
 {
-	if (_body_type == "content-length" && _body_len > 0)
+	if (_body_type != "chunked" && _body_len > 0)
 	{
 		if (_body_len > _raw_d.size())
 		{
