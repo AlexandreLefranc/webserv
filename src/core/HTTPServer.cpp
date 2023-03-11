@@ -35,11 +35,11 @@ void	HTTPServer::_create_client(int server_fd)
 void	HTTPServer::_remove_client(int fd)
 {
 	std::cout << CYN << "[HTTPServer] Remove client!" << CRESET << std::endl;
+
 	_epoll.remove_fd(fd);
 	_client_manager.remove_client(fd);
 	_fds.erase(fd);
 }
-
 
 int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 {

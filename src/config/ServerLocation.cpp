@@ -128,6 +128,41 @@ void	ServerLocation::fill_default(std::string serv_root, std::string serv_index)
 }
 
 /*==============================================================================
+	Check.
+==============================================================================*/
+
+void	ServerLocation::check() const
+{
+	if (methods.empty() == true)
+	{
+		std::cout << BRED << "Config check failed: No method" << CRESET << std::endl;
+		throw ParsingException();
+	}
+
+	std::set<std::string>::const_iterator	it;
+	for (it = methods.begin();it != methods.end(); ++it)
+	{
+		if (KnownMethods.count(*it) == 0)
+		{
+			std::cout << BRED << "Config check failed: Unknown method" << CRESET << std::endl;
+			throw ParsingException();
+		}
+	}
+
+	if (root.empty() == true)
+	{
+		std::cout << BRED << "Config check failed: No root in loc" << CRESET << std::endl;
+		throw ParsingException();
+	}
+
+	if (access(root.c_str(), F_OK) != 0)
+	{
+		std::cout << BRED << "Config check failed: root does not exist" << CRESET << std::endl;
+		throw ParsingException();
+	}
+}
+
+/*==============================================================================
 
 							PRIVATE MEMBER FUNCTIONS.
 
@@ -167,8 +202,6 @@ void	ServerLocation::_parse_line(std::string& line)
 	{
 		for (std::vector<std::string>::iterator	it = tokens.begin() + 1; it != tokens.end(); it++)
 		{
-			if (KnownMethods.count(*it) == 0)
-				throw (ParsingException());
 			methods.insert(*it);
 		}
 	}

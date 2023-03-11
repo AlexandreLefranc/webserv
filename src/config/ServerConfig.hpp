@@ -1,6 +1,8 @@
 #ifndef SERVERCONFIG_HPP
 # define SERVERCONFIG_HPP
 
+# include "unistd.h"
+
 # include <string>
 # include <sstream>
 # include <set>
@@ -45,6 +47,9 @@ public:
 	const string_pair&		get_cgi() const;
 	// std::string				get_target(std::string init_target, std::string method) const;
 	const ServerLocation*	get_location_addr(std::string target) const;
+
+	// Check
+	void					check() const;
 
 private:
 	//	Parsing functions
