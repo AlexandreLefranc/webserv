@@ -108,6 +108,47 @@ const ServerLocation*	ServerConfig::get_location_addr(std::string target) const
 }
 
 /*==============================================================================
+	Check.
+==============================================================================*/
+
+void	ServerConfig::check() const
+{
+	std::map<int, std::string>::const_iterator it1;
+	for (it1 = error_page.begin(); it1 != error_page.end(); ++it1)
+	{
+		if (access(it1->second.c_str(), R_OK) != 0)
+		{
+			std::cout	<< BRED << "Config check failed: "
+						<< it1->second << " does not exist or is not readable" << CRESET << std::endl;
+			throw ParsingException();
+		}
+	}
+
+	if (locations.empty() == true)
+	{
+		std::cout	<< BRED << "Config check failed: No location" << CRESET << std::endl;
+		throw ParsingException();
+	}
+
+	std::vector<ServerLocation>::const_iterator it2;
+	for (it2 = locations.begin(); it2 != locations.end(); ++it2)
+	{
+		it2->check();
+	}
+
+	if (cgi.second.empty() == false)
+	{
+		if (access(cgi.second.c_str(), X_OK) != 0)
+		{
+			std::cout	<< BRED << "Config check failed: "
+						<< cgi.second << " does not exist or is not executable" << CRESET << std::endl;
+			throw ParsingException();
+		}
+	}
+
+}
+
+/*==============================================================================
 
 							PRIVATE MEMBER FUNCTIONS.
 

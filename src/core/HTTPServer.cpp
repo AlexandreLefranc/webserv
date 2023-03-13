@@ -35,11 +35,11 @@ void	HTTPServer::_create_client(int server_fd)
 void	HTTPServer::_remove_client(int fd)
 {
 	std::cout << CYN << "[HTTPServer] Remove client!" << CRESET << std::endl;
+
 	_epoll.remove_fd(fd);
 	_client_manager.remove_client(fd);
 	_fds.erase(fd);
 }
-
 
 int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 {
@@ -79,10 +79,7 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 		std::cout << CYN << "[HTTPServer] Sending data to client!" << CRESET << std::endl;
 		client.create_response();
 		std::cout << CYN << "[HTTPServer] Created response!" << CRESET << std::endl;
-		// client.send_response();
-		// // send_example_page(client_fd);
-		// CGI	cgi("/usr/bin/php-cgi", client.config, client.request);
-		// cgi.process();
+		client.send_response();
 
 		_remove_client(client_fd);
 		return -1;
@@ -119,10 +116,19 @@ void	HTTPServer::run()
 			
 			if (_fds[event[i].data.fd] == "CLIENT")
 			{
-				int ret = _communicate_with_client(event[i]);
-				if (ret == -1)
+				try
 				{
-					continue;
+					int ret = _communicate_with_client(event[i]);
+					if (ret == -1)
+					{
+						continue;
+					}
+				}
+				catch (const std::runtime_error& e)
+				{
+					std::cout << BRED << "[HTTPServer] Runtime error: " << e.what() << CRESET << std::endl;
+					// send internal server error;
+					_remove_client(event[i].data.fd);
 				}
 			}
 		}

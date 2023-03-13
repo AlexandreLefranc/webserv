@@ -22,6 +22,7 @@ HTTPConfig::HTTPConfig(const std::string& config_file)
 	content << config.rdbuf();
 	config.close();
 	_parse();
+	_check();
 }
 
 /*==============================================================================
@@ -108,4 +109,21 @@ void	HTTPConfig::_insert_token(std::vector<std::string> tokens)
 	//	Other config options go HERE with `else if`.
 	if (tokens.size() > 0)
 		throw (ParsingException());
+}
+
+void	HTTPConfig::_check() const
+{
+	if (virtual_server_config.empty() == true)
+	{
+		std::cout << BRED << "Config check failed: No virtual server" << CRESET << std::endl;
+		throw ParsingException();
+	}
+
+	std::list<ServerConfig>::const_iterator it;
+	for (it = virtual_server_config.begin(); it != virtual_server_config.end(); ++it)
+	{
+		it->check();
+	}
+
+
 }

@@ -54,8 +54,6 @@ Response::~Response()
 
 void	Response::create()
 {
-	std::cout << "first:" << config.get_cgi().first << std::endl;
-
 	std::string	target = request.get_target();
 	
 	location_addr = config.get_location_addr(target); // throws ResponseError();
@@ -75,7 +73,7 @@ void	Response::create()
 		return ;
 	}
 	target = location_addr->get_root() + target;
-	std::cout << YEL << "Target: " << target << CRESET << std::endl;
+	std::cout << YEL << "[Response] Target: " << target << CRESET << std::endl;
 	_serve(target);
 }
 
@@ -84,6 +82,26 @@ void	Response::send(int fd) const
 	(void)fd;
 	return ;
 }
+
+/*==============================================================================
+								Getters.
+==============================================================================*/
+
+const Status&				Response::get_status() const
+{
+	return response_status;
+}
+
+const string_map&			Response::get_headers() const
+{
+	return headers;
+}
+
+const std::vector<char>&	Response::get_body() const
+{
+	return body;
+}
+
 
 /*==============================================================================
 
@@ -112,7 +130,11 @@ void	Response::_serve_get(std::string& target)
 	if (_is_directory(target) && location_addr->get_autoindex() == true)
 	{
 		std::cout << "Dir + autoindex" << std::endl;
-		// make directory listing body.
+		body = HTMLGenerator::dirlist(target, request.get_target());
+		std::cout << std::string(body.begin(), body.end()) << std::endl;
+		_add_header("Content-Type", "text/html");
+		_add_header("Content-Length", itos(body.size()));
+		response_status = Status::OK;
 		return ;
 	}
 	if (_is_directory(target))
@@ -120,18 +142,20 @@ void	Response::_serve_get(std::string& target)
 		std::cout << "Dir - autoindex" << std::endl;
 		target = target + location_addr->get_index();
 	}
-	std::cout << target.substr(target.find_last_of('.')) << std::endl;
-	std::cout << config.get_cgi().first << std::endl;
+
 	if (target.substr(target.find_last_of('.')) == config.get_cgi().first)
 	{
 		std::cout << YEL << "[Response]Called CGI." << CRESET << std::endl;
 		CGI cgi(config.get_cgi().second, location_addr->get_root(), config, request);
 		cgi.process();
-		if (cgi.cgi_headers.find("Status") != cgi.cgi_headers.end())
+		if (cgi.cgi_headers.find("status") != cgi.cgi_headers.end())
 		{
-			// Get Status header.
-			response_status = Status::Forbidden;
-			return ;
+			int cgi_code = std::atoi(cgi.cgi_headers["status"].c_str());
+			response_status = Status(cgi_code, "");
+		}
+		else
+		{
+			response_status = Status::OK;
 		}
 		headers.insert(cgi.cgi_headers.begin(), cgi.cgi_headers.end());
 		body = cgi.cgi_body;
@@ -141,11 +165,13 @@ void	Response::_serve_get(std::string& target)
 		std::cout << "File no cgi" << std::endl;
 		_fetch_ressource(target);
 	}
+
 	if (body.size() > 0)
 	{
 		_add_header("Content-Length", itos(body.size()));
 		// _add_header("Content-Type", _get_content_type(request.get_target()));
 	}
+
 	return ;
 }
 

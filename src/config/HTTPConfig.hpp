@@ -37,6 +37,9 @@ private:
 	void	_parse_line(std::string& line);
 	void	_parse_block(std::string& line);
 	void	_insert_token(std::vector<std::string> tokens);
+
+	// check
+	void	_check() const;
 };
 
 #endif

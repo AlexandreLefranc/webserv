@@ -1,10 +1,8 @@
 #include "cgi/CGI.hpp"
 
 CGI::CGI(const std::string& exec, const std::string& root, const ServerConfig& conf, const Request& req)
-	: _exec(exec), _root(root), _conf(conf), _req(req)
+	: _exec(exec), _root(root), _conf(conf), _req(req), _envp(NULL)
 {
-	std::cout << "Construct CGI" << std::endl;
-
 	if (access(_exec.c_str(), X_OK) != 0)
 	{
 		throw std::runtime_error("CGI exec is not executable");
@@ -12,18 +10,22 @@ CGI::CGI(const std::string& exec, const std::string& root, const ServerConfig& c
 }
 
 CGI::~CGI()
-{}
-
-std::vector<char>	CGI::process()
 {
-	std::vector<std::string> env;
-	env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-	env.push_back("SERVER_PROTOCOL=HTTP/1.1");
-	env.push_back("REQUEST_METHOD=" + _req._method);
-	env.push_back("REQUEST_URI=" + _req._target);
-	env.push_back("SCRIPT_FILENAME=" + _root + _req._target);
-	env.push_back("DOCUMENT_ROOT=" + _root);
-	env.push_back("REDIRECT_STATUS=301");
+	if (_envp != NULL)
+	{
+		delete [] _envp;
+	}
+}
+
+void				CGI::_init_arrays()
+{
+	_env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+	_env.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	_env.push_back("REQUEST_METHOD=" + _req._method);
+	_env.push_back("REQUEST_URI=" + _req._target);
+	_env.push_back("SCRIPT_FILENAME=" + _root + _req._target);
+	_env.push_back("DOCUMENT_ROOT=" + _root);
+	_env.push_back("REDIRECT_STATUS=301");
 
 	std::string	query_string("");
 
@@ -38,36 +40,40 @@ std::vector<char>	CGI::process()
 		query_string.erase(query_string.length() - 1);
 	}
 
-	std::cout << query_string << std::endl;
-	env.push_back("QUERY_STRING=" + query_string);
+	std::cout << "query_string=" << query_string << std::endl;
+	_env.push_back("QUERY_STRING=" + query_string);
 
 	for (it = _req._headers.begin(); it != _req._headers.end(); ++it)
 	{
-		env.push_back("HTTP_" + toupperstr(it->first) + "=" + it->second);
+		_env.push_back("HTTP_" + toupperstr(it->first) + "=" + it->second);
 	}
 
-	display_vector(env, "env");
+	display_vector(_env, "_env");
 
-	char* envp[env.size() + 1];
-	for (size_t i = 0; i < env.size(); ++i)
+	_envp = new	char*[_env.size() + 1];
+	for (size_t i = 0; i < _env.size(); ++i)
 	{
-		envp[i] = const_cast<char*>(env[i].c_str());
+		_envp[i] = const_cast<char*>(_env[i].c_str());
 	}
-	envp[env.size()] = NULL;
+	_envp[_env.size()] = NULL;
 
-	display_cstyle_string_array(envp, "envp");
+	display_cstyle_string_array(_envp, "_envp");
 
-	std::string	fullpath = _root + _req._target;
-	const char* cmd[] = {_exec.c_str(), fullpath.c_str(), NULL};
+	_fullpath = _root + _req._target;
+	_cmd[0] = const_cast<char*>(_exec.c_str());
+	_cmd[1] = const_cast<char*>(_fullpath.c_str());
+	_cmd[2] = NULL;
 
-	display_cstyle_string_array(const_cast<char**>(cmd), "cmd");
+	display_cstyle_string_array(_cmd, "_cmd");
+}
 
 
-
-
+void				CGI::_run_cgi()
+{
 	std::vector<char>	res_d;
-	int					pipefd[2];
-	if (pipe(pipefd) < 0)
+	int					pipein[2];
+	int					pipeout[2];
+	if (pipe(pipeout) < 0 || pipe(pipein) < 0)
 	{
 		throw std::runtime_error("pipe() failed");
 	}
@@ -80,36 +86,47 @@ std::vector<char>	CGI::process()
 
 	if (pid == 0)
 	{
-		close(pipefd[READ_END]);
+		close(pipeout[READ_END]);
 		close(STDOUT_FILENO);
-		dup2(pipefd[WRITE_END], STDOUT_FILENO);
+		dup2(pipeout[WRITE_END], STDOUT_FILENO);
 
-		execve(cmd[0], const_cast<char* const*>(cmd), envp);
-		std::cout << "execve error" << std::endl;
-		std::cout << strerror(errno) << std::endl;
+		close(pipein[WRITE_END]);
+		close(STDIN_FILENO);
+		dup2(pipein[READ_END], STDIN_FILENO);
+
+		execve(_cmd[0], const_cast<char* const*>(_cmd), _envp);
+		std::cerr << "execve error" << std::endl;
+		std::cerr << strerror(errno) << std::endl;
 		exit(1);
 	}
 	else
 	{
-		close(pipefd[WRITE_END]);
+		close(pipeout[WRITE_END]);
+		close(pipein[READ_END]);
+
+		std::cout << "Writing " << _req._body.size() << " bytes to execve" << std::endl;
+		write(pipein[WRITE_END], _req._body.data(), _req._body.size());
 
 		char	buffer[BUFF_SIZE];
 		int		nbytes;
-
-		while ((nbytes = read(pipefd[READ_END], buffer, BUFF_SIZE - 1)) != 0)
+		while ((nbytes = read(pipeout[READ_END], buffer, BUFF_SIZE - 1)) != 0)
 		{
 			std::cout << nbytes << std::endl;
 			res_d.insert(res_d.end(), buffer, buffer + nbytes);
 		}
 		wait(NULL);
 
-		close(pipefd[READ_END]);
+		close(pipeout[READ_END]);
+		close(pipein[WRITE_END]);
 	}
 
+	_format_output(res_d);
+}
+
+void				CGI::_format_output(std::vector<char>& res_d)
+{
 	std::string res_s(res_d.begin(), res_d.end());
 	// std::cout << res_s << std::endl;
-
-
 
 	while (res_s.find("\r\n") != std::string::npos)
 	{
@@ -134,6 +151,11 @@ std::vector<char>	CGI::process()
 
 	std::cout << "body:" << std::endl;
 	std::cout << std::string(cgi_body.begin(), cgi_body.end()) << std::endl;
+}
 
-	return res_d;
+
+void		CGI::process()
+{
+	_init_arrays();
+	_run_cgi();	
 }

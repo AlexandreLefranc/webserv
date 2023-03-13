@@ -27,25 +27,34 @@ private: // Disable defaults behaviors
 	CGI&	operator=(const CGI& src);
 
 private:
-	const std::string	_exec;
-	const std::string	_root;
-	const ServerConfig&	_conf;
-	const Request&		_req;
+	// Constructor variables
+	const std::string			_exec;
+	const std::string			_root;
+	const ServerConfig&			_conf;
+	const Request&				_req;
+
+	// Temporary variables
+	std::string					_fullpath;
+	std::vector<std::string>	_env;
+
+	// execve variables
+	char**						_envp;
+	char*						_cmd[3];
 
 public:
-	std::map<std::string, std::string>	cgi_headers;
-	std::vector<char>					cgi_body;
+	string_map			cgi_headers;
+	std::vector<char>	cgi_body;
 
 private:
 	void	_init_arrays();
 	void	_run_cgi();
-	void	_format_output();
+	void	_format_output(std::vector<char>& res_d);
 
 public:
 	CGI(const std::string& exec, const std::string& root, const ServerConfig& conf, const Request& req);
 	~CGI();
 
-	std::vector<char>	process();
+	void	process();
 
 };
 

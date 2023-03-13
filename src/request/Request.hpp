@@ -49,6 +49,7 @@ private:
 	void	_process_target(const std::string& target);
 
 	bool	_process_header();
+	void	_process_content_type();
 	void	_check_headers();
 
 	bool	_process_body();

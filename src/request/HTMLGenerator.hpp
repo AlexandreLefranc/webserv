@@ -14,7 +14,7 @@ private: // Non instanciable
 
 public:
 	static std::vector<char>	error(int code, const std::string& desc);
-	static std::vector<char>	dirlist(const std::string& fullpath);
+	static std::vector<char>	dirlist(const std::string& fullpath, const std::string& target);
 };
 
 #endif

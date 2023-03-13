@@ -46,3 +46,29 @@ void	Client::create_response()
 	response.create();
 	return ;
 }
+
+void	Client::send_response()
+{
+	std::cout << YEL << "[Client] Sending response" << CRESET << std::endl;
+	// send_example_page(fd);
+
+	std::ostringstream			ss_response;
+	const Status&				response_status = response.get_status();
+	const string_map&			response_headers = response.get_headers();
+	const std::vector<char>&	response_body = response.get_body();
+
+	ss_response	<< response_status.protocol << " " << response_status.code
+				<< " " << response_status.message << "\r\n";
+
+	string_map::const_iterator it;
+	for (it = response_headers.begin(); it != response_headers.end(); ++it)
+	{
+		ss_response << it->first << ": " << it->second << "\r\n";
+	}
+	ss_response << "\r\n";
+
+	ss_response.write(response_body.data(), response_body.size());
+
+	// std::cout << ss_response.str() << std::endl;
+	send(fd, ss_response.str().c_str(), ss_response.str().length(), 0);
+}

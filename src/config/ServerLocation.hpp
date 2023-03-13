@@ -1,6 +1,8 @@
 #ifndef SERVERLOCATION_HPP
 # define SERVERLOCATION_HPP
 
+# include <unistd.h>
+
 # include <sstream>
 # include <utility>
 # include <set>
@@ -47,6 +49,9 @@ public:
 	//	Location matching
 	bool	location_is_match(const std::string& target) const;
 	void	fill_default(std::string serv_root, std::string serv_index);
+
+	// Check
+	void	check() const;
 
 private:
 	void	_parse();
