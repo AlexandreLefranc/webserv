@@ -118,7 +118,7 @@ void	Response::_serve(std::string& target)
 	if (request.get_method() == "GET")
 		_serve_get(target);
 	else if (request.get_method() == "POST")
-		_serve_post(target, request.get_body());
+		_serve_post(target);
 	else if (request.get_method() == "DELETE")
 		_serve_delete(target);
 	return ;
@@ -203,24 +203,45 @@ void	Response::_fetch_ressource(const std::string& target)
 								Post Response.
 ==============================================================================*/
 
-void	Response::_serve_post(const std::string& target, const std::vector<char>& content)
+void	Response::_serve_post(const std::string& target)
 {
-	std::ofstream	file(target.c_str());
-	
-	if (!file.is_open())
+	std::vector<char>	body;
+	std::string			content_type = _get_content_type();
+
+	if (content_type == "application/x-www-form-urlencoded")
 	{
-		response_status = Status::Forbidden;
-		return ;
+		// Do CGI stuff with arguments in body.
 	}
-	for (std::vector<char>::const_iterator it = content.begin(); it != content.end(); it++)
-		file.put(*it);
-	// file.write(content, content.size());
-	file.close();
-	response_status = Status::OK;
+	else if (content_type == "multipart/form-data")
+	{
+		if (_is_directory(target)) 
+		{
+			// Allow file uploading.
+			_upload_file();
+		}
+		else
+		{
+			// Do CGI stuff with arguments in body but multi-part.
+		}
+	}
+	else if (content_type == "text/plain")
+	{
+		// Fuck off.
+	}
 	return ;
 }
 
+std::string	Response::_get_content_type() const
+{
+	std::string	type;
 
+	if (request._headers.count("Content-Type") < 1)
+		throw (ResponseError());
+	type = request._headers["Content-Type"];
+	type = type.substr(0, type.find(';'));
+	std::cout << YEL << "[Response]POST content type: " << type << "." << CRESET << std::endl;
+	return (type);
+}
 
 /*==============================================================================
 								Delete Response.
