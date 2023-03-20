@@ -56,7 +56,7 @@ void	Response::create()
 {
 	std::string	target = request.get_target();
 	
-	location_addr = config.get_location_addr(target); // throws ResponseError();
+	location_addr = config.get_location_addr(target); // throws ResponseException();
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
 	if (location_addr->get_methods().count(request.get_method()) == 0)
@@ -165,7 +165,6 @@ void	Response::_serve_get(std::string& target)
 		std::cout << "File no cgi" << std::endl;
 		_fetch_ressource(target);
 	}
-
 	if (body.size() > 0)
 	{
 		_add_header("Content-Length", itos(body.size()));
@@ -205,42 +204,73 @@ void	Response::_fetch_ressource(const std::string& target)
 
 void	Response::_serve_post(const std::string& target)
 {
-	std::vector<char>	body;
-	std::string			content_type = _get_content_type();
-
-	if (content_type == "application/x-www-form-urlencoded")
+	if (request._body_type == "urlencoded")
 	{
+		std::cout << YEL << "[Response]POST url to CGI." << CRESET << std::endl;
 		// Do CGI stuff with arguments in body.
 	}
-	else if (content_type == "multipart/form-data")
+	else if (request._body_type == "form-data")
 	{
-		if (_is_directory(target)) 
+		if (_is_directory(target))
 		{
+			std::cout << YEL << "[Response]POST form to dir." << CRESET << std::endl;
 			// Allow file uploading.
-			_upload_file();
+			_upload_file(target);
 		}
 		else
 		{
+			std::cout << YEL << "[Response]POST form to CGI." << CRESET << std::endl;
 			// Do CGI stuff with arguments in body but multi-part.
 		}
 	}
-	else if (content_type == "text/plain")
+	else if (request._body_type == "plain")
 	{
+		std::cout << YEL << "[Response]POST plain text ??" << CRESET << std::endl;
 		// Fuck off.
 	}
 	return ;
 }
 
-std::string	Response::_get_content_type() const
+void	Response::_upload_file(const std::string& target)
 {
-	std::string	type;
+	std::string							filename = _get_filename();
+	std::ofstream						ofs((target + filename).c_str());
+	std::vector<char>::const_iterator	it;
 
-	if (request._headers.count("Content-Type") < 1)
-		throw (ResponseError());
-	type = request._headers["Content-Type"];
-	type = type.substr(0, type.find(';'));
-	std::cout << YEL << "[Response]POST content type: " << type << "." << CRESET << std::endl;
-	return (type);
+	std::cout << YEL << "Uploading File: " << filename << CRESET << std::endl;
+	if (!ofs.is_open())
+	{
+		response_status = Status::Forbidden;
+		return ;
+	}
+	it = vec_find(request._body, "\n\n");
+	ofs.write(it.base(), vec_find(request._body, request._headers.at("boundary") + "--") - it);
+	ofs.close();
+	if (ofs.fail())
+	{
+		std::remove((target + filename).c_str());
+		throw (ResponseException());
+	}
+	response_status = Status::Created;
+	return ;
+}
+
+std::string	Response::_get_filename() const
+{
+	std::string	boundary = request._headers.at("boundary");
+	std::string	str_body = std::string(request._body.begin(), request._body.end());
+	size_t		pos_filename;
+
+	std::cout << YEL << "[Request]body: " << str_body.substr(15) << "..." << CRESET << std::endl;
+	std::cout << YEL << "[POST Response]boundary: " << boundary << CRESET << std::endl;
+	if (str_body.find(boundary) != 0)
+		throw (ResponseException());
+	str_body = str_body.substr(boundary.length() + 1);
+	std::cout << YEL << "[Request]removed boundary: " << str_body.substr(15) << "..." << CRESET << std::endl;
+	pos_filename = str_body.find("filename=");
+	if (pos_filename < 0)
+		throw (ResponseException());
+	return (str_body.substr(str_body.find('\"', pos_filename), str_body.find('\"', str_body.find('\"', pos_filename) + 1)));
 }
 
 /*==============================================================================

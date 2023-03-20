@@ -43,6 +43,11 @@ std::string					itos(int number);
 // utils/socket_utils.cpp
 std::vector<char>	receive_all(int fd);
 
+//	utils/char_vector_utils.cpp
+bool								is_equal(std::vector<char> vec, std::string str);
+std::vector<char>::const_iterator	vec_find(const std::vector<char>& vec, std::string substr);
+
+
 # include "utils/debug.tpp"
 # include "utils/string_utils.tpp"
 
