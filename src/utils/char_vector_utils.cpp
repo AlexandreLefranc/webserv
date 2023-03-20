@@ -4,14 +4,14 @@
 
 # include "webserv.hpp"
 
-bool	is_equal(std::vector<char> vec, std::string str)
+bool	is_equal(std::vector<char> vec, const std::string& str)
 {
 	if (vec.size() != str.length())
 		return (false);
 	return (vec == std::vector<char>(str.begin(), str.end()));
 }
 
-std::vector<char>::const_iterator	vec_find(const std::vector<char>& vec, std::string substr)
+std::vector<char>::const_iterator	vec_find(const std::vector<char>& vec, const std::string& substr)
 {
 	std::vector<char>::const_iterator	it = vec.begin();
 

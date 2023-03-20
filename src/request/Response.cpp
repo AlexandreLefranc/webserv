@@ -170,7 +170,6 @@ void	Response::_serve_get(std::string& target)
 		_add_header("Content-Length", itos(body.size()));
 		// _add_header("Content-Type", _get_content_type(request.get_target()));
 	}
-
 	return ;
 }
 
@@ -233,22 +232,27 @@ void	Response::_serve_post(const std::string& target)
 
 void	Response::_upload_file(const std::string& target)
 {
-	std::string							filename = _get_filename();
-	std::ofstream						ofs((target + filename).c_str());
+	std::string							filename = target + _get_filename();
+	std::ofstream						ofs(filename.c_str());
 	std::vector<char>::const_iterator	it;
 
 	std::cout << YEL << "Uploading File: " << filename << CRESET << std::endl;
 	if (!ofs.is_open())
 	{
+		std::cout << YEL << "Could not open file." << CRESET << std::endl;
 		response_status = Status::Forbidden;
 		return ;
 	}
-	it = vec_find(request._body, "\n\n");
-	ofs.write(it.base(), vec_find(request._body, request._headers.at("boundary") + "--") - it);
+	std::cout << YEL << "[RESPONSE]File opened: " << filename << CRESET << std::endl;
+	it = vec_find(request._body, "\r\n\r\n") + 4;
+	// std::string	my_string(request._body.begin(), request._body.end());
+	// std::cout << "[Find \n\r\n\r]"
+	// std::cout << YEL << "[RESPONSE]printing: \"" << *vec_find(request._body, "\r\n\r\n--" + request._headers.at("boundary") + "--") << "\"" << CRESET << std::endl;
+	ofs.write(it.base(), vec_find(request._body, "\r\n--" + request._headers.at("boundary") + "--") - it);
 	ofs.close();
 	if (ofs.fail())
 	{
-		std::remove((target + filename).c_str());
+		std::remove((filename).c_str());
 		throw (ResponseException());
 	}
 	response_status = Status::Created;
@@ -260,17 +264,17 @@ std::string	Response::_get_filename() const
 	std::string	boundary = request._headers.at("boundary");
 	std::string	str_body = std::string(request._body.begin(), request._body.end());
 	size_t		pos_filename;
+	size_t		filename_length;
 
-	std::cout << YEL << "[Request]body: " << str_body.substr(15) << "..." << CRESET << std::endl;
-	std::cout << YEL << "[POST Response]boundary: " << boundary << CRESET << std::endl;
-	if (str_body.find(boundary) != 0)
+	std::cout << YEL << "[Request]body: " << str_body.substr(0, 15) << "..." << CRESET << std::endl;
+	if (str_body.find("--" + boundary) != 0)
 		throw (ResponseException());
-	str_body = str_body.substr(boundary.length() + 1);
-	std::cout << YEL << "[Request]removed boundary: " << str_body.substr(15) << "..." << CRESET << std::endl;
-	pos_filename = str_body.find("filename=");
+	str_body = str_body.substr(boundary.length() + 3);
+	pos_filename = str_body.find("filename=\"") + 10;
 	if (pos_filename < 0)
 		throw (ResponseException());
-	return (str_body.substr(str_body.find('\"', pos_filename), str_body.find('\"', str_body.find('\"', pos_filename) + 1)));
+	filename_length = str_body.find("\"", pos_filename + 1) - pos_filename;
+	return (str_body.substr(pos_filename, filename_length));
 }
 
 /*==============================================================================

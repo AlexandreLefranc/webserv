@@ -9,6 +9,7 @@
 # include <vector>
 # include <map>
 # include <utility>
+# include <unistd.h>
 
 # include "ansi_colors.hpp"
 # include "utils/Exceptions.hpp"
@@ -31,6 +32,7 @@ void	send_example_page(int client_fd);
 std::vector<std::string>	get_dir_list(std::string path);
 std::string					gen_dir_list_html(std::vector<std::string> dirlist, const std::string& path);
 std::vector<char>			read_file(std::ifstream& ifs);
+bool						file_exists(const std::string& filename);
 
 // utils/string_utils.cpp
 std::vector<std::string>	split(std::string s, std::string delimiter);
@@ -44,8 +46,8 @@ std::string					itos(int number);
 std::vector<char>	receive_all(int fd);
 
 //	utils/char_vector_utils.cpp
-bool								is_equal(std::vector<char> vec, std::string str);
-std::vector<char>::const_iterator	vec_find(const std::vector<char>& vec, std::string substr);
+bool								is_equal(std::vector<char> vec, const std::string& str);
+std::vector<char>::const_iterator	vec_find(const std::vector<char>& vec, const std::string& substr);
 
 
 # include "utils/debug.tpp"
