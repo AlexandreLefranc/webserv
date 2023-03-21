@@ -10,15 +10,18 @@
 
 # include "webserv.hpp"
 # include "utils/Exceptions.hpp"
+# include "config/ServerConfig.hpp"
 # include "request/ResponseGenerator.hpp"
 
 class Request
 {
 private: // Disable defaults behaviors
+	Request();
 	Request(const Request& src);
 	Request&	operator=(const Request& src);
 
 private:
+	const ServerConfig&					_config;
 	int									_client_fd;
 
 	std::vector<char>					_raw_d;
@@ -49,14 +52,14 @@ private:
 	void	_process_target(const std::string& target);
 
 	bool	_process_header();
-	void	_process_content_type();
 	void	_check_headers();
+	void	_check_content_type();
 
 	bool	_process_body();
 	bool	_process_body_chunk();
 
 public:
-	Request();
+	Request(const ServerConfig& config);
 	~Request();
 
 	void	set_client_fd(int client_fd);
