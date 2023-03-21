@@ -245,9 +245,6 @@ void	Response::_upload_file(const std::string& target)
 	}
 	std::cout << YEL << "[RESPONSE]File opened: " << filename << CRESET << std::endl;
 	it = vec_find(request._body, "\r\n\r\n") + 4;
-	// std::string	my_string(request._body.begin(), request._body.end());
-	// std::cout << "[Find \n\r\n\r]"
-	// std::cout << YEL << "[RESPONSE]printing: \"" << *vec_find(request._body, "\r\n\r\n--" + request._headers.at("boundary") + "--") << "\"" << CRESET << std::endl;
 	ofs.write(it.base(), vec_find(request._body, "\r\n--" + request._headers.at("boundary") + "--") - it);
 	ofs.close();
 	if (ofs.fail())
