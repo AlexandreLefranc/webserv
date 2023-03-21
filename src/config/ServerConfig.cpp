@@ -94,6 +94,11 @@ const string_pair&	ServerConfig::get_cgi() const
 	return (cgi);
 }
 
+const std::map<int, std::string>&	ServerConfig::get_error_page() const
+{
+	return (error_page);
+}
+
 const ServerLocation*	ServerConfig::get_location_addr(std::string target) const
 {
 	std::vector<ServerLocation>::const_iterator	it = locations.begin();
@@ -106,6 +111,7 @@ const ServerLocation*	ServerConfig::get_location_addr(std::string target) const
 	}
 	throw (ResponseException());
 }
+
 
 /*==============================================================================
 	Check.

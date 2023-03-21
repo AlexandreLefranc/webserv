@@ -3,7 +3,10 @@
 
 # include <cstdio>
 # include <stdlib.h>
+# include <sys/types.h>
+# include <sys/socket.h>
 # include <fstream>
+# include <sstream>
 # include <ios>
 # include <algorithm>
 
@@ -28,6 +31,8 @@ struct Status
 	Status();
 	Status(int code, std::string msg);
 
+	bool	is_error() const;
+	
 	static const Status	Forbidden;
 	static const Status	NotFound;
 	static const Status	OK;
@@ -63,20 +68,22 @@ public:
 	const std::vector<char>&	get_body() const;
 
 private:
-	void		_serve(std::string& target);
+	void				_serve(std::string& target);
 	//	Get Request
-	void		_serve_get(std::string& target);
-	void		_fetch_ressource(const std::string& target);
+	void				_serve_get(std::string& target);
+	void				_fetch_ressource(const std::string& target);
 	//	Post Request
 	void		_serve_post(const std::string& target);
 	void		_upload_file(const std::string& target);
 	std::string	_get_filename() const;
 	//	Delete Request
-	void		_serve_delete(const std::string& target);
-
+	void				_serve_delete(const std::string& target);
+	//	Build Response
+	void				_get_predefined_error_page();
+	void				_get_default_error_page();
 	//	Utils
-	void	_add_header(const std::string& key, const std::string& value);
-	bool	_is_directory(const std::string& location) const;
+	void				_add_header(const std::string& key, const std::string& value);
+	bool				_is_directory(const std::string& location) const;
 };
 
 
