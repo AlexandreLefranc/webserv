@@ -45,7 +45,9 @@ void				CGI::_init_arrays()
 
 	for (it = _req._headers.begin(); it != _req._headers.end(); ++it)
 	{
-		_env.push_back("HTTP_" + toupperstr(it->first) + "=" + it->second);
+		std::string	key_upper = toupperstr(it->first);
+		std::replace(key_upper.begin(), key_upper.end(), '-', '_');
+		_env.push_back(key_upper + "=" + it->second);
 	}
 
 	display_vector(_env, "_env");
@@ -63,6 +65,7 @@ void				CGI::_init_arrays()
 	_cmd[0] = const_cast<char*>(_exec.c_str());
 	_cmd[1] = const_cast<char*>(_fullpath.c_str());
 	_cmd[2] = NULL;
+	_cmd[3] = NULL;
 
 	display_cstyle_string_array(_cmd, "_cmd");
 }
@@ -77,6 +80,9 @@ void				CGI::_run_cgi()
 	{
 		throw std::runtime_error("pipe() failed");
 	}
+	std::cout << "Writing " << _req._body.size() << " bytes to execve" << std::endl;
+	write(pipein[WRITE_END], _req._body.data(), _req._body.size());
+	close(pipein[WRITE_END]);
 
 	pid_t	pid = fork();
 	if (pid < 0)
@@ -87,13 +93,19 @@ void				CGI::_run_cgi()
 	if (pid == 0)
 	{
 		close(pipeout[READ_END]);
-		close(STDOUT_FILENO);
+		// close(STDOUT_FILENO);
 		dup2(pipeout[WRITE_END], STDOUT_FILENO);
 
-		close(pipein[WRITE_END]);
-		close(STDIN_FILENO);
+		// close(pipein[WRITE_END]);
+		// close(STDIN_FILENO);
 		dup2(pipein[READ_END], STDIN_FILENO);
 
+		// std::ofstream	debug_out("debug_out");
+		// char	buf[_req._body.size() + 1];
+		// read(0, buf, _req._body.size());
+		// buf[_req._body.size()] = '\0';
+		// debug_out << buf;
+		// debug_out.close();
 		execve(_cmd[0], const_cast<char* const*>(_cmd), _envp);
 		std::cerr << "execve error" << std::endl;
 		std::cerr << strerror(errno) << std::endl;
@@ -103,9 +115,6 @@ void				CGI::_run_cgi()
 	{
 		close(pipeout[WRITE_END]);
 		close(pipein[READ_END]);
-
-		std::cout << "Writing " << _req._body.size() << " bytes to execve" << std::endl;
-		write(pipein[WRITE_END], _req._body.data(), _req._body.size());
 
 		char	buffer[BUFF_SIZE];
 		int		nbytes;
@@ -117,7 +126,7 @@ void				CGI::_run_cgi()
 		wait(NULL);
 
 		close(pipeout[READ_END]);
-		close(pipein[WRITE_END]);
+		// close(pipein[WRITE_END]);
 	}
 
 	_format_output(res_d);

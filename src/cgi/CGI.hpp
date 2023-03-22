@@ -10,6 +10,7 @@
 # include <string.h>
 
 # include <iostream>
+# include <fstream>
 # include <string>
 # include <vector>
 
@@ -39,7 +40,7 @@ private:
 
 	// execve variables
 	char**						_envp;
-	char*						_cmd[3];
+	char*						_cmd[4];
 
 public:
 	string_map			cgi_headers;

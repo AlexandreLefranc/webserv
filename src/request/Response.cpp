@@ -212,6 +212,19 @@ void	Response::_serve_post(const std::string& target)
 	if (request._body_type == "urlencoded")
 	{
 		std::cout << YEL << "[Response]POST url to CGI." << CRESET << std::endl;
+		CGI cgi(config.get_cgi().second, location_addr->get_root(), config, request);
+		cgi.process();
+		if (cgi.cgi_headers.find("status") != cgi.cgi_headers.end())
+		{
+			int cgi_code = std::atoi(cgi.cgi_headers["status"].c_str());
+			response_status = Status(cgi_code, "");
+		}
+		else
+		{
+			response_status = Status::OK;
+		}
+		headers.insert(cgi.cgi_headers.begin(), cgi.cgi_headers.end());
+		body = cgi.cgi_body;
 		// Do CGI stuff with arguments in body.
 	}
 	else if (request._body_type == "form-data")
@@ -225,7 +238,20 @@ void	Response::_serve_post(const std::string& target)
 		else
 		{
 			std::cout << YEL << "[Response]POST form to CGI." << CRESET << std::endl;
-			// Do CGI stuff with arguments in body but multi-part.
+
+			CGI cgi(config.get_cgi().second, location_addr->get_root(), config, request);
+			cgi.process();
+			if (cgi.cgi_headers.find("status") != cgi.cgi_headers.end())
+			{
+				int cgi_code = std::atoi(cgi.cgi_headers["status"].c_str());
+				response_status = Status(cgi_code, "");
+			}
+			else
+			{
+				response_status = Status::OK;
+			}
+			headers.insert(cgi.cgi_headers.begin(), cgi.cgi_headers.end());
+			body = cgi.cgi_body;
 		}
 	}
 	else if (request._body_type == "plain")

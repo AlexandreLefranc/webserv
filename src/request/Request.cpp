@@ -126,14 +126,14 @@ bool	Request::_process_header()
 	std::vector<std::string>	splitted = split_first(line, ":");
 	std::string					key = tolowerstr(trim(splitted[0]));
 	std::string					value = trim(splitted[1]);
-	if (key == "content-type" && value.find("multipart") >= 0)
-	{
-		std::vector<std::string>	split_boundary = split_first(value, "; ");
-		_headers[key] = split_boundary[0];
-		split_boundary = split_first(split_boundary[1], "=");
-		_headers[split_boundary[0]] = split_boundary[1];
-	}
-	else
+	// if (key == "content-type" && value.find("multipart") != std::string::npos)
+	// {
+	// 	std::vector<std::string>	split_boundary = split_first(value, "; ");
+	// 	_headers[key] = split_boundary[0];
+	// 	split_boundary = split_first(split_boundary[1], "=");
+	// 	_headers[split_boundary[0]] = split_boundary[1];
+	// }
+	// else
 		_headers[key] = value;
 
 	return false;

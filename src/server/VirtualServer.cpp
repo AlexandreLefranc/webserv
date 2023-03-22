@@ -13,17 +13,18 @@ VirtualServer::VirtualServer(const ServerConfig& config):
 
 	std::cout << GRN << fd << CRESET << std::endl;
 
-	// const int enable1 = 1;
-	// if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable1, sizeof(int)) < 0)
-	// {
-	// 	throw std::runtime_error("setsockopt1() failed");
-	// }
 
-	// const int enable2 = 1;
-	// if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable2, sizeof(int)) < 0)
-	// {
-	// 	throw std::runtime_error("setsockopt2() failed");
-	// }
+	const int enable1 = 1;
+	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable1, sizeof(int)) < 0)
+	{
+		throw std::runtime_error("setsockopt1() failed");
+	}
+
+	const int enable2 = 1;
+	if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable2, sizeof(int)) < 0)
+	{
+		throw std::runtime_error("setsockopt2() failed");
+	}
 
 	t_sockaddr_in	  sockaddr;
 	memset(&sockaddr, 0, sizeof(t_sockaddr_in));
