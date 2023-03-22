@@ -39,6 +39,7 @@ struct Status
 	static const Status	Created;
 	static const Status	NoContent;
 	static const Status	MovedPermanently;
+	static const Status	MethodNotAllowed;
 };
 
 class Response

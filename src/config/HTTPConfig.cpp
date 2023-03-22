@@ -22,7 +22,7 @@ HTTPConfig::HTTPConfig(const std::string& config_file)
 	content << config.rdbuf();
 	config.close();
 	_parse();
-	_check();
+	// _check();
 }
 
 /*==============================================================================

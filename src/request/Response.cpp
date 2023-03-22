@@ -21,7 +21,7 @@ Status::Status(int code, std::string msg)
 
 bool	Status::is_error() const
 {
-	if (this->code != 200)
+	if (this->code >= 300)
 		return (true);
 	else
 		return (false);
@@ -33,6 +33,7 @@ const Status Status::NoContent = Status(204, "No Content");
 const Status Status::MovedPermanently = Status(301, "Moved Permanently");
 const Status Status::Forbidden = Status(403, "Not Allowed");
 const Status Status::NotFound = Status(404, "Not Found");
+const Status Status::MethodNotAllowed = Status(405, "Method Not Allowed");
 
 /*==============================================================================
 
@@ -70,7 +71,7 @@ void	Response::create()
 	if (location_addr->get_methods().count(request.get_method()) == 0)
 	{
 		std::cout << YEL << "[Response]Forbidden" << CRESET << std::endl;
-		response_status = Status::Forbidden;
+		response_status = Status::MethodNotAllowed;
 		return ;
 	}
 	if (!location_addr->get_redirect().empty())
@@ -286,6 +287,7 @@ std::string	Response::_get_filename() const
 
 void	Response::_serve_delete(const std::string& target)
 {
+	//	Secure 
 	if (std::remove(target.c_str()) == 0)
 		response_status = Status::OK;
 	else
