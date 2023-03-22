@@ -19,6 +19,14 @@ Status::Status(int code, std::string msg)
 	return ;
 }
 
+bool	Status::is_error() const
+{
+	if (this->code != 200)
+		return (true);
+	else
+		return (false);
+}
+
 const Status Status::OK = Status(200, "OK");
 const Status Status::Created = Status(201, "Created");
 const Status Status::NoContent = Status(204, "No Content");
@@ -75,12 +83,10 @@ void	Response::create()
 	target = location_addr->get_root() + target;
 	std::cout << YEL << "[Response] Target: " << target << CRESET << std::endl;
 	_serve(target);
-}
-
-void	Response::send(int fd) const
-{
-	(void)fd;
-	return ;
+	if (response_status.is_error() && config.get_error_page().count(response_status.code) == 1)
+		_get_predefined_error_page();
+	else if (response_status.is_error())
+		_get_default_error_page();
 }
 
 /*==============================================================================
@@ -126,7 +132,7 @@ void	Response::_serve(std::string& target)
 
 void	Response::_serve_get(std::string& target)
 {
-	std::cout << "Serving GET" << std::endl;
+	std::cout << "Serving GET - " << target << std::endl;
 	if (_is_directory(target) && location_addr->get_autoindex() == true)
 	{
 		std::cout << "Dir + autoindex" << std::endl;
@@ -142,8 +148,8 @@ void	Response::_serve_get(std::string& target)
 		std::cout << "Dir - autoindex" << std::endl;
 		target = target + location_addr->get_index();
 	}
-
-	if (target.substr(target.find_last_of('.')) == config.get_cgi().first)
+	if (target.find('.') != std::string::npos &&\
+		target.substr(target.find_last_of('.')) == config.get_cgi().first)
 	{
 		std::cout << YEL << "[Response]Called CGI." << CRESET << std::endl;
 		CGI cgi(config.get_cgi().second, location_addr->get_root(), config, request);
@@ -288,6 +294,41 @@ void	Response::_serve_delete(const std::string& target)
 	else
 		response_status = Status::NoContent;
 	return ;
+}
+
+/*==============================================================================
+								Send Response.
+==============================================================================*/
+
+void	Response::_get_predefined_error_page()
+{
+	std::ifstream		file(config.get_error_page().at(response_status.code).c_str());
+	std::stringstream	buffer;
+	
+	if (!file.is_open())
+	{
+		_get_default_error_page();
+		return ;
+	}	
+	try
+	{
+		body = read_file(file);
+	}
+	catch (std::ios::failure& e)
+	{
+		_get_default_error_page();
+		return ;
+	}
+	if (body.size() > 0)
+		_add_header("Content-Length", itos(body.size()));
+	else
+		_get_default_error_page();
+}
+
+void	Response::_get_default_error_page()
+{
+	body = HTMLGenerator::error(response_status.code, response_status.message);
+	_add_header("Content-Length", itos(body.size()));
 }
 
 /*==============================================================================
