@@ -8,6 +8,7 @@
 # include <fstream>
 # include <sstream>
 # include <ios>
+# include <algorithm>
 
 # include "webserv.hpp"
 # include "config/ServerConfig.hpp"
@@ -15,6 +16,11 @@
 # include "cgi/CGI.hpp"
 
 // # define POST_mode	std::ios_base::out
+
+// const std::map<std::string, std::string>	MIMES = {
+// 	{"audio/mp3", "mp3"},
+// 	{"text/plain", "conf"}
+// };
 
 struct Status
 {
@@ -33,6 +39,7 @@ struct Status
 	static const Status	Created;
 	static const Status	NoContent;
 	static const Status	MovedPermanently;
+	static const Status	MethodNotAllowed;
 };
 
 class Response
@@ -67,7 +74,9 @@ private:
 	void				_serve_get(std::string& target);
 	void				_fetch_ressource(const std::string& target);
 	//	Post Request
-	void				_serve_post(const std::string& target, const std::vector<char>& content);
+	void		_serve_post(const std::string& target);
+	void		_upload_file(const std::string& target);
+	std::string	_get_filename() const;
 	//	Delete Request
 	void				_serve_delete(const std::string& target);
 	//	Build Response
@@ -77,5 +86,7 @@ private:
 	void				_add_header(const std::string& key, const std::string& value);
 	bool				_is_directory(const std::string& location) const;
 };
+
+
 
 #endif

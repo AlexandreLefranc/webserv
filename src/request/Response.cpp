@@ -21,7 +21,7 @@ Status::Status(int code, std::string msg)
 
 bool	Status::is_error() const
 {
-	if (this->code != 200)
+	if (this->code >= 300)
 		return (true);
 	else
 		return (false);
@@ -33,6 +33,7 @@ const Status Status::NoContent = Status(204, "No Content");
 const Status Status::MovedPermanently = Status(301, "Moved Permanently");
 const Status Status::Forbidden = Status(403, "Not Allowed");
 const Status Status::NotFound = Status(404, "Not Found");
+const Status Status::MethodNotAllowed = Status(405, "Method Not Allowed");
 
 /*==============================================================================
 
@@ -64,13 +65,15 @@ void	Response::create()
 {
 	std::string	target = request.get_target();
 	
-	location_addr = config.get_location_addr(target); // throws ResponseError();
+	location_addr = config.get_location_addr(target); // throws ResponseException();
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
+	std::cout << YEL << "[RESPONSE]location_match: " << location_addr->get_location_match() << CRESET << std::endl;
+	std::cout << YEL << "[RESPONSE]location root: " << location_addr->get_root() << CRESET << std::endl;
 	if (location_addr->get_methods().count(request.get_method()) == 0)
 	{
 		std::cout << YEL << "[Response]Forbidden" << CRESET << std::endl;
-		response_status = Status::Forbidden;
+		response_status = Status::MethodNotAllowed;
 		return ;
 	}
 	if (!location_addr->get_redirect().empty())
@@ -124,7 +127,7 @@ void	Response::_serve(std::string& target)
 	if (request.get_method() == "GET")
 		_serve_get(target);
 	else if (request.get_method() == "POST")
-		_serve_post(target, request.get_body());
+		_serve_post(target);
 	else if (request.get_method() == "DELETE")
 		_serve_delete(target);
 	return ;
@@ -176,7 +179,6 @@ void	Response::_serve_get(std::string& target)
 		_add_header("Content-Length", itos(body.size()));
 		// _add_header("Content-Type", _get_content_type(request.get_target()));
 	}
-
 	return ;
 }
 
@@ -208,21 +210,77 @@ void	Response::_fetch_ressource(const std::string& target)
 								Post Response.
 ==============================================================================*/
 
-void	Response::_serve_post(const std::string& target, const std::vector<char>& content)
+void	Response::_serve_post(const std::string& target)
 {
-	std::ofstream	file(target.c_str());
-	
-	if (!file.is_open())
+	if (request._body_type == "urlencoded")
 	{
+		std::cout << YEL << "[Response]POST url to CGI." << CRESET << std::endl;
+		// Do CGI stuff with arguments in body.
+	}
+	else if (request._body_type == "form-data")
+	{
+		if (_is_directory(target))
+		{
+			std::cout << YEL << "[Response]POST form to dir." << CRESET << std::endl;
+			// Allow file uploading.
+			_upload_file(target);
+		}
+		else
+		{
+			std::cout << YEL << "[Response]POST form to CGI." << CRESET << std::endl;
+			// Do CGI stuff with arguments in body but multi-part.
+		}
+	}
+	else if (request._body_type == "plain")
+	{
+		std::cout << YEL << "[Response]POST plain text ??" << CRESET << std::endl;
+		// Fuck off.
+	}
+	return ;
+}
+
+void	Response::_upload_file(const std::string& target)
+{
+	std::string							filename = target + _get_filename();
+	std::ofstream						ofs(filename.c_str());
+	std::vector<char>::const_iterator	it;
+
+	std::cout << YEL << "Uploading File: " << filename << CRESET << std::endl;
+	if (!ofs.is_open())
+	{
+		std::cout << YEL << "Could not open file." << CRESET << std::endl;
 		response_status = Status::Forbidden;
 		return ;
 	}
-	for (std::vector<char>::const_iterator it = content.begin(); it != content.end(); it++)
-		file.put(*it);
-	// file.write(content, content.size());
-	file.close();
-	response_status = Status::OK;
+	std::cout << YEL << "[RESPONSE]File opened: " << filename << CRESET << std::endl;
+	it = vec_find(request._body, "\r\n\r\n") + 4;
+	ofs.write(it.base(), vec_find(request._body, "\r\n--" + request._headers.at("boundary") + "--") - it);
+	ofs.close();
+	if (ofs.fail())
+	{
+		std::remove((filename).c_str());
+		throw (ResponseException());
+	}
+	response_status = Status::Created;
 	return ;
+}
+
+std::string	Response::_get_filename() const
+{
+	std::string	boundary = request._headers.at("boundary");
+	std::string	str_body = std::string(request._body.begin(), request._body.end());
+	size_t		pos_filename;
+	size_t		filename_length;
+
+	std::cout << YEL << "[Request]body: " << str_body.substr(0, 15) << "..." << CRESET << std::endl;
+	if (str_body.find("--" + boundary) != 0)
+		throw (ResponseException());
+	str_body = str_body.substr(boundary.length() + 3);
+	pos_filename = str_body.find("filename=\"") + 10;
+	if (pos_filename < 0)
+		throw (ResponseException());
+	filename_length = str_body.find("\"", pos_filename + 1) - pos_filename;
+	return (str_body.substr(pos_filename, filename_length));
 }
 
 /*==============================================================================
@@ -231,6 +289,7 @@ void	Response::_serve_post(const std::string& target, const std::vector<char>& c
 
 void	Response::_serve_delete(const std::string& target)
 {
+	//	Secure 
 	if (std::remove(target.c_str()) == 0)
 		response_status = Status::OK;
 	else

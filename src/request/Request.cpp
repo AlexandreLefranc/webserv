@@ -125,7 +125,15 @@ bool	Request::_process_header()
 	std::vector<std::string>	splitted = split_first(line, ":");
 	std::string					key = tolowerstr(trim(splitted[0]));
 	std::string					value = trim(splitted[1]);
-	_headers[key] = value;
+	if (key == "content-type" && value.find("multipart") >= 0)
+	{
+		std::vector<std::string>	split_boundary = split_first(value, "; ");
+		_headers[key] = split_boundary[0];
+		split_boundary = split_first(split_boundary[1], "=");
+		_headers[split_boundary[0]] = split_boundary[1];
+	}
+	else
+		_headers[key] = value;
 
 	return false;
 }
@@ -173,6 +181,11 @@ void	Request::_process_content_type()
 	{
 		std::cout << "form-data" << std::endl;
 		_body_type = "form-data";
+	}
+	else if (_headers["content-type"].compare(0, 10, "text/plain") == 0)
+	{
+		std::cout << "plain" << std::endl;
+		_body_type = "plain";
 	}
 }
 

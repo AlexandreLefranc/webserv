@@ -64,3 +64,11 @@ std::vector<char>	read_file(std::ifstream& ifs)
 	ifs.read(reinterpret_cast<char *>(&content[0]), file_size);
 	return (content);
 }
+
+bool	file_exists(const std::string& filename)
+{
+	if (access(filename.c_str(), F_OK) == 0)
+		return (true);
+	else
+		return (false);
+}

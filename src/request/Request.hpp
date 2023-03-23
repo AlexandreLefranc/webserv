@@ -29,7 +29,6 @@ private:
 	bool								_is_header_done;
 
 	bool								_has_body;
-	std::string							_body_type;
 	size_t								_body_len;
 
 public:
@@ -40,6 +39,7 @@ public:
 
 	std::map<std::string, std::string>	_headers;
 
+	std::string							_body_type;
 	std::vector<char>					_body;
 	
 private:

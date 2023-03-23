@@ -26,7 +26,8 @@ SRCFILE		=	\
 				utils/fs_utils.cpp \
 				utils/parse_utils.cpp \
 				utils/socket_utils.cpp \
-				utils/string_utils.cpp
+				utils/string_utils.cpp \
+				utils/char_vector_utils.cpp
 
 CLASSFILE	=	\
 				cgi/CGI.cpp \

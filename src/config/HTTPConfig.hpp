@@ -16,6 +16,7 @@ private:
 	//	Attributes
 	std::stringstream		content;
 	std::list<ServerConfig>	virtual_server_config;
+	int						client_max_body_size;
 
 	//	Constructors
 	HTTPConfig();
