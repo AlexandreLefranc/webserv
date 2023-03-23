@@ -48,6 +48,8 @@ struct Status
 
 class Response
 {
+public:
+	bool	ready;
 private:
 	Status					response_status;
 	string_map				headers;

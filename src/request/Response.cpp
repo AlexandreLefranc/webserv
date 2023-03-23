@@ -50,7 +50,8 @@ const Status Status::HTTPVersionNotSupported = Status(505, "HTTP Version Not Sup
 ==============================================================================*/
 
 Response::Response(const Request& request, const ServerConfig& config)
-	: request(request)
+	: ready(false)
+	, request(request)
 	, config(config)
 {
 	return ;
@@ -78,6 +79,7 @@ void	Response::create()
 	{
 		std::cout << YEL << "[Response]Forbidden" << CRESET << std::endl;
 		response_status = Status::MethodNotAllowed;
+		ready = true;
 		return ;
 	}
 	if (!location_addr->get_redirect().empty())
@@ -85,6 +87,7 @@ void	Response::create()
 		std::cout << YEL << "[Response]MovedPermanently" << CRESET << std::endl;
 		response_status = Status::MovedPermanently;
 		_add_header("Location", location_addr->get_redirect());
+		ready = true;
 		return ;
 	}
 	target = location_addr->get_root() + target;
@@ -94,6 +97,7 @@ void	Response::create()
 		_get_predefined_error_page();
 	else if (response_status.is_error())
 		_get_default_error_page();
+	ready = true;
 }
 
 void	Response::create_error(int status_code)
@@ -112,6 +116,7 @@ void	Response::create_error(int status_code)
 		_get_predefined_error_page();
 	else
 		_get_default_error_page();
+	ready = true;
 }
 
 /*==============================================================================
