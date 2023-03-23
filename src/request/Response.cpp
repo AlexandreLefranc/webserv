@@ -182,12 +182,12 @@ void	Response::_serve_get(std::string& target)
 	
 	if (_is_cgi_file(target))
 	{
-		std::cout << YEL << "[Response]Called CGI." << CRESET << std::endl;
+		std::cout << YEL << "[Response] GET with CGI." << CRESET << std::endl;
 		_call_cgi();
 	}
 	else
 	{
-		std::cout << "File no cgi" << std::endl;
+		std::cout << YEL << "[Response] GET on regular file." << CRESET << std::endl;
 		_fetch_ressource(target);
 	}
 
@@ -243,7 +243,7 @@ void	Response::_serve_post(const std::string& target)
 	else
 	{
 		std::cout << YEL << "[Response] POST on not allowed target" << CRESET << std::endl;
-		
+		response_status = Status::Forbidden;
 	}
 }
 
