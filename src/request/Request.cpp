@@ -24,8 +24,6 @@ std::string		Request::_get_line()
 	return line;
 }
 
-
-
 void	Request::_process_start_line()
 {
 	std::string line = _get_line();
@@ -42,6 +40,9 @@ void	Request::_process_start_line()
 	{
 		std::cout << YEL << "[Request] 501 Not Implemented" << CRESET << std::endl;
 		ResponseGenerator::send_error(501, "Not Implemented", _client_fd);
+		// response.create_error(501);
+		// std::vector<char>	reponse_vector = response.build_error_response_vector();
+		// send(fd, reponse_vector.data(), response_vector.size(), 0);
 		throw CloseClientException();
 	}
 
