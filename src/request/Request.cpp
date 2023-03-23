@@ -106,7 +106,6 @@ bool	Request::_process_header()
 
 		if (_has_body == false)
 		{
-			// std::cout << YEL << "[Request] Ready to respond" << CRESET << std::endl;
 			return true;
 		}
 		else
@@ -126,14 +125,14 @@ bool	Request::_process_header()
 	std::vector<std::string>	splitted = split_first(line, ":");
 	std::string					key = tolowerstr(trim(splitted[0]));
 	std::string					value = trim(splitted[1]);
-	// if (key == "content-type" && value.find("multipart") != std::string::npos)
-	// {
-	// 	std::vector<std::string>	split_boundary = split_first(value, "; ");
-	// 	_headers[key] = split_boundary[0];
-	// 	split_boundary = split_first(split_boundary[1], "=");
-	// 	_headers[split_boundary[0]] = split_boundary[1];
-	// }
-	// else
+	if (key == "content-type" && value.find("multipart") != std::string::npos)
+	{
+		_headers[key] = value;
+		std::vector<std::string>	split_boundary = split_first(value, "; ");
+		split_boundary = split_first(split_boundary[1], "=");
+		_headers[split_boundary[0]] = split_boundary[1];
+	}
+	else
 		_headers[key] = value;
 
 	return false;
@@ -328,10 +327,10 @@ bool	Request::parse_data(const std::vector<char>& data)
 	std::cout << "raw_d size:" << _raw_d.size() << " | _raw_s len:" <<  _raw_s.length() << std::endl;
 	std::cout << "raw:" << std::endl << _raw_s;
 
-	if (data_s == "STOP" || data_s == "STOP\r\n")
-	{
-		throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
-	}
+	// if (data_s == "STOP" || data_s == "STOP\r\n")
+	// {
+	// 	throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
+	// }
 
 	while (_has_start_line == false && _raw_s.find_first_of("\r\n") == 0)
 	{
