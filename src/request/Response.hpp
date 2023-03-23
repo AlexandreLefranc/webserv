@@ -33,17 +33,23 @@ struct Status
 
 	bool	is_error() const;
 	
-	static const Status	Forbidden;
-	static const Status	NotFound;
 	static const Status	OK;
 	static const Status	Created;
 	static const Status	NoContent;
 	static const Status	MovedPermanently;
+	static const Status	BadRequest;
+	static const Status	Forbidden;
+	static const Status	NotFound;
 	static const Status	MethodNotAllowed;
+	static const Status	InternalServerError;
+	static const Status	NotImplemented;
+	static const Status	HTTPVersionNotSupported;
 };
 
 class Response
 {
+public:
+	bool	ready;
 private:
 	Status					response_status;
 	string_map				headers;
@@ -61,12 +67,16 @@ public:
 	~Response();
 
 	void	create();
+	void	create_error(int status_code);
 	void	send(int fd) const;
 
 	// Getters
 	const Status&				get_status() const;
 	const string_map&			get_headers() const;
 	const std::vector<char>&	get_body() const;
+	//	Build reponse
+	std::vector<char>			build_response_vector() const;
+	std::vector<char>			build_error_response_vector() const;
 
 private:
 	void				_serve(std::string& target);
