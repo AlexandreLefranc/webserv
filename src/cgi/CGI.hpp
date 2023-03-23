@@ -40,7 +40,7 @@ private:
 
 	// execve variables
 	char**						_envp;
-	char*						_cmd[4];
+	char*						_cmd[3];
 
 public:
 	string_map			cgi_headers;

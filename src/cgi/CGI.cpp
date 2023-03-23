@@ -65,7 +65,6 @@ void				CGI::_init_arrays()
 	_cmd[0] = const_cast<char*>(_exec.c_str());
 	_cmd[1] = const_cast<char*>(_fullpath.c_str());
 	_cmd[2] = NULL;
-	_cmd[3] = NULL;
 
 	display_cstyle_string_array(_cmd, "_cmd");
 }
@@ -76,10 +75,12 @@ void				CGI::_run_cgi()
 	std::vector<char>	res_d;
 	int					pipein[2];
 	int					pipeout[2];
+
 	if (pipe(pipeout) < 0 || pipe(pipein) < 0)
 	{
 		throw std::runtime_error("pipe() failed");
 	}
+
 	std::cout << "Writing " << _req._body.size() << " bytes to execve" << std::endl;
 	write(pipein[WRITE_END], _req._body.data(), _req._body.size());
 	close(pipein[WRITE_END]);
@@ -93,11 +94,10 @@ void				CGI::_run_cgi()
 	if (pid == 0)
 	{
 		close(pipeout[READ_END]);
-		// close(STDOUT_FILENO);
+		close(STDOUT_FILENO);
 		dup2(pipeout[WRITE_END], STDOUT_FILENO);
 
-		// close(pipein[WRITE_END]);
-		// close(STDIN_FILENO);
+		close(STDIN_FILENO);
 		dup2(pipein[READ_END], STDIN_FILENO);
 
 		// std::ofstream	debug_out("debug_out");
@@ -126,7 +126,6 @@ void				CGI::_run_cgi()
 		wait(NULL);
 
 		close(pipeout[READ_END]);
-		// close(pipein[WRITE_END]);
 	}
 
 	_format_output(res_d);
