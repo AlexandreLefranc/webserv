@@ -21,7 +21,7 @@ Status::Status(int code, std::string msg)
 
 bool	Status::is_error() const
 {
-	if (this->code != 200)
+	if (this->code >= 300)
 		return (true);
 	else
 		return (false);
@@ -33,6 +33,7 @@ const Status Status::NoContent = Status(204, "No Content");
 const Status Status::MovedPermanently = Status(301, "Moved Permanently");
 const Status Status::Forbidden = Status(403, "Not Allowed");
 const Status Status::NotFound = Status(404, "Not Found");
+const Status Status::MethodNotAllowed = Status(405, "Method Not Allowed");
 
 /*==============================================================================
 
@@ -67,10 +68,12 @@ void	Response::create()
 	location_addr = config.get_location_addr(target); // throws ResponseException();
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
+	std::cout << YEL << "[RESPONSE]location_match: " << location_addr->get_location_match() << CRESET << std::endl;
+	std::cout << YEL << "[RESPONSE]location root: " << location_addr->get_root() << CRESET << std::endl;
 	if (location_addr->get_methods().count(request.get_method()) == 0)
 	{
 		std::cout << YEL << "[Response]Forbidden" << CRESET << std::endl;
-		response_status = Status::Forbidden;
+		response_status = Status::MethodNotAllowed;
 		return ;
 	}
 	if (!location_addr->get_redirect().empty())
@@ -232,9 +235,6 @@ void	Response::_upload_file(const std::string& target)
 	}
 	std::cout << YEL << "[RESPONSE]File opened: " << filename << CRESET << std::endl;
 	it = vec_find(request._body, "\r\n\r\n") + 4;
-	// std::string	my_string(request._body.begin(), request._body.end());
-	// std::cout << "[Find \n\r\n\r]"
-	// std::cout << YEL << "[RESPONSE]printing: \"" << *vec_find(request._body, "\r\n\r\n--" + request._headers.at("boundary") + "--") << "\"" << CRESET << std::endl;
 	ofs.write(it.base(), vec_find(request._body, "\r\n--" + request._headers.at("boundary") + "--") - it);
 	ofs.close();
 	if (ofs.fail())
@@ -270,6 +270,7 @@ std::string	Response::_get_filename() const
 
 void	Response::_serve_delete(const std::string& target)
 {
+	//	Secure 
 	if (std::remove(target.c_str()) == 0)
 		response_status = Status::OK;
 	else

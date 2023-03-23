@@ -57,13 +57,13 @@ void	HTTPConfig::_parse()
 {
 	std::string		line;
 
-	std::cout << content.str() << std::endl;
+	// std::cout << content.str() << std::endl;
 
 	while (std::getline(content, line))
 	{
 		std::cout << line << std::endl;
 		line = format_line(line);
-		std::cout << line << std::endl;
+		std::cout << RED << "[HTTP]Config line: " << line << CRESET << std::endl;
 		if (line.empty())
 			continue ;
 		_parse_line(line);
@@ -73,10 +73,7 @@ void	HTTPConfig::_parse()
 void	HTTPConfig::_parse_block(std::string& line)
 {
 	if (line.find("server") != std::string::npos)
-	{
 		virtual_server_config.push_back(ServerConfig(&content));
-		std::cout << "cgi ?? " << virtual_server_config.back().get_cgi().first << std::endl;
-	}
 	else if (line.find("http"))
 	{
 		std::getline(content, line);
@@ -107,23 +104,24 @@ void	HTTPConfig::_parse_line(std::string& line)
 void	HTTPConfig::_insert_token(std::vector<std::string> tokens)
 {
 	//	Other config options go HERE with `else if`.
-	if (tokens.size() > 0)
+	if (tokens.size() == 2 && tokens[0] == "client_max_body_size")
+	{
+		client_max_body_size = std::atoi(tokens[1].c_str());
+		std::cout << RED << "[HTTP]Got client max body size: " << client_max_body_size << CRESET << std::endl;
+	}
+	else
 		throw (ParsingException());
 }
 
 void	HTTPConfig::_check() const
 {
+	std::list<ServerConfig>::const_iterator it;
+
 	if (virtual_server_config.empty() == true)
 	{
 		std::cout << BRED << "Config check failed: No virtual server" << CRESET << std::endl;
 		throw ParsingException();
 	}
-
-	std::list<ServerConfig>::const_iterator it;
 	for (it = virtual_server_config.begin(); it != virtual_server_config.end(); ++it)
-	{
 		it->check();
-	}
-
-
 }

@@ -21,6 +21,8 @@ ServerLocation::ServerLocation(std::stringstream* config, std::string& location_
 	KnownMethods.insert("GET");
 	KnownMethods.insert("POST");
 	KnownMethods.insert("DELETE");
+	std::cout << RED << "[LOCATION]Adding location " << location_match;
+	std::cout << (exact_match ? " with exact match" : "") << CRESET << std::endl;
 	_parse();
 	return ;
 }
@@ -122,9 +124,15 @@ bool	ServerLocation::location_is_match(const std::string& target) const
 void	ServerLocation::fill_default(std::string serv_root, std::string serv_index)
 {
 	if (root.empty())
+	{
+		std::cout << RED << "[LOCATION]\"" << location_match << "\": setting default root." << CRESET << std::endl;
 		root = serv_root;
+	}
 	if (index.empty() && autoindex == false)
+	{
+		std::cout << RED << "[LOCATION]\"" << location_match << "\"setting default index." << CRESET << std::endl;
 		index = serv_index;
+	}
 }
 
 /*==============================================================================
@@ -133,13 +141,13 @@ void	ServerLocation::fill_default(std::string serv_root, std::string serv_index)
 
 void	ServerLocation::check() const
 {
-	if (methods.empty() == true)
+	std::set<std::string>::const_iterator	it;
+
+	if (methods.empty())
 	{
 		std::cout << BRED << "Config check failed: No method" << CRESET << std::endl;
 		throw ParsingException();
 	}
-
-	std::set<std::string>::const_iterator	it;
 	for (it = methods.begin();it != methods.end(); ++it)
 	{
 		if (KnownMethods.count(*it) == 0)
@@ -148,13 +156,11 @@ void	ServerLocation::check() const
 			throw ParsingException();
 		}
 	}
-
-	if (root.empty() == true)
+	if (root.empty())
 	{
 		std::cout << BRED << "Config check failed: No root in loc" << CRESET << std::endl;
 		throw ParsingException();
 	}
-
 	if (access(root.c_str(), F_OK) != 0)
 	{
 		std::cout << BRED << "Config check failed: root does not exist" << CRESET << std::endl;
@@ -178,8 +184,9 @@ void	ServerLocation::_parse()
 
 	while (std::getline(*content, line))
 	{
-		// std::cout << "[ServerLocation]line: " << line << std::endl;
+		std::cout << line << std::endl;
 		line = format_line(line);
+		std::cout << RED << "[LOCATION]Config line: " << line << CRESET << std::endl;
 		if (line.empty())
 			continue ;
 		else if (line == "}")
@@ -195,15 +202,23 @@ void	ServerLocation::_parse_line(std::string& line)
 	if (tokens.size() == 0)
 		throw (ParsingException());
 	if (tokens.front() == "index" && tokens.size() == 2 && index.empty())
+	{
 		index = tokens[1];
+		std::cout << RED << "[LOCATION]Got index: " << index << CRESET << std::endl;
+	}
 	else if (tokens.front() == "root" && tokens.size() == 2 && root.empty())
+	{
 		root = tokens[1];
+		std::cout << RED << "[LOCATION]Got root: " << root << CRESET << std::endl;
+	}
 	else if (tokens.front() == "methods" && methods.empty())
 	{
-		for (std::vector<std::string>::iterator	it = tokens.begin() + 1; it != tokens.end(); it++)
-		{
+		for (std::vector<std::string>::iterator it = tokens.begin() + 1; it != tokens.end(); it++)
 			methods.insert(*it);
-		}
+		std::cout << RED << "[LOCATION]Allowed methods: ";
+		for (std::set<std::string>::iterator it = methods.begin(); it != methods.end(); it++)
+			std::cout << *it << " ";
+		std::cout << CRESET << std::endl;
 	}
 	else if (tokens.front() == "autoindex" && tokens.size() <= 2)
 	{
@@ -213,9 +228,13 @@ void	ServerLocation::_parse_line(std::string& line)
 			autoindex = false;
 		else
 			throw (ParsingException());
+		std::cout << RED << "[LOCATION]Got autoindex: " << autoindex << CRESET << std::endl;
 	}
 	else if (tokens.front() == "redirect" && redirect.empty())
+	{
 		redirect = tokens[1];
+		std::cout << RED << "[LOCATION]Got autoindex: " << autoindex << CRESET << std::endl;
+	}
 	else
 		throw (ParsingException());
 }
