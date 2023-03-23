@@ -68,6 +68,8 @@ void	Response::create()
 	location_addr = config.get_location_addr(target); // throws ResponseException();
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
+	std::cout << YEL << "[RESPONSE]location_match: " << location_addr->get_location_match() << CRESET << std::endl;
+	std::cout << YEL << "[RESPONSE]location root: " << location_addr->get_root() << CRESET << std::endl;
 	if (location_addr->get_methods().count(request.get_method()) == 0)
 	{
 		std::cout << YEL << "[Response]Forbidden" << CRESET << std::endl;

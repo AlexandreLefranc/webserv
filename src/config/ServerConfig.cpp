@@ -138,9 +138,7 @@ void	ServerConfig::check() const
 
 	std::vector<ServerLocation>::const_iterator it2;
 	for (it2 = locations.begin(); it2 != locations.end(); ++it2)
-	{
 		it2->check();
-	}
 
 	if (cgi.second.empty() == false)
 	{
@@ -151,7 +149,6 @@ void	ServerConfig::check() const
 			throw ParsingException();
 		}
 	}
-
 }
 
 /*==============================================================================
@@ -170,8 +167,9 @@ void	ServerConfig::_parse()
 
 	while (std::getline(*content, line))
 	{
-		// std::cout << line << std::endl;
+		std::cout << line << std::endl;
 		line = format_line(line);
+		std::cout << RED << "[Server]Config line: " << line << CRESET << std::endl;
 		if (line.empty())
 			continue ;
 		else if (line == "}")
@@ -208,19 +206,37 @@ void	ServerConfig::_parse_line(std::string& line)
 void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 {
 	if (tokens.front() == "root" && tokens.size() == 2 && root.empty())
+	{
 		root = tokens[1];
+		std::cout << RED << "[Server]Got root: " << root << CRESET << std::endl;
+	}
 	else if (tokens.front() == "server_name" && tokens.size() == 2 && server_name.empty())
+	{
 		server_name = tokens[1];
+		std::cout << RED << "[Server]Got server name: " << server_name << CRESET << std::endl;
+	}
 	else if (tokens.front() == "listen" && tokens.size() == 2 && listen_port == std::make_pair<int, short>(0, 80))
+	{
 		listen_port = _parse_address(tokens[1]);
+		std::cout << RED << "[Server]Got port: " << listen_port.first << ":";
+		std::cout << listen_port.second << CRESET << std::endl;
+	}
 	else if (tokens.front() == "error_page" && tokens.size() == 3)
+	{
 		error_page.insert(std::make_pair(std::atoi(tokens[1].c_str()), tokens[2]));
+		std::cout << RED << "[Server]Got error page: " << tokens[1] << " -> ";
+		std::cout << tokens[2] << CRESET << std::endl;
+	}
 	else if (tokens.front() == "index" && tokens.size() == 2 && index == "index.html")
+	{
 		index = tokens[1];
+		std::cout << RED << "[Server]Got index: " << index << CRESET << std::endl;
+	}
 	else if (tokens.front() == "cgi" && tokens.size() == 3 && cgi.first.empty())
 	{
 		cgi = std::make_pair(tokens[1], tokens[2]);
-		std::cout << "cgi= (" << cgi.first << ", " << cgi.second << ")" << std::endl;
+		std::cout << RED << "[Server]Got CGI: " << cgi.first << " -> ";
+		std::cout << cgi.second << CRESET << std::endl;
 	}
 	else
 		throw (ParsingException());
@@ -244,7 +260,6 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 	std::string								location;
 	std::vector<ServerLocation>::iterator	pos;
 
-	// std::cout << "[_add_location]tokens size: " << tokens.size() << std::endl;
 	location = tokens[1];
 	if (tokens.size() == 3)
 	{
@@ -273,7 +288,8 @@ void	ServerConfig::_add_location(std::vector<std::string>& tokens)
 		else
 			continue ;
 	}
-	locations.insert(pos, ServerLocation(content, location, exact_match));
-	locations.back().fill_default(root, index);
+	std::cout << RED << "[Server]Adding location \"" << location << "\"" << CRESET << std::endl;
+	pos = locations.insert(pos, ServerLocation(content, location, exact_match));
+	pos->fill_default(root, index);
 	return ;
 }
