@@ -31,9 +31,13 @@ const Status Status::OK = Status(200, "OK");
 const Status Status::Created = Status(201, "Created");
 const Status Status::NoContent = Status(204, "No Content");
 const Status Status::MovedPermanently = Status(301, "Moved Permanently");
+const Status Status::BadRequest = Status(400, "Bad Request");
 const Status Status::Forbidden = Status(403, "Not Allowed");
 const Status Status::NotFound = Status(404, "Not Found");
 const Status Status::MethodNotAllowed = Status(405, "Method Not Allowed");
+const Status Status::InternalServerError = Status(500, "Internal Server Error");
+const Status Status::NotImplemented = Status(501, "Not Implemented");
+const Status Status::HTTPVersionNotSupported = Status(505, "HTTP Version Not Supported");
 
 /*==============================================================================
 
@@ -46,7 +50,8 @@ const Status Status::MethodNotAllowed = Status(405, "Method Not Allowed");
 ==============================================================================*/
 
 Response::Response(const Request& request, const ServerConfig& config)
-	: request(request)
+	: ready(false)
+	, request(request)
 	, config(config)
 {
 	return ;
@@ -74,6 +79,7 @@ void	Response::create()
 	{
 		std::cout << YEL << "[Response]Forbidden" << CRESET << std::endl;
 		response_status = Status::MethodNotAllowed;
+		ready = true;
 		return ;
 	}
 	if (!location_addr->get_redirect().empty())
@@ -81,6 +87,7 @@ void	Response::create()
 		std::cout << YEL << "[Response]MovedPermanently" << CRESET << std::endl;
 		response_status = Status::MovedPermanently;
 		_add_header("Location", location_addr->get_redirect());
+		ready = true;
 		return ;
 	}
 	target = location_addr->get_root() + target;
@@ -90,6 +97,26 @@ void	Response::create()
 		_get_predefined_error_page();
 	else if (response_status.is_error())
 		_get_default_error_page();
+	ready = true;
+}
+
+void	Response::create_error(int status_code)
+{
+	if (status_code == 400)
+		response_status = Status::BadRequest;
+	else if (status_code == 500)
+		response_status = Status::InternalServerError;
+	else if (status_code == 501)
+		response_status = Status::NotImplemented;
+	else if (status_code == 505)
+		response_status = Status::HTTPVersionNotSupported;
+	else
+		throw (ResponseException());
+	if (config.get_error_page().count(response_status.code) == 1)
+		_get_predefined_error_page();
+	else
+		_get_default_error_page();
+	ready = true;
 }
 
 /*==============================================================================
@@ -279,8 +306,25 @@ void	Response::_serve_delete(const std::string& target)
 }
 
 /*==============================================================================
-								Send Response.
+								Build Response.
 ==============================================================================*/
+
+std::vector<char>	Response::build_response_vector() const
+{
+	std::stringstream	ss_response;
+	std::string			buffer;
+	std::vector<char>	page;
+
+	ss_response	<< response_status.protocol << " " << response_status.code
+				<< " " << response_status.message << "\r\n";
+	for (string_map::const_iterator it = headers.begin(); it != headers.end(); ++it)
+		ss_response << it->first << ": " << it->second << "\r\n";
+	ss_response << "\r\n";
+	buffer = ss_response.str();
+	page.assign(buffer.begin(), buffer.end());
+	page.insert(page.end(), body.begin(), body.end());
+	return (page);
+}
 
 void	Response::_get_predefined_error_page()
 {
