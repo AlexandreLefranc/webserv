@@ -1,7 +1,8 @@
 #include "Request.hpp"
 
-Request::Request()
-	: _client_fd(-1)
+Request::Request(const ServerConfig& config)
+	: _config(config)
+	, _client_fd(-1)
 	, _has_start_line(false)
 	, _is_header_done(false)
 	, _has_body(false)
@@ -106,7 +107,6 @@ bool	Request::_process_header()
 
 		if (_has_body == false)
 		{
-			// std::cout << YEL << "[Request] Ready to respond" << CRESET << std::endl;
 			return true;
 		}
 		else
@@ -126,10 +126,10 @@ bool	Request::_process_header()
 	std::vector<std::string>	splitted = split_first(line, ":");
 	std::string					key = tolowerstr(trim(splitted[0]));
 	std::string					value = trim(splitted[1]);
-	if (key == "content-type" && value.find("multipart") >= 0)
+	if (key == "content-type" && value.find("multipart") != std::string::npos)
 	{
+		_headers[key] = value;
 		std::vector<std::string>	split_boundary = split_first(value, "; ");
-		_headers[key] = split_boundary[0];
 		split_boundary = split_first(split_boundary[1], "=");
 		_headers[split_boundary[0]] = split_boundary[1];
 	}
@@ -153,9 +153,17 @@ void	Request::_check_headers()
 		_has_body = true;
 		_body_len = std::atol(_headers["content-length"].c_str());
 		_body_type = "content-length";
+
+		// if (_body_len > _config.get_body_limit_size())
+		// {
+		// 	std::cout << YEL << "[Request] 413 Payload Too Large" << CRESET << std::endl;
+		// 	send(_client_fd, "413 Payload Too Large\r\n", 25, 0);
+		// 	throw CloseClientException();
+		// }
+
 		if (_headers.find("content-type") != _headers.end())
 		{
-			_process_content_type();
+			_check_content_type();
 		}
 	}
 
@@ -171,7 +179,7 @@ void	Request::_check_headers()
 	return;
 }
 
-void	Request::_process_content_type()
+void	Request::_check_content_type()
 {
 	if (_headers["content-type"].compare(0, 33, "application/x-www-form-urlencoded") == 0)
 	{
@@ -264,10 +272,17 @@ bool	Request::_process_body_chunk()
 
 		if (got_size == true)
 		{
+			// if (_body.size() + chunk_size > _config.get_body_limit_size())
+			// {
+			// 		std::cout << YEL << "[Request] 413 Payload Too Large" << CRESET << std::endl;
+			// 		send(_client_fd, "413 Payload Too Large\r\n", 25, 0);
+			// 		throw CloseClientException();
+			// }
+
 			// std::cout << "raw_d.size() = " << _raw_d.size() << std::endl;
 			if (_raw_d.size() < chunk_size + 2)
 			{
-				return false;
+				return false; // incomplete chunk
 			}
 
 			size_t	next_crlf = _raw_s.find("\r\n", chunk_size);
@@ -313,10 +328,10 @@ bool	Request::parse_data(const std::vector<char>& data)
 	std::cout << "raw_d size:" << _raw_d.size() << " | _raw_s len:" <<  _raw_s.length() << std::endl;
 	std::cout << "raw:" << std::endl << _raw_s;
 
-	if (data_s == "STOP" || data_s == "STOP\r\n")
-	{
-		throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
-	}
+	// if (data_s == "STOP" || data_s == "STOP\r\n")
+	// {
+	// 	throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
+	// }
 
 	while (_has_start_line == false && _raw_s.find_first_of("\r\n") == 0)
 	{

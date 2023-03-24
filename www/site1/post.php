@@ -7,4 +7,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Process the data
   echo "Hello, $name! You are $age years old.";
 }
+
+echo "Nop";
 ?>

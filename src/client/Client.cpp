@@ -3,7 +3,7 @@
 Client::Client(int server_fd, const ServerConfig& config)
 	: fd(-1)
 	, config(config)
-	, request()
+	, request(config)
 	, request_complete(false)
 	, response(request, config)
 {
