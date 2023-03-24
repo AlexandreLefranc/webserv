@@ -5,7 +5,8 @@ ClientManager::ClientManager()
 
 ClientManager::~ClientManager()
 {
-	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	std::map<int, Client*>::iterator it;
+	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
 		delete it->second;
 	}
@@ -13,7 +14,7 @@ ClientManager::~ClientManager()
 
 int	ClientManager::create_client(int server_fd, const ServerConfig& config)
 {
-	Client* new_client = new Client(server_fd, config);
+	Client* new_client = new Client(server_fd, config); // can throw
 	_clients[new_client->fd] = new_client;
 
 	return new_client->fd;

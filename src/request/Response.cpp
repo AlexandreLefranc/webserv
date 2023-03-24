@@ -168,7 +168,7 @@ void	Response::_serve_get(std::string& target)
 	{
 		std::cout << "Directory with autoindex" << std::endl;
 		body = HTMLGenerator::dirlist(target, request.get_target());
-		std::cout << "Body :" << std::string(body.begin(), body.end()) << std::endl;
+		// std::cout << "Body :" << std::string(body.begin(), body.end()) << std::endl;
 		_add_header("Content-Length", itos(body.size()));
 		response_status = Status::OK;
 		return ;

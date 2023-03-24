@@ -26,7 +26,7 @@ void	HTTPServer::_create_client(int server_fd)
 
 	const	ServerConfig&	config = _server_manager.get_server_config(server_fd);
 
-	int client_fd = _client_manager.create_client(server_fd, config);
+	int client_fd = _client_manager.create_client(server_fd, config); // can throw
 	_fds[client_fd] = "CLIENT";
 	_epoll.add_fd(client_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET);
 }
@@ -69,16 +69,20 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 		}
 		catch (const CloseClientException& e)
 		{
+			// client.response.create_error();
 			_remove_client(client_fd);
-			return -1;
 		}
 	}
 
-	if ((event.events & EPOLLOUT) != 0 && client.request_complete == true)
+	if (client.request_complete == true && client.response.ready == false)
+	{
+		std::cout << CYN << "[HTTPServer] Created response!" << CRESET << std::endl;
+		client.create_response();
+	}
+
+	if ((event.events & EPOLLOUT) != 0 && client.response.ready == true)
 	{
 		std::cout << CYN << "[HTTPServer] Sending data to client!" << CRESET << std::endl;
-		client.create_response();
-		std::cout << CYN << "[HTTPServer] Created response!" << CRESET << std::endl;
 		client.send_response();
 
 		_remove_client(client_fd);
@@ -110,23 +114,28 @@ void	HTTPServer::run()
 			// display_epoll_event(event[i]);
 			if (_fds[event[i].data.fd] == "SERVER")
 			{
-				_create_client(event[i].data.fd);
-				continue;
+				try
+				{
+					_create_client(event[i].data.fd); // throw only if accept() fail
+				}
+				catch (const std::runtime_error& e)
+				{
+					std::cout << BRED << "[HTTPServer] Runtime error: " << e.what() << CRESET << std::endl;
+					// Throw only if accept() fails, so no client fd, so nothing else to do
+				}
 			}
 			
 			if (_fds[event[i].data.fd] == "CLIENT")
 			{
 				try
 				{
-					int ret = _communicate_with_client(event[i]);
-					if (ret == -1)
-					{
-						continue;
-					}
+					_communicate_with_client(event[i]); // can throw
 				}
-				catch (const std::runtime_error& e)
+				catch (const std::exception& e)
 				{
-					std::cout << BRED << "[HTTPServer] Runtime error: " << e.what() << CRESET << std::endl;
+					std::cout << BRED << "[HTTPServer] client error: " << e.what() << CRESET << std::endl;
+
+
 					// send internal server error;
 					_remove_client(event[i].data.fd);
 				}
