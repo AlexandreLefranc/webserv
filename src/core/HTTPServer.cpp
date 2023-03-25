@@ -26,7 +26,7 @@ void	HTTPServer::_create_client(int server_fd)
 
 	const	ServerConfig&	config = _server_manager.get_server_config(server_fd);
 
-	int client_fd = _client_manager.create_client(server_fd, config); // can throw
+	int client_fd = _client_manager.create_client(server_fd, _config, config); // can throw
 	_fds[client_fd] = "CLIENT";
 	_epoll.add_fd(client_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET);
 }
@@ -102,10 +102,10 @@ void	HTTPServer::_internal_server_error(const struct epoll_event& event)
 	
 		if ((event.events & EPOLLOUT) != 0)
 			_client_manager.get_client(event.data.fd).send_response();
-
-		_remove_client(event.data.fd);
 	}
 	catch (...) {} // swallow exception for resilience
+
+	_remove_client(event.data.fd);
 }
 
 /*******************************************************************************

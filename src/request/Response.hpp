@@ -41,6 +41,7 @@ struct Status
 	static const Status	Forbidden;
 	static const Status	NotFound;
 	static const Status	MethodNotAllowed;
+	static const Status	ContentTooLarge;
 	static const Status	InternalServerError;
 	static const Status	NotImplemented;
 	static const Status	HTTPVersionNotSupported;

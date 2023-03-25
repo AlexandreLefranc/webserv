@@ -10,6 +10,7 @@
 
 # include "webserv.hpp"
 # include "utils/Exceptions.hpp"
+# include "config/HTTPConfig.hpp"
 # include "config/ServerConfig.hpp"
 # include "request/ResponseGenerator.hpp"
 
@@ -21,6 +22,7 @@ private: // Disable defaults behaviors
 	Request&	operator=(const Request& src);
 
 private:
+	const HTTPConfig&					_httpconfig;
 	const ServerConfig&					_config;
 	int									_client_fd;
 
@@ -59,7 +61,7 @@ private:
 	bool	_process_body_chunk();
 
 public:
-	Request(const ServerConfig& config);
+	Request(const HTTPConfig& httpconfig, const ServerConfig& config);
 	~Request();
 
 	void	set_client_fd(int client_fd);

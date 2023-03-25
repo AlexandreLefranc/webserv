@@ -1,9 +1,10 @@
 #include "client/Client.hpp"
 
-Client::Client(int server_fd, const ServerConfig& config)
+Client::Client(int server_fd, const HTTPConfig& httpconfig, const ServerConfig& config)
 	: fd(-1)
+	, httpconfig(httpconfig)
 	, config(config)
-	, request(config)
+	, request(httpconfig, config)
 	, request_complete(false)
 	, response(request, config)
 {

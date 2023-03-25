@@ -11,6 +11,7 @@
 # include "webserv.hpp"
 # include "request/Request.hpp"
 # include "request/Response.hpp"
+# include "config/HTTPConfig.hpp"
 # include "config/ServerConfig.hpp"
 
 // Purpose: Keep all info relative to a Client
@@ -25,6 +26,7 @@ private: // Disable defaults behaviors
 
 public:
 	int						fd;
+	const HTTPConfig&		httpconfig;
 	const ServerConfig&		config;
 
 	Request		request;
@@ -32,7 +34,7 @@ public:
 	
 	Response	response;
 
-	Client(int server_fd, const ServerConfig& config);
+	Client(int server_fd, const HTTPConfig& httpconfig, const ServerConfig& config);
 	~Client();
 
 	void	parse_request();

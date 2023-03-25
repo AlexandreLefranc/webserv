@@ -35,6 +35,7 @@ const Status Status::BadRequest = Status(400, "Bad Request");
 const Status Status::Forbidden = Status(403, "Not Allowed");
 const Status Status::NotFound = Status(404, "Not Found");
 const Status Status::MethodNotAllowed = Status(405, "Method Not Allowed");
+const Status Status::ContentTooLarge = Status(413, "Content Too Large");
 const Status Status::InternalServerError = Status(500, "Internal Server Error");
 const Status Status::NotImplemented = Status(501, "Not Implemented");
 const Status Status::HTTPVersionNotSupported = Status(505, "HTTP Version Not Supported");
@@ -104,6 +105,8 @@ void	Response::create_error(int status_code)
 {
 	if (status_code == 400)
 		response_status = Status::BadRequest;
+	else if (status_code == 413)
+		response_status = Status::ContentTooLarge;
 	else if (status_code == 500)
 		response_status = Status::InternalServerError;
 	else if (status_code == 501)

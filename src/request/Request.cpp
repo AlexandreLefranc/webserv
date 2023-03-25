@@ -1,7 +1,8 @@
 #include "Request.hpp"
 
-Request::Request(const ServerConfig& config)
-	: _config(config)
+Request::Request(const HTTPConfig& httpconfig, const ServerConfig& config)
+	: _httpconfig(httpconfig)
+	, _config(config)
 	, _client_fd(-1)
 	, _has_start_line(false)
 	, _is_header_done(false)
@@ -145,12 +146,11 @@ void	Request::_check_headers()
 		_body_len = std::atol(_headers["content-length"].c_str());
 		_body_type = "content-length";
 
-		// if (_body_len > _config.get_body_limit_size())
-		// {
-		// 	std::cout << YEL << "[Request] 413 Payload Too Large" << CRESET << std::endl;
-		// 	send(_client_fd, "413 Payload Too Large\r\n", 25, 0);
-		// 	throw CloseClientException();
-		// }
+		if (_body_len > _httpconfig.get_max_body_size())
+		{
+			std::cout << YEL << "[Request] 413 Content Too Large" << CRESET << std::endl;
+			throw RequestParsingException(413);
+		}
 
 		if (_headers.find("content-type") != _headers.end())
 		{
@@ -262,12 +262,11 @@ bool	Request::_process_body_chunk()
 
 		if (got_size == true)
 		{
-			// if (_body.size() + chunk_size > _config.get_body_limit_size())
-			// {
-			// 		std::cout << YEL << "[Request] 413 Payload Too Large" << CRESET << std::endl;
-			// 		send(_client_fd, "413 Payload Too Large\r\n", 25, 0);
-			// 		throw CloseClientException();
-			// }
+			if (_body.size() + chunk_size > _httpconfig.get_max_body_size())
+			{
+				std::cout << YEL << "[Request] 413 Content Too Large" << CRESET << std::endl;
+				throw RequestParsingException(413);
+			}
 
 			// std::cout << "raw_d.size() = " << _raw_d.size() << std::endl;
 			if (_raw_d.size() < chunk_size + 2)

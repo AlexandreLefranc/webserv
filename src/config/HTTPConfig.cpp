@@ -12,6 +12,7 @@
 ==============================================================================*/
 
 HTTPConfig::HTTPConfig(const std::string& config_file)
+	: client_max_body_size(-1)
 {
 	std::cout << RED << "[HTTPConfig] Initiate Config" << CRESET << std::endl;
 	std::ifstream		config(config_file.c_str());
@@ -41,6 +42,11 @@ HTTPConfig::~HTTPConfig()
 const std::list<ServerConfig>&	HTTPConfig::get_virtual_server_config() const
 {
 	return (virtual_server_config);
+}
+
+size_t							HTTPConfig::get_max_body_size() const
+{
+	return (client_max_body_size);
 }
 
 /*==============================================================================

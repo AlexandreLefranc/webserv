@@ -12,9 +12,9 @@ ClientManager::~ClientManager()
 	}
 }
 
-int	ClientManager::create_client(int server_fd, const ServerConfig& config)
+int	ClientManager::create_client(int server_fd, const HTTPConfig& httpconfig, const ServerConfig& config)
 {
-	Client* new_client = new Client(server_fd, config); // can throw
+	Client* new_client = new Client(server_fd, httpconfig, config); // can throw
 	_clients[new_client->fd] = new_client;
 
 	return new_client->fd;
