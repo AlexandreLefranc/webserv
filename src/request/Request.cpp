@@ -1,7 +1,8 @@
 #include "Request.hpp"
 
-Request::Request(const ServerConfig& config)
-	: _config(config)
+Request::Request(const HTTPConfig& httpconfig, const ServerConfig& config)
+	: _httpconfig(httpconfig)
+	, _config(config)
 	, _client_fd(-1)
 	, _has_start_line(false)
 	, _is_header_done(false)
@@ -33,25 +34,19 @@ void	Request::_process_start_line()
 	if (splitted.size() != 3)
 	{
 		std::cout << YEL << "[Request] 501 Not Implemented" << CRESET << std::endl;
-		ResponseGenerator::send_error(501, "Not Implemented", _client_fd);
-		throw CloseClientException();
+		throw RequestParsingException(501);
 	}
 
 	if (splitted[0] != "GET" && splitted[0] != "POST" && splitted[0] != "DELETE")
 	{
 		std::cout << YEL << "[Request] 501 Not Implemented" << CRESET << std::endl;
-		ResponseGenerator::send_error(501, "Not Implemented", _client_fd);
-		// response.create_error(501);
-		// std::vector<char>	reponse_vector = response.build_error_response_vector();
-		// send(fd, reponse_vector.data(), response_vector.size(), 0);
-		throw CloseClientException();
+		throw RequestParsingException(501);
 	}
 
 	if (splitted[2] != "HTTP/1.1")
 	{
 		std::cout << YEL << "[Request] 505 HTTP Version Not Supported" << CRESET << std::endl;
-		ResponseGenerator::send_error(505, "HTTP Version Not Supported", _client_fd);
-		throw CloseClientException();
+		throw RequestParsingException(505);
 	}
 
 	_method = splitted[0];
@@ -85,8 +80,7 @@ void	Request::_process_target(const std::string& target)
 		if (equal_split.size() == 1)
 		{
 			std::cout << YEL << "[Request] 400 Bad Request" << CRESET << std::endl;
-			ResponseGenerator::send_error(400, "Bad Request", _client_fd);
-			throw CloseClientException();
+			throw RequestParsingException(400);
 		}
 
 		_target_param[equal_split[0]] = equal_split[1];
@@ -119,8 +113,7 @@ bool	Request::_process_header()
 	if (std::count(line.begin(), line.end(), ':') == 0)
 	{
 		std::cout << YEL << "[Request] 400 Bad Request" << CRESET << std::endl;
-		ResponseGenerator::send_error(400, "Bad Request", _client_fd);
-		throw CloseClientException();
+		throw RequestParsingException(400);
 	}
 
 	std::vector<std::string>	splitted = split_first(line, ":");
@@ -144,8 +137,7 @@ void	Request::_check_headers()
 	if (_headers.find("host") == _headers.end())
 	{
 		std::cout << YEL << "[Request] 400 Bad Request" << CRESET << std::endl;
-		send(_client_fd, "400 Bad Request\r\n", 18, 0);
-		throw CloseClientException();
+		throw RequestParsingException(400);
 	}
 
 	if (_headers.find("content-length") != _headers.end())
@@ -154,12 +146,11 @@ void	Request::_check_headers()
 		_body_len = std::atol(_headers["content-length"].c_str());
 		_body_type = "content-length";
 
-		// if (_body_len > _config.get_body_limit_size())
-		// {
-		// 	std::cout << YEL << "[Request] 413 Payload Too Large" << CRESET << std::endl;
-		// 	send(_client_fd, "413 Payload Too Large\r\n", 25, 0);
-		// 	throw CloseClientException();
-		// }
+		if (_body_len > _httpconfig.get_max_body_size())
+		{
+			std::cout << YEL << "[Request] 413 Content Too Large" << CRESET << std::endl;
+			throw RequestParsingException(413);
+		}
 
 		if (_headers.find("content-type") != _headers.end())
 		{
@@ -263,8 +254,7 @@ bool	Request::_process_body_chunk()
 			{
 				std::cout << "Could not convert " << line << " to decimal" << std::endl;
 				got_size = false;
-				ResponseGenerator::send_error(400, "Bad Request", _client_fd);
-				throw CloseClientException();
+				throw RequestParsingException(400);
 			}
 
 			got_size = true;
@@ -272,12 +262,11 @@ bool	Request::_process_body_chunk()
 
 		if (got_size == true)
 		{
-			// if (_body.size() + chunk_size > _config.get_body_limit_size())
-			// {
-			// 		std::cout << YEL << "[Request] 413 Payload Too Large" << CRESET << std::endl;
-			// 		send(_client_fd, "413 Payload Too Large\r\n", 25, 0);
-			// 		throw CloseClientException();
-			// }
+			if (_body.size() + chunk_size > _httpconfig.get_max_body_size())
+			{
+				std::cout << YEL << "[Request] 413 Content Too Large" << CRESET << std::endl;
+				throw RequestParsingException(413);
+			}
 
 			// std::cout << "raw_d.size() = " << _raw_d.size() << std::endl;
 			if (_raw_d.size() < chunk_size + 2)
@@ -290,8 +279,7 @@ bool	Request::_process_body_chunk()
 			{
 				std::cout << "Chunk size is not matching actual chunk:" << _raw_s.find("\r\n", chunk_size) << std::endl;
 				got_size = false;
-				ResponseGenerator::send_error(400, "Bad Request", _client_fd);
-				throw CloseClientException();
+				throw RequestParsingException(400);
 			}
 
 			_body.insert(_body.end(), _raw_d.begin(), _raw_d.begin() + chunk_size);

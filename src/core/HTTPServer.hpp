@@ -41,6 +41,7 @@ private:
 	void	_remove_client(int fd);
 
 	int		_communicate_with_client(const struct epoll_event& event);
+	void	_internal_server_error(const struct epoll_event& event);
 
 public:
 	HTTPServer(const std::string& confg_file);

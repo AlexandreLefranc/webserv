@@ -40,7 +40,7 @@ void				CGI::_init_arrays()
 		query_string.erase(query_string.length() - 1);
 	}
 
-	std::cout << "query_string=" << query_string << std::endl;
+	// std::cout << "query_string=" << query_string << std::endl;
 	_env.push_back("QUERY_STRING=" + query_string);
 
 	for (it = _req._headers.begin(); it != _req._headers.end(); ++it)
@@ -50,7 +50,7 @@ void				CGI::_init_arrays()
 		_env.push_back(key_upper + "=" + it->second);
 	}
 
-	display_vector(_env, "_env");
+	// display_vector(_env, "_env");
 
 	_envp = new	char*[_env.size() + 1];
 	for (size_t i = 0; i < _env.size(); ++i)
@@ -120,7 +120,7 @@ void				CGI::_run_cgi()
 		int		nbytes;
 		while ((nbytes = read(pipeout[READ_END], buffer, BUFF_SIZE - 1)) != 0)
 		{
-			std::cout << nbytes << std::endl;
+			// std::cout << nbytes << std::endl;
 			res_d.insert(res_d.end(), buffer, buffer + nbytes);
 		}
 		wait(NULL);

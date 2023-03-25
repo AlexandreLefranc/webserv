@@ -35,6 +35,7 @@ const Status Status::BadRequest = Status(400, "Bad Request");
 const Status Status::Forbidden = Status(403, "Not Allowed");
 const Status Status::NotFound = Status(404, "Not Found");
 const Status Status::MethodNotAllowed = Status(405, "Method Not Allowed");
+const Status Status::ContentTooLarge = Status(413, "Content Too Large");
 const Status Status::InternalServerError = Status(500, "Internal Server Error");
 const Status Status::NotImplemented = Status(501, "Not Implemented");
 const Status Status::HTTPVersionNotSupported = Status(505, "HTTP Version Not Supported");
@@ -104,6 +105,8 @@ void	Response::create_error(int status_code)
 {
 	if (status_code == 400)
 		response_status = Status::BadRequest;
+	else if (status_code == 413)
+		response_status = Status::ContentTooLarge;
 	else if (status_code == 500)
 		response_status = Status::InternalServerError;
 	else if (status_code == 501)
@@ -168,7 +171,7 @@ void	Response::_serve_get(std::string& target)
 	{
 		std::cout << "Directory with autoindex" << std::endl;
 		body = HTMLGenerator::dirlist(target, request.get_target());
-		std::cout << "Body :" << std::string(body.begin(), body.end()) << std::endl;
+		// std::cout << "Body :" << std::string(body.begin(), body.end()) << std::endl;
 		_add_header("Content-Length", itos(body.size()));
 		response_status = Status::OK;
 		return ;
@@ -285,7 +288,7 @@ std::string	Response::_get_filename() const
 		throw (ResponseException());
 	str_body = str_body.substr(boundary.length() + 3);
 	pos_filename = str_body.find("filename=\"") + 10;
-	if (pos_filename < 0)
+	if (pos_filename == std::string::npos)
 		throw (ResponseException());
 	filename_length = str_body.find("\"", pos_filename + 1) - pos_filename;
 	return (str_body.substr(pos_filename, filename_length));

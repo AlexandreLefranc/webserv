@@ -41,6 +41,7 @@ struct Status
 	static const Status	Forbidden;
 	static const Status	NotFound;
 	static const Status	MethodNotAllowed;
+	static const Status	ContentTooLarge;
 	static const Status	InternalServerError;
 	static const Status	NotImplemented;
 	static const Status	HTTPVersionNotSupported;
@@ -76,7 +77,6 @@ public:
 	const std::vector<char>&	get_body() const;
 	//	Build reponse
 	std::vector<char>			build_response_vector() const;
-	std::vector<char>			build_error_response_vector() const;
 
 private:
 	void				_serve(std::string& target);
