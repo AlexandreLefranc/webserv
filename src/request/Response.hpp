@@ -76,7 +76,6 @@ public:
 	const std::vector<char>&	get_body() const;
 	//	Build reponse
 	std::vector<char>			build_response_vector() const;
-	std::vector<char>			build_error_response_vector() const;
 
 private:
 	void				_serve(std::string& target);

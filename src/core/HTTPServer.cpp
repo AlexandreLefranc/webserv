@@ -67,10 +67,11 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 			_remove_client(client_fd);
 			return -1;
 		}
-		catch (const CloseClientException& e)
+		catch (const RequestParsingException& e)
 		{
-			// client.response.create_error();
-			_remove_client(client_fd);
+			std::cout << CYN << "[HTTPServer] " << e.what() << e.code << CRESET << std::endl;
+			client.response.create_error(e.code);
+			// _remove_client(client_fd);
 		}
 	}
 
@@ -92,6 +93,21 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 	return 0;
 }
 
+void	HTTPServer::_internal_server_error(const struct epoll_event& event)
+{
+	std::cout << BRED << "[HTTPServer] Internal Server Error" << CRESET << std::endl;
+	try
+	{
+		_client_manager.get_client(event.data.fd).response.create_error(500);
+	
+		if ((event.events & EPOLLOUT) != 0)
+			_client_manager.get_client(event.data.fd).send_response();
+
+		_remove_client(event.data.fd);
+	}
+	catch (...) {} // swallow exception for resilience
+}
+
 /*******************************************************************************
                                 PRIVATE METHODS
 *******************************************************************************/
@@ -111,12 +127,13 @@ void	HTTPServer::run()
 		for (int i = 0; i < nfds; i++)
 		{
 			std::cout << CYN << "[HTTPServer] Consume event from fd " << event[i].data.fd << CRESET << std::endl;
+			int	event_fd = event[i].data.fd;
 			// display_epoll_event(event[i]);
-			if (_fds[event[i].data.fd] == "SERVER")
+			if (_fds[event_fd] == "SERVER")
 			{
 				try
 				{
-					_create_client(event[i].data.fd); // throw only if accept() fail
+					_create_client(event_fd); // throw only if accept() fail
 				}
 				catch (const std::runtime_error& e)
 				{
@@ -125,7 +142,7 @@ void	HTTPServer::run()
 				}
 			}
 			
-			if (_fds[event[i].data.fd] == "CLIENT")
+			if (_fds[event_fd] == "CLIENT")
 			{
 				try
 				{
@@ -133,11 +150,7 @@ void	HTTPServer::run()
 				}
 				catch (const std::exception& e)
 				{
-					std::cout << BRED << "[HTTPServer] client error: " << e.what() << CRESET << std::endl;
-
-
-					// send internal server error;
-					_remove_client(event[i].data.fd);
+					_internal_server_error(event[i]);
 				}
 			}
 		}

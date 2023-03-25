@@ -285,7 +285,7 @@ std::string	Response::_get_filename() const
 		throw (ResponseException());
 	str_body = str_body.substr(boundary.length() + 3);
 	pos_filename = str_body.find("filename=\"") + 10;
-	if (pos_filename < 0)
+	if (pos_filename == std::string::npos)
 		throw (ResponseException());
 	filename_length = str_body.find("\"", pos_filename + 1) - pos_filename;
 	return (str_body.substr(pos_filename, filename_length));

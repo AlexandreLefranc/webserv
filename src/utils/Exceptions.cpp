@@ -24,3 +24,12 @@ const char* ResponseException::what() const throw()
 {
 	return "ResponseException";
 }
+
+RequestParsingException::RequestParsingException(int code)
+	: code(code)
+{}
+
+const char*	RequestParsingException::what() const throw()
+{
+	return "RequestParsingException";
+}
