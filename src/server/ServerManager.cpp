@@ -2,8 +2,8 @@
 
 ServerManager::ServerManager(const HTTPConfig& conf)
 {
-	std::list<ServerConfig>::const_iterator it = conf.get_virtual_server_config().begin();
-	std::list<ServerConfig>::const_iterator end = conf.get_virtual_server_config().end();
+	std::vector<ServerConfig>::const_iterator it = conf.get_virtual_server_config().begin();
+	std::vector<ServerConfig>::const_iterator end = conf.get_virtual_server_config().end();
 
 	if (it == end)
 	{
