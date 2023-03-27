@@ -5,15 +5,16 @@ ClientManager::ClientManager()
 
 ClientManager::~ClientManager()
 {
-	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	std::map<int, Client*>::iterator it;
+	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
 		delete it->second;
 	}
 }
 
-int	ClientManager::create_client(int server_fd, const ServerConfig& config)
+int	ClientManager::create_client(int server_fd, const HTTPConfig& httpconfig, const ServerConfig& config)
 {
-	Client* new_client = new Client(server_fd, config);
+	Client* new_client = new Client(server_fd, httpconfig, config); // can throw
 	_clients[new_client->fd] = new_client;
 
 	return new_client->fd;

@@ -41,6 +41,7 @@ struct Status
 	static const Status	Forbidden;
 	static const Status	NotFound;
 	static const Status	MethodNotAllowed;
+	static const Status	ContentTooLarge;
 	static const Status	InternalServerError;
 	static const Status	NotImplemented;
 	static const Status	HTTPVersionNotSupported;
@@ -76,7 +77,6 @@ public:
 	const std::vector<char>&	get_body() const;
 	//	Build reponse
 	std::vector<char>			build_response_vector() const;
-	std::vector<char>			build_error_response_vector() const;
 
 private:
 	void				_serve(std::string& target);
@@ -84,9 +84,9 @@ private:
 	void				_serve_get(std::string& target);
 	void				_fetch_ressource(const std::string& target);
 	//	Post Request
-	void		_serve_post(const std::string& target);
-	void		_upload_file(const std::string& target);
-	std::string	_get_filename() const;
+	void				_serve_post(const std::string& target);
+	void				_upload_file(const std::string& target);
+	std::string			_get_filename() const;
 	//	Delete Request
 	void				_serve_delete(const std::string& target);
 	//	Build Response
@@ -94,6 +94,8 @@ private:
 	void				_get_default_error_page();
 	//	Utils
 	void				_add_header(const std::string& key, const std::string& value);
+	bool				_is_cgi_file(const std::string& target) const;
+	void				_call_cgi();
 };
 
 

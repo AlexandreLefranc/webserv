@@ -35,6 +35,7 @@ const Status Status::BadRequest = Status(400, "Bad Request");
 const Status Status::Forbidden = Status(403, "Not Allowed");
 const Status Status::NotFound = Status(404, "Not Found");
 const Status Status::MethodNotAllowed = Status(405, "Method Not Allowed");
+const Status Status::ContentTooLarge = Status(413, "Content Too Large");
 const Status Status::InternalServerError = Status(500, "Internal Server Error");
 const Status Status::NotImplemented = Status(501, "Not Implemented");
 const Status Status::HTTPVersionNotSupported = Status(505, "HTTP Version Not Supported");
@@ -104,6 +105,8 @@ void	Response::create_error(int status_code)
 {
 	if (status_code == 400)
 		response_status = Status::BadRequest;
+	else if (status_code == 413)
+		response_status = Status::ContentTooLarge;
 	else if (status_code == 500)
 		response_status = Status::InternalServerError;
 	else if (status_code == 501)
@@ -145,10 +148,6 @@ const std::vector<char>&	Response::get_body() const
 
 ==============================================================================*/
 
-/*==============================================================================
-								Get Response.
-==============================================================================*/
-
 void	Response::_serve(std::string& target)
 {
 	if (request.get_method() == "GET")
@@ -160,51 +159,42 @@ void	Response::_serve(std::string& target)
 	return ;
 }
 
+/*==============================================================================
+								Get Response.
+==============================================================================*/
+
 void	Response::_serve_get(std::string& target)
 {
 	std::cout << "Serving GET - " << target << std::endl;
 	if (is_directory(target) && location_addr->get_autoindex() == true)
 	{
-		std::cout << "Dir + autoindex" << std::endl;
+		std::cout << "Directory with autoindex" << std::endl;
 		body = HTMLGenerator::dirlist(target, request.get_target());
-		std::cout << std::string(body.begin(), body.end()) << std::endl;
-		_add_header("Content-Type", "text/html");
+		// std::cout << "Body :" << std::string(body.begin(), body.end()) << std::endl;
 		_add_header("Content-Length", itos(body.size()));
 		response_status = Status::OK;
 		return ;
 	}
 	if (is_directory(target))
 	{
-		std::cout << "Dir - autoindex" << std::endl;
+		std::cout << "Directory without autoindex" << std::endl;
 		target = target + location_addr->get_index();
 	}
-	if (target.find('.') != std::string::npos &&\
-		target.substr(target.find_last_of('.')) == config.get_cgi().first)
+	
+	if (_is_cgi_file(target))
 	{
-		std::cout << YEL << "[Response]Called CGI." << CRESET << std::endl;
-		CGI cgi(config.get_cgi().second, location_addr->get_root(), config, request);
-		cgi.process();
-		if (cgi.cgi_headers.find("status") != cgi.cgi_headers.end())
-		{
-			int cgi_code = std::atoi(cgi.cgi_headers["status"].c_str());
-			response_status = Status(cgi_code, "");
-		}
-		else
-		{
-			response_status = Status::OK;
-		}
-		headers.insert(cgi.cgi_headers.begin(), cgi.cgi_headers.end());
-		body = cgi.cgi_body;
+		std::cout << YEL << "[Response] GET with CGI." << CRESET << std::endl;
+		_call_cgi();
 	}
 	else
 	{
-		std::cout << "File no cgi" << std::endl;
+		std::cout << YEL << "[Response] GET on regular file." << CRESET << std::endl;
 		_fetch_ressource(target);
 	}
+
 	if (body.size() > 0)
 	{
 		_add_header("Content-Length", itos(body.size()));
-		// _add_header("Content-Type", _get_content_type(request.get_target()));
 	}
 	return ;
 }
@@ -214,7 +204,7 @@ void	Response::_fetch_ressource(const std::string& target)
 	std::ifstream		file(target.c_str());
 	std::stringstream	buffer;
 	std::string			buffer_str;
-	
+
 	if (!file.is_open())
 	{
 		response_status = Status::NotFound;
@@ -239,31 +229,23 @@ void	Response::_fetch_ressource(const std::string& target)
 
 void	Response::_serve_post(const std::string& target)
 {
-	if (request._body_type == "urlencoded")
+	if (is_directory(target) && request._body_type == "form-data")
 	{
-		std::cout << YEL << "[Response]POST url to CGI." << CRESET << std::endl;
-		// Do CGI stuff with arguments in body.
+		std::cout << YEL << "[Response] POST form to dir." << CRESET << std::endl;
+		// Allow file uploading.
+		_upload_file(target);
 	}
-	else if (request._body_type == "form-data")
+	else if (_is_cgi_file(target) &&\
+		(request._body_type == "urlencoded" || request._body_type == "form-data"))
 	{
-		if (is_directory(target))
-		{
-			std::cout << YEL << "[Response]POST form to dir." << CRESET << std::endl;
-			// Allow file uploading.
-			_upload_file(target);
-		}
-		else
-		{
-			std::cout << YEL << "[Response]POST form to CGI." << CRESET << std::endl;
-			// Do CGI stuff with arguments in body but multi-part.
-		}
+		std::cout << YEL << "[Response] POST with CGI." << CRESET << std::endl;
+		_call_cgi();
 	}
-	else if (request._body_type == "plain")
+	else
 	{
-		std::cout << YEL << "[Response]POST plain text ??" << CRESET << std::endl;
-		// Fuck off.
+		std::cout << YEL << "[Response] POST on not allowed target" << CRESET << std::endl;
+		response_status = Status::Forbidden;
 	}
-	return ;
 }
 
 void	Response::_upload_file(const std::string& target)
@@ -304,7 +286,7 @@ std::string	Response::_get_filename() const
 		throw (ResponseException());
 	str_body = str_body.substr(boundary.length() + 3);
 	pos_filename = str_body.find("filename=\"") + 10;
-	if (pos_filename < 0)
+	if (pos_filename == std::string::npos)
 		throw (ResponseException());
 	filename_length = str_body.find("\"", pos_filename + 1) - pos_filename;
 	return (str_body.substr(pos_filename, filename_length));
@@ -387,4 +369,32 @@ void	Response::_add_header(const std::string& key, const std::string& value)
 	if (headers.find(key) == headers.end())
 		headers[key] = value;
 	return ;
+}
+
+bool	Response::_is_cgi_file(const std::string& target) const
+{
+	if (target.find('.') != std::string::npos &&\
+			target.substr(target.find_last_of('.')) == config.get_cgi().first)
+		return true;
+	return false;
+}
+
+void	Response::_call_cgi()
+{
+	CGI cgi(config.get_cgi().second, location_addr->get_root(), config, request);
+	cgi.process();
+
+	if (cgi.cgi_headers.find("status") != cgi.cgi_headers.end())
+	{
+		int			cgi_code = std::atoi(cgi.cgi_headers["status"].c_str());
+		std::string	cgi_msg = cgi.cgi_headers["status"].substr(5);
+		response_status = Status(cgi_code, cgi_msg);
+	}
+	else
+	{
+		response_status = Status::OK;
+	}
+
+	headers.insert(cgi.cgi_headers.begin(), cgi.cgi_headers.end());
+	body = cgi.cgi_body;
 }

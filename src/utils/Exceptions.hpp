@@ -2,6 +2,7 @@
 # define EXCEPTIONS_HPP
 
 # include <exception>
+# include <string>
 
 class RecvException: public std::exception
 {
@@ -27,6 +28,14 @@ public:
 class ResponseException: public std::exception
 {
 public:
+	virtual const char*	what() const throw();
+};
+
+class RequestParsingException: public std::exception
+{
+public:
+	int code;
+	RequestParsingException(int code);
 	virtual const char*	what() const throw();
 };
 
