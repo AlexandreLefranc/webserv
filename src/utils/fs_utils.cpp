@@ -1,11 +1,13 @@
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <sstream>
 #include <vector>
 #include <ios>
 #include <fstream>
-
 #include "webserv.hpp"
 #include "Exceptions.hpp"
 
@@ -71,4 +73,16 @@ bool	file_exists(const std::string& filename)
 		return (true);
 	else
 		return (false);
+}
+
+bool	is_directory(const std::string& path)
+{
+	struct stat	s;
+
+	if (stat(path.c_str(), &s) == 0)
+	{
+		if (s.st_mode == S_IFDIR)
+			return (true);
+	}
+	return (false);
 }

@@ -94,7 +94,6 @@ private:
 	void				_get_default_error_page();
 	//	Utils
 	void				_add_header(const std::string& key, const std::string& value);
-	bool				_is_directory(const std::string& location) const;
 };
 
 
