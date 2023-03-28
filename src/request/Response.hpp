@@ -12,6 +12,7 @@
 
 # include "webserv.hpp"
 # include "config/ServerConfig.hpp"
+# include "request/HTMLGenerator.hpp"
 # include "request/Request.hpp"
 # include "cgi/CGI.hpp"
 

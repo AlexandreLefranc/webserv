@@ -41,7 +41,6 @@ CLASSFILE	=	\
 				request/HTMLGenerator.cpp \
 				request/Request.cpp \
 				request/Response.cpp \
-				request/ResponseGenerator.cpp \
 				server/ServerManager.cpp \
 				server/VirtualServer.cpp \
 				utils/Exceptions.cpp

@@ -12,7 +12,6 @@
 # include "utils/Exceptions.hpp"
 # include "config/HTTPConfig.hpp"
 # include "config/ServerConfig.hpp"
-# include "request/ResponseGenerator.hpp"
 
 class Request
 {
