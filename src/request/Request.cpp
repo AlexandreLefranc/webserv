@@ -2,7 +2,6 @@
 
 Request::Request(const HTTPConfig& httpconfig)
 	: _httpconfig(httpconfig)
-	// , _config(NULL)
 	, _client_fd(-1)
 	, _has_start_line(false)
 	, _is_header_done(false)
@@ -344,6 +343,7 @@ bool	Request::parse_data(const std::vector<char>& data)
 			std::string body;
 			body.insert(body.end(), _body.begin(), _body.end());
 			std::cout << "body: " << body << std::endl;
+			// end of debug
 
 			return true;
 		}

@@ -24,15 +24,7 @@ private: // Disable defaults behaviors
 	ServerManager(const ServerManager& src);
 	ServerManager&	operator=(const ServerManager& src);
 
-public:
-	//	Typedefs
-	// typedef std::map<std::string, VirtualServer*>	inner_map_t;
-	// typedef	std::map<std::string, inner_map_t>		outer_map_t;
-	// typedef	outer_map_t								servers_t;
-
 private:
-	// map<ip:port, map<server_name, VirtualServer*> >
-	// servers_t				_servers;
 	std::map<std::pair<int, int>, VirtualServer*>	_servers;
 
 	void	_create_virtual_server(const ServerConfig& sconf);

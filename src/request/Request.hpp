@@ -23,7 +23,7 @@ private: // Disable defaults behaviors
 
 private:
 	const HTTPConfig&					_httpconfig;
-	// const ServerConfig*					_config;
+
 	int									_client_fd;
 
 	std::vector<char>					_raw_d;

@@ -11,20 +11,20 @@ ServerManager::ServerManager(const HTTPConfig& conf)
 
 
 	// Debug code
-	std::map<std::pair<int, int>, VirtualServer*>::const_iterator it2;
-	for (it2 = _servers.begin(); it2 != _servers.end(); ++it2)
-	{
-		std::cout << it2->first.first << ":" << it2->first.second << std::endl;
-		std::map<std::string, const ServerConfig*> configs = it2->second->configs;
+	// std::map<std::pair<int, int>, VirtualServer*>::const_iterator it2;
+	// for (it2 = _servers.begin(); it2 != _servers.end(); ++it2)
+	// {
+	// 	std::cout << it2->first.first << ":" << it2->first.second << std::endl;
+	// 	std::map<std::string, const ServerConfig*> configs = it2->second->configs;
 
-		std::cout << "  default conf = " << it2->second->default_config.get_server_name() << std::endl;
+	// 	std::cout << "  default conf = " << it2->second->default_config.get_server_name() << std::endl;
 
-		std::map<std::string, const ServerConfig*>::const_iterator	it_conf;
-		for (it_conf = configs.begin(); it_conf != configs.end(); ++it_conf)
-		{
-			std::cout << "  " << it_conf->second->get_server_name() << std::endl;
-		}
-	}
+	// 	std::map<std::string, const ServerConfig*>::const_iterator	it_conf;
+	// 	for (it_conf = configs.begin(); it_conf != configs.end(); ++it_conf)
+	// 	{
+	// 		std::cout << "  " << it_conf->second->get_server_name() << std::endl;
+	// 	}
+	// }
 	// End of debug code
 }
 
