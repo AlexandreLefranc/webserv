@@ -35,14 +35,14 @@ public:
 	Request		request;
 	bool		request_complete;
 	
-	// Response	response;
+	Response	response;
 
 	Client(int server_fd, const HTTPConfig& httpconfig, const VirtualServer& virtualserver);
 	~Client();
 
 	void	parse_request();
-	// void	create_response();
-	// void	send_response();
+	void	create_response();
+	void	send_response();
 };
 
 #endif

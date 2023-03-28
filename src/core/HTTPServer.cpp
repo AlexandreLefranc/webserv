@@ -71,42 +71,42 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 		catch (const RequestParsingException& e)
 		{
 			std::cout << CYN << "[HTTPServer] " << e.what() << e.code << CRESET << std::endl;
-			// client.response.create_error(e.code);
+			client.response.create_error(e.code);
 		}
 	}
 
-	// if (client.request_complete == true && client.response.ready == false)
-	// {
-	// 	std::cout << CYN << "[HTTPServer] Created response!" << CRESET << std::endl;
-	// 	client.create_response();
-	// }
+	if (client.request_complete == true && client.response.ready == false)
+	{
+		std::cout << CYN << "[HTTPServer] Created response!" << CRESET << std::endl;
+		client.create_response();
+	}
 
-	// if ((event.events & EPOLLOUT) != 0 && client.response.ready == true)
-	// {
-	// 	std::cout << CYN << "[HTTPServer] Sending data to client!" << CRESET << std::endl;
-	// 	client.send_response();
+	if ((event.events & EPOLLOUT) != 0 && client.response.ready == true)
+	{
+		std::cout << CYN << "[HTTPServer] Sending data to client!" << CRESET << std::endl;
+		client.send_response();
 
-	// 	_remove_client(client_fd);
-	// 	return -1;
-	// }
+		_remove_client(client_fd);
+		return -1;
+	}
 
 	return 0;
 }
 
-// void	HTTPServer::_internal_server_error(const struct epoll_event& event)
-// {
-// 	std::cout << BRED << "[HTTPServer] Internal Server Error" << CRESET << std::endl;
-// 	try
-// 	{
-// 		_client_manager.get_client(event.data.fd).response.create_error(500);
+void	HTTPServer::_internal_server_error(const struct epoll_event& event)
+{
+	std::cout << BRED << "[HTTPServer] Internal Server Error" << CRESET << std::endl;
+	try
+	{
+		_client_manager.get_client(event.data.fd).response.create_error(500);
 	
-// 		if ((event.events & EPOLLOUT) != 0)
-// 			_client_manager.get_client(event.data.fd).send_response();
-// 	}
-// 	catch (...) {} // swallow exception for resilience
+		if ((event.events & EPOLLOUT) != 0)
+			_client_manager.get_client(event.data.fd).send_response();
+	}
+	catch (...) {} // swallow exception for resilience
 
-// 	_remove_client(event.data.fd);
-// }
+	_remove_client(event.data.fd);
+}
 
 /*******************************************************************************
                                 PUBLIC METHODS
@@ -150,7 +150,7 @@ void	HTTPServer::run()
 				}
 				catch (const std::exception& e)
 				{
-					// _internal_server_error(event[i]);
+					_internal_server_error(event[i]);
 				}
 			}
 		}

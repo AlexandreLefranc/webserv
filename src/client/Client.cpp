@@ -7,7 +7,7 @@ Client::Client(int server_fd, const HTTPConfig& httpconfig, const VirtualServer&
 	, config(NULL)
 	, request(httpconfig)
 	, request_complete(false)
-	// , response(request)
+	, response(request)
 {
 	std::cout << YEL << "[Client] Accept client" << CRESET << std::endl;
 	std::cout << YEL << "[Client] OPENING fd: " << CRESET;
@@ -42,22 +42,22 @@ void	Client::parse_request()
 		std::string host = request.get_header("host");
 		
 		config = &virtualserver.get_config(host);
-		// response.config = config;
+		response.set_config(config);
 
 		std::cout << YEL << "[Request] Request complete!"<< CRESET << std::endl;
 	}
 }
 
-// void	Client::create_response()
-// {
-// 	response.create();
-// 	return ;
-// }
+void	Client::create_response()
+{
+	response.create();
+	return ;
+}
 
-// void	Client::send_response()
-// {
-// 	std::vector<char>	response_vector = response.build_response_vector();
+void	Client::send_response()
+{
+	std::vector<char>	response_vector = response.build_response_vector();
 
-// 	std::cout << YEL << "[Client] Sending response" << CRESET << std::endl;
-// 	send(fd, response_vector.data(), response_vector.size(), 0);
-// }
+	std::cout << YEL << "[Client] Sending response" << CRESET << std::endl;
+	send(fd, response_vector.data(), response_vector.size(), 0);
+}
