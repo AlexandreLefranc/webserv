@@ -13,6 +13,7 @@
 # include "request/Response.hpp"
 # include "config/HTTPConfig.hpp"
 # include "config/ServerConfig.hpp"
+# include "server/VirtualServer.hpp"
 
 // Purpose: Keep all info relative to a Client
 // Manage socket fd for this client
@@ -26,20 +27,22 @@ private: // Disable defaults behaviors
 
 public:
 	int						fd;
+	const VirtualServer&	virtualserver;
+
 	const HTTPConfig&		httpconfig;
-	const ServerConfig&		config;
+	const ServerConfig*		config;
 
 	Request		request;
 	bool		request_complete;
 	
-	Response	response;
+	// Response	response;
 
-	Client(int server_fd, const HTTPConfig& httpconfig, const ServerConfig& config);
+	Client(int server_fd, const HTTPConfig& httpconfig, const VirtualServer& virtualserver);
 	~Client();
 
 	void	parse_request();
-	void	create_response();
-	void	send_response();
+	// void	create_response();
+	// void	send_response();
 };
 
 #endif

@@ -1,8 +1,8 @@
 #include "Request.hpp"
 
-Request::Request(const HTTPConfig& httpconfig, const ServerConfig& config)
+Request::Request(const HTTPConfig& httpconfig)
 	: _httpconfig(httpconfig)
-	, _config(config)
+	// , _config(NULL)
 	, _client_fd(-1)
 	, _has_start_line(false)
 	, _is_header_done(false)
@@ -313,13 +313,8 @@ bool	Request::parse_data(const std::vector<char>& data)
 	_raw_d.insert(_raw_d.end(), data.begin(), data.end());
 	_raw_s.insert(_raw_s.end(), data.begin(), data.end());
 
-	std::cout << "raw_d size:" << _raw_d.size() << " | _raw_s len:" <<  _raw_s.length() << std::endl;
-	std::cout << "raw:" << std::endl << _raw_s;
-
-	// if (data_s == "STOP" || data_s == "STOP\r\n")
-	// {
-	// 	throw StopException(); // /!\ TO REMOVE BEFORE SET AS FINISHED
-	// }
+	std::cout << "_raw_d size:" << _raw_d.size() << " | _raw_s len:" <<  _raw_s.length() << std::endl;
+	std::cout << "_raw_s:" << std::endl << _raw_s;
 
 	while (_has_start_line == false && _raw_s.find_first_of("\r\n") == 0)
 	{

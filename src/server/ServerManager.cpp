@@ -2,100 +2,97 @@
 
 ServerManager::ServerManager(const HTTPConfig& conf)
 {
-	std::vector<ServerConfig>::const_iterator it = conf.get_virtual_server_config().begin();
-	std::vector<ServerConfig>::const_iterator end = conf.get_virtual_server_config().end();
-
-	if (it == end)
-	{
+	if (conf.get_virtual_server_config().size() == 0)
 		throw std::runtime_error("No virtual server");
-	}
 
-	for ( ; it != end; it++)
-	{
+	std::vector<ServerConfig>::const_iterator it;
+	for (it = conf.get_virtual_server_config().begin(); it != conf.get_virtual_server_config().end(); it++)
 		_create_virtual_server(*it);
+
+
+	// Debug code
+	std::map<std::pair<int, int>, VirtualServer*>::const_iterator it2;
+	for (it2 = _servers.begin(); it2 != _servers.end(); ++it2)
+	{
+		std::cout << it2->first.first << ":" << it2->first.second << std::endl;
+		std::map<std::string, const ServerConfig*> configs = it2->second->configs;
+
+		std::cout << "  default conf = " << it2->second->default_config.get_server_name() << std::endl;
+
+		std::map<std::string, const ServerConfig*>::const_iterator	it_conf;
+		for (it_conf = configs.begin(); it_conf != configs.end(); ++it_conf)
+		{
+			std::cout << "  " << it_conf->second->get_server_name() << std::endl;
+		}
 	}
+	// End of debug code
 }
 
 ServerManager::~ServerManager()
 {
-	typedef	ServerManager::outer_map_t	outer_t;
-	typedef	ServerManager::inner_map_t	inner_t;
-
-	for (outer_t::iterator outerit = _servers.begin(); outerit != _servers.end(); outerit++)
+	std::map<std::pair<int, int>, VirtualServer*>::iterator it;
+	for (it = _servers.begin(); it != _servers.end(); ++it)
 	{
-		for (inner_t::iterator innerit = outerit->second.begin(); innerit != outerit->second.end(); innerit++)
-		{
-			delete innerit->second;
-		}
+		delete it->second;
 	}
 }
 
 void	ServerManager::_create_virtual_server(const ServerConfig& sconf)
 {
-	std::stringstream ssip;
-	ssip << sconf.get_ip();
+	int			ip = sconf.get_ip();
+	int			port = sconf.get_port();
+	std::pair<int, int> ip_port(ip, port);
 
-	std::stringstream ssport;
-	ssport << sconf.get_port();
+	std::string	server_name	= sconf.get_server_name();
+	std::cout << ip << ":" << port << "|" << server_name << std::endl;
 
-	std::string		ip			= ssip.str();
-	std::string		port		= ssport.str();
-	std::string		server_name	= sconf.get_server_name();
-
-	std::cout << ip+":"+port << std::endl;
-
-	if (_servers.find(ip+":"+port) == _servers.end())
+	if (_servers.find(ip_port) == _servers.end())
 	{
 		std::cout << GRN << "[ServerManager] Creating Virtual Server: "
 			<< ip << ":" << port << "|" << server_name << CRESET << std::endl;
-		_servers[ip+":"+port][server_name] = new VirtualServer(sconf);
-	}
-	else if (_servers[ip+":"+port].find(server_name) == _servers[ip+":"+port].end())
-	{
-		std::cout << GRN << "[ServerManager] Creating Virtual Server: "
-			<< ip << ":" << port << "|" << server_name << CRESET << std::endl;
-		_servers[ip+":"+port][server_name] = new VirtualServer(sconf);
+		_servers[ip_port] = new VirtualServer(sconf);
 	}
 	else
 	{
-		std::cout << GRN << "[ServerManager] Warning! Virtual Server: "
-			<< ip << ":" << port << "|" << server_name
-			<< "already exists" << CRESET << std::endl;
+		std::cout << GRN << "[ServerManager] Appending Virtual Server: "
+			<< ip << ":" << port << "|" << server_name << CRESET << std::endl;
+		_servers[ip_port]->add_config(sconf);
 	}
 }
 
 const std::vector<int>				ServerManager::getfds() const
 {
-	typedef	ServerManager::outer_map_t	outer_t;
-	typedef	ServerManager::inner_map_t	inner_t;
-
 	std::vector<int>	fds;
 
-	for (outer_t::const_iterator outerit = _servers.begin(); outerit != _servers.end(); outerit++)
+	std::map<std::pair<int, int>, VirtualServer*>::const_iterator it;
+	for (it = _servers.begin(); it != _servers.end(); ++it)
 	{
-		for (inner_t::const_iterator innerit = outerit->second.begin(); innerit != outerit->second.end(); innerit++)
-		{
-			fds.push_back(innerit->second->fd);
-		}
+		fds.push_back(it->second->fd);
 	}
+
 	return fds;
 }
 
-const ServerConfig&	ServerManager::get_server_config(int fd) const
+const ServerConfig&	ServerManager::get_server_config(int fd, const std::string& server_name) const
 {
-	typedef	ServerManager::outer_map_t	outer_t;
-	typedef	ServerManager::inner_map_t	inner_t;
-
-	for (outer_t::const_iterator outerit = _servers.begin(); outerit != _servers.end(); outerit++)
+	std::map<std::pair<int, int>, VirtualServer*>::const_iterator it;
+	for (it = _servers.begin(); it != _servers.end(); ++it)
 	{
-		for (inner_t::const_iterator innerit = outerit->second.begin(); innerit != outerit->second.end(); innerit++)
-		{
-			if (innerit->second->fd == fd)
-			{
-				return innerit->second->config;
-			}
-		}
+		if (it->second->fd == fd)
+			return it->second->get_config(server_name);
 	}
 
 	throw std::runtime_error("Server not found");
+}
+
+const VirtualServer&	ServerManager::get_virtual_server(int fd) const
+{
+	std::map<std::pair<int, int>, VirtualServer*>::const_iterator it;
+	for (it = _servers.begin(); it != _servers.end(); ++it)
+	{
+		if (it->second->fd == fd)
+			return *(it->second);
+	}
+
+	throw std::runtime_error("Virtual Server not found");
 }

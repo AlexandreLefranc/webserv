@@ -26,13 +26,14 @@ private: // Disable defaults behaviors
 
 public:
 	//	Typedefs
-	typedef std::map<std::string, VirtualServer*>	inner_map_t;
-	typedef	std::map<std::string, inner_map_t>		outer_map_t;
-	typedef	outer_map_t								servers_t;
+	// typedef std::map<std::string, VirtualServer*>	inner_map_t;
+	// typedef	std::map<std::string, inner_map_t>		outer_map_t;
+	// typedef	outer_map_t								servers_t;
 
 private:
 	// map<ip:port, map<server_name, VirtualServer*> >
-	servers_t				_servers;
+	// servers_t				_servers;
+	std::map<std::pair<int, int>, VirtualServer*>	_servers;
 
 	void	_create_virtual_server(const ServerConfig& sconf);
 
@@ -41,7 +42,8 @@ public:
 	~ServerManager();
 
 	const std::vector<int>	getfds() const;
-	const ServerConfig&		get_server_config(int fd) const;
+	const ServerConfig&		get_server_config(int fd, const std::string& server_name) const;
+	const VirtualServer&	get_virtual_server(int fd) const;
 };
 
 #endif
