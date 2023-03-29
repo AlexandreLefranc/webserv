@@ -29,7 +29,7 @@ private:
 
 	std::map<int, std::string>		_fds;
 
-	HTTPConfig			_config;
+	HTTPConfig			_httpconfig;
 
 	Epoll				_epoll;
 

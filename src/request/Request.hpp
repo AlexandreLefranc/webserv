@@ -12,7 +12,6 @@
 # include "utils/Exceptions.hpp"
 # include "config/HTTPConfig.hpp"
 # include "config/ServerConfig.hpp"
-# include "request/ResponseGenerator.hpp"
 
 class Request
 {
@@ -23,7 +22,7 @@ private: // Disable defaults behaviors
 
 private:
 	const HTTPConfig&					_httpconfig;
-	const ServerConfig&					_config;
+
 	int									_client_fd;
 
 	std::vector<char>					_raw_d;
@@ -61,13 +60,13 @@ private:
 	bool	_process_body_chunk();
 
 public:
-	Request(const HTTPConfig& httpconfig, const ServerConfig& config);
+	Request(const HTTPConfig& httpconfig);
 	~Request();
 
 	void	set_client_fd(int client_fd);
 	bool	parse_data(const std::vector<char>& data);
 
-	//	Getters
+	// //	Getters
 	const std::string&			get_target() const;
 	const std::string&			get_method() const;
 	std::string					get_header(std::string key) const;

@@ -1,9 +1,9 @@
 #include "VirtualServer.hpp"
 
 VirtualServer::VirtualServer(const ServerConfig& config):
-	fd(-1), config(config)
+	fd(-1), default_config(config)
 {
-	std::cout << GRN << "[VirtualServer] OPENING fd: " << CRESET;
+	configs[config.get_server_name()] = &config;
 
 	fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, getprotobyname("tcp")->p_proto);
 	if (fd == -1)
@@ -11,18 +11,19 @@ VirtualServer::VirtualServer(const ServerConfig& config):
 		throw std::runtime_error("socket() failed");
 	}
 
-	std::cout << GRN << fd << CRESET << std::endl;
-
+	std::cout << GRN << "[VirtualServer] Opening fd " << fd << CRESET << std::endl;
 
 	const int enable1 = 1;
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable1, sizeof(int)) < 0)
 	{
+		close(fd);
 		throw std::runtime_error("setsockopt1() failed");
 	}
 
 	const int enable2 = 1;
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &enable2, sizeof(int)) < 0)
 	{
+		close(fd);
 		throw std::runtime_error("setsockopt2() failed");
 	}
 
@@ -55,4 +56,22 @@ VirtualServer::~VirtualServer()
 		std::cout << GRN << "[VirtualServer] CLOSING fd: " << fd << CRESET << std::endl;
 		close(fd);
 	}
+}
+
+void	VirtualServer::add_config(const ServerConfig& config)
+{
+	std::string server_name = config.get_server_name();
+
+	if (configs.count(server_name) != 0)
+		throw std::runtime_error("add_config()");
+
+	configs[server_name] = &config;
+}
+
+const ServerConfig&	VirtualServer::get_config(const std::string& server_name) const
+{
+	if (configs.count(server_name) != 0)
+		return *(configs.at(server_name));
+	else
+		return default_config;
 }

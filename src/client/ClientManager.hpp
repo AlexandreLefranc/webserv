@@ -21,7 +21,7 @@ public:
 	ClientManager();
 	~ClientManager();
 
-	int		create_client(int server_fd, const HTTPConfig& httpconfig, const ServerConfig& config);
+	int		create_client(int server_fd, const HTTPConfig& httpconfig, const VirtualServer& virtualserver);
 	void	remove_client(int client_fd);
 	Client&	get_client(int client_fd);
 };

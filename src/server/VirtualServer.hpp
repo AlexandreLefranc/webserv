@@ -28,12 +28,17 @@ public:
 	typedef struct sockaddr		t_sockaddr;
 
 	//	Attributes
-	int						fd;
-	const ServerConfig&		config;
+	int											fd;
+	const ServerConfig&							default_config;
+	std::map<std::string, const ServerConfig*>	configs;
 
 	//	Constructor & Destructor
 	VirtualServer(const ServerConfig& config);
 	~VirtualServer();
+
+	// Member function
+	void				add_config(const ServerConfig& config);
+	const ServerConfig&	get_config(const std::string& server_name) const;
 };
 
 #endif
