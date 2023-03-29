@@ -183,8 +183,7 @@ void	Response::_serve(std::string& target)
 void	Response::_serve_get(std::string& target)
 {
 	std::cout << "Serving GET - " << target << std::endl;
-
-	if (_is_directory(target) && location_addr->get_autoindex() == true)
+	if (is_directory(target) && location_addr->get_autoindex() == true)
 	{
 		std::cout << "Directory with autoindex" << std::endl;
 		body = HTMLGenerator::dirlist(target, request.get_target());
@@ -193,8 +192,7 @@ void	Response::_serve_get(std::string& target)
 		response_status = Status::OK;
 		return ;
 	}
-
-	if (_is_directory(target))
+	if (is_directory(target))
 	{
 		std::cout << "Directory without autoindex" << std::endl;
 		target = target + location_addr->get_index();
@@ -248,7 +246,7 @@ void	Response::_fetch_ressource(const std::string& target)
 
 void	Response::_serve_post(const std::string& target)
 {
-	if (_is_directory(target) && request._body_type == "form-data")
+	if (is_directory(target) && request._body_type == "form-data")
 	{
 		std::cout << YEL << "[Response] POST form to dir." << CRESET << std::endl;
 		// Allow file uploading.
@@ -317,8 +315,10 @@ std::string	Response::_get_filename() const
 
 void	Response::_serve_delete(const std::string& target)
 {
-	//	Secure 
-	if (std::remove(target.c_str()) == 0)
+	//	Secure
+	if (is_directory(target))
+		response_status = Status::Forbidden;
+	else if (std::remove(target.c_str()) == 0)
 		response_status = Status::OK;
 	else
 		response_status = Status::NoContent;
@@ -386,14 +386,6 @@ void	Response::_add_header(const std::string& key, const std::string& value)
 	if (headers.find(key) == headers.end())
 		headers[key] = value;
 	return ;
-}
-
-bool	Response::_is_directory(const std::string& location) const
-{
-	if (location.size() && location[location.size() - 1] == '/')
-		return (true);
-	else
-		return (false);
 }
 
 bool	Response::_is_cgi_file(const std::string& target) const

@@ -97,7 +97,6 @@ private:
 	void				_get_default_error_page();
 	//	Utils
 	void				_add_header(const std::string& key, const std::string& value);
-	bool				_is_directory(const std::string& location) const;
 	bool				_is_cgi_file(const std::string& target) const;
 	void				_call_cgi();
 };

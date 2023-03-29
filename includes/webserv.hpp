@@ -33,6 +33,7 @@ std::vector<std::string>	get_dir_list(std::string path);
 std::string					gen_dir_list_html(std::vector<std::string> dirlist, const std::string& path);
 std::vector<char>			read_file(std::ifstream& ifs);
 bool						file_exists(const std::string& filename);
+bool						is_directory(const std::string& path);
 
 // utils/string_utils.cpp
 std::vector<std::string>	split(std::string s, std::string delimiter);
