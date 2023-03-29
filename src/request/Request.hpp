@@ -12,39 +12,43 @@
 # include "utils/Exceptions.hpp"
 # include "config/HTTPConfig.hpp"
 # include "config/ServerConfig.hpp"
+# include "request/MultiPartForm.hpp"
 
 class Request
 {
+public:
+	typedef std::vector<MultiPartForm>	FormData;
 private: // Disable defaults behaviors
 	Request();
 	Request(const Request& src);
 	Request&	operator=(const Request& src);
 
 private:
-	const HTTPConfig&					_httpconfig;
+	const HTTPConfig&	_httpconfig;
 
-	int									_client_fd;
+	int					_client_fd;
 
-	std::vector<char>					_raw_d;
-	std::string							_raw_s;
+	std::vector<char>	_raw_d;
+	std::string			_raw_s;
 
-	bool								_has_start_line;
+	bool				_has_start_line;
 
-	bool								_is_header_done;
+	bool				_is_header_done;
 
-	bool								_has_body;
-	size_t								_body_len;
+	bool				_has_body;
+	size_t				_body_len;
 
 public:
-	std::string							_method;
-	std::string							_target;
-	std::map<std::string, std::string>	_target_param;
-	std::string							_protocol;
+	std::string			_method;
+	std::string			_target;
+	string_map			_target_param;
+	std::string			_protocol;
 
-	std::map<std::string, std::string>	_headers;
+	string_map			_headers;
 
-	std::string							_body_type;
-	std::vector<char>					_body;
+	std::string			_body_type;
+	std::vector<char>	_raw_body;
+	FormData			_body;
 	
 private:
 	std::string		_get_line();
@@ -59,6 +63,9 @@ private:
 	bool	_process_body();
 	bool	_process_body_chunk();
 
+	void	_parse_raw_body();
+	void	_trim_body_end();
+
 public:
 	Request(const HTTPConfig& httpconfig);
 	~Request();
@@ -70,7 +77,8 @@ public:
 	const std::string&			get_target() const;
 	const std::string&			get_method() const;
 	std::string					get_header(std::string key) const;
-	const std::vector<char>&	get_body() const;
+	const std::vector<char>&	get_raw_body() const;
+	const FormData&				get_body() const;
 };
 
 #endif

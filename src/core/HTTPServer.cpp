@@ -150,6 +150,7 @@ void	HTTPServer::run()
 				}
 				catch (const std::exception& e)
 				{
+					std::cout << e.what() << std::endl;
 					_internal_server_error(event[i]);
 				}
 			}
