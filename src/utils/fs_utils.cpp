@@ -81,8 +81,11 @@ bool	is_directory(const std::string& path)
 
 	if (stat(path.c_str(), &s) == 0)
 	{
-		if (s.st_mode == S_IFDIR)
+		if (s.st_mode & S_IFDIR)
 			return (true);
+		else
+			return (false);
 	}
+	std::cout << "stat failed." << std::endl;
 	return (false);
 }
