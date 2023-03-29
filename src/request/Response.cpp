@@ -267,9 +267,9 @@ void	Response::_serve_post(const std::string& target)
 
 void	Response::_upload_file(const std::string& target)
 {
-	std::string							filename = target + _get_filename();
-	std::ofstream						ofs(filename.c_str());
-	std::vector<char>::const_iterator	it;
+	std::string			filename = target + request.get_body().front().get_header("filename");
+	std::ofstream		ofs(filename.c_str());
+	std::vector<char>	content;
 
 	std::cout << YEL << "Uploading File: " << filename << CRESET << std::endl;
 	if (!ofs.is_open())
@@ -279,8 +279,8 @@ void	Response::_upload_file(const std::string& target)
 		return ;
 	}
 	std::cout << YEL << "[RESPONSE]File opened: " << filename << CRESET << std::endl;
-	it = vec_find(request._body, "\r\n\r\n") + 4;
-	ofs.write(it.base(), vec_find(request._body, "\r\n--" + request._headers.at("boundary") + "--") - it);
+	content = request.get_body().front().get_body();
+	ofs.write(content.data(), content.size());
 	ofs.close();
 	if (ofs.fail())
 	{
@@ -289,24 +289,6 @@ void	Response::_upload_file(const std::string& target)
 	}
 	response_status = Status::Created;
 	return ;
-}
-
-std::string	Response::_get_filename() const
-{
-	std::string	boundary = request._headers.at("boundary");
-	std::string	str_body = std::string(request._body.begin(), request._body.end());
-	size_t		pos_filename;
-	size_t		filename_length;
-
-	std::cout << YEL << "[Request]body: " << str_body.substr(0, 15) << "..." << CRESET << std::endl;
-	if (str_body.find("--" + boundary) != 0)
-		throw (ResponseException());
-	str_body = str_body.substr(boundary.length() + 3);
-	pos_filename = str_body.find("filename=\"") + 10;
-	if (pos_filename == std::string::npos)
-		throw (ResponseException());
-	filename_length = str_body.find("\"", pos_filename + 1) - pos_filename;
-	return (str_body.substr(pos_filename, filename_length));
 }
 
 /*==============================================================================

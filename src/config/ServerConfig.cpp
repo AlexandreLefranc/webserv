@@ -205,6 +205,7 @@ void	ServerConfig::_parse_line(std::string& line)
 
 void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 {
+	std::cout << RED << "[ServerConfig]Token: \"" << tokens.front() << "\"" << CRESET << std::endl;
 	if (tokens.front() == "root" && tokens.size() == 2 && root.empty())
 	{
 		root = tokens[1];

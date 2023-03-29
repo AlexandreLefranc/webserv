@@ -57,7 +57,7 @@ std::vector<std::string>	split_tokens(std::string line)
 		it++;
 	}
 	tokens.push_back(line);
-	// std::cout << "[split]tokens size after split: " << tokens.size() << std::endl;
+	std::cout << "[split]tokens size after split: " << tokens.size() << std::endl;
 	if (tokens.size() < 2)
 		return (std::vector<std::string>());
 	if (tokens[tokens.size() - 1] == ";" || tokens[tokens.size() - 1] == "{" )

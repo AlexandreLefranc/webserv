@@ -13,6 +13,7 @@
 # include "webserv.hpp"
 # include "config/ServerConfig.hpp"
 # include "request/HTMLGenerator.hpp"
+# include "request/MultiPartForm.hpp"
 # include "request/Request.hpp"
 # include "cgi/CGI.hpp"
 
@@ -89,7 +90,6 @@ private:
 	//	Post Request
 	void				_serve_post(const std::string& target);
 	void				_upload_file(const std::string& target);
-	std::string			_get_filename() const;
 	//	Delete Request
 	void				_serve_delete(const std::string& target);
 	//	Build Response

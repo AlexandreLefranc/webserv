@@ -39,6 +39,7 @@ CLASSFILE	=	\
 				core/Epoll.cpp \
 				core/HTTPServer.cpp \
 				request/HTMLGenerator.cpp \
+				request/MultiPartForm.cpp \
 				request/Request.cpp \
 				request/Response.cpp \
 				server/ServerManager.cpp \

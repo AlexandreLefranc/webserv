@@ -195,7 +195,7 @@ bool	Request::_process_body()
 	{
 		if (_body_len > _raw_d.size())
 		{
-			_body.insert(_body.end(), _raw_d.begin(), _raw_d.end());
+			_raw_body.insert(_raw_body.end(), _raw_d.begin(), _raw_d.end());
 			_body_len -= _raw_d.size();
 			_raw_d.clear();
 			_raw_s.clear();
@@ -204,7 +204,7 @@ bool	Request::_process_body()
 
 		if (_body_len <= _raw_d.size())
 		{
-			_body.insert(_body.end(), _raw_d.begin(), _raw_d.begin() + _body_len);
+			_raw_body.insert(_raw_body.end(), _raw_d.begin(), _raw_d.begin() + _body_len);
 
 			_body_len = 0;
 			_raw_d.clear();
@@ -261,7 +261,7 @@ bool	Request::_process_body_chunk()
 
 		if (got_size == true)
 		{
-			if (_body.size() + chunk_size > _httpconfig.get_max_body_size())
+			if (_raw_body.size() + chunk_size > _httpconfig.get_max_body_size())
 			{
 				std::cout << YEL << "[Request] 413 Content Too Large" << CRESET << std::endl;
 				throw RequestParsingException(413);
@@ -281,7 +281,7 @@ bool	Request::_process_body_chunk()
 				throw RequestParsingException(400);
 			}
 
-			_body.insert(_body.end(), _raw_d.begin(), _raw_d.begin() + chunk_size);
+			_raw_body.insert(_raw_body.end(), _raw_d.begin(), _raw_d.begin() + chunk_size);
 
 			_raw_d.erase(_raw_d.begin(), _raw_d.begin() + chunk_size + 2);
 			_raw_s.assign(_raw_d.begin(), _raw_d.end());
@@ -292,6 +292,43 @@ bool	Request::_process_body_chunk()
 	}
 
 	return false;
+}
+
+void	Request::_parse_raw_body()
+{
+	std::vector<char>::const_iterator	start;
+	// std::vector<char>::const_iterator	stop;
+	std::vector<char>::const_iterator	next_bound;
+	// std::vector<char>					form;
+
+	_trim_body_end();
+	if (vec_find(_raw_body, "--" + _headers["boundary"]) != _raw_body.begin())
+	{
+		std::cout << "Boundary not at start of body." << std::endl;
+		throw (RequestParsingException(400));
+	}
+	if (vec_find(_raw_body, _headers["boundary"] + "--") != _raw_body.end() - _headers["boundary"].size() - 2)
+	{
+		std::cout << "Boundary not at end of body." << std::endl;
+		throw (RequestParsingException(400));
+	}
+	start = vec_find(_raw_body, "\r\n") + 2;
+	next_bound = vec_find(_raw_body, "--" + _headers["boundary"], start);
+	while (start != _raw_body.end())
+	{
+		_body.insert(_body.end(), MultiPartForm(std::vector<char>(start, next_bound)));
+		start = next_bound + _headers["boundary"].size() + 4;
+		next_bound = vec_find(_raw_body, "--" + _headers["boundary"], start);
+	}
+}
+
+void	Request::_trim_body_end()
+{
+	std::cout << "Trimming end of body." << std::endl;
+	if (_raw_body.size() < 2)
+		throw RequestParsingException(400);
+	if (*(_raw_body.end() - 1) == '\n' && *(_raw_body.end() - 2) == '\r')
+		_raw_body.erase(_raw_body.end() - 2, _raw_body.end());
 }
 
 /*******************************************************************************
@@ -341,10 +378,11 @@ bool	Request::parse_data(const std::vector<char>& data)
 		{
 			// debug
 			std::string body;
-			body.insert(body.end(), _body.begin(), _body.end());
+			body.insert(body.end(), _raw_body.begin(), _raw_body.end());
 			std::cout << "body: " << body << std::endl;
 			// end of debug
-
+			if (_body_type == "form-data")
+				_parse_raw_body();
 			return true;
 		}
 	}
@@ -378,7 +416,12 @@ std::string			Request::get_header(std::string key) const
 	}
 }
 
-const std::vector<char>&	Request::get_body() const
+const std::vector<char>&	Request::get_raw_body() const
+{
+	return (_raw_body);
+}
+
+const Request::FormData&	Request::get_body() const
 {
 	return (_body);
 }

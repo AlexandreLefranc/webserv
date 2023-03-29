@@ -49,6 +49,7 @@ std::vector<char>	receive_all(int fd);
 //	utils/char_vector_utils.cpp
 bool								is_equal(std::vector<char> vec, const std::string& str);
 std::vector<char>::const_iterator	vec_find(const std::vector<char>& vec, const std::string& substr);
+std::vector<char>::const_iterator	vec_find(const std::vector<char>& vec, const std::string& substr, std::vector<char>::const_iterator& start_pos);
 
 
 # include "utils/debug.tpp"
