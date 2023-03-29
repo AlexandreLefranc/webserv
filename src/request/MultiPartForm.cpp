@@ -34,8 +34,6 @@ MultiPartForm::MultiPartForm(std::vector<char> form_vec)
 	display_map(headers, "MultiPart_header");
 
 	body.insert(body.end(), form_vec.begin() + 2, form_vec.end() - 2);
-	// std::cout << "MultiPart body:" << std::endl;
-	// std::cout << std::string(body.begin(), body.end()) << std::endl;
 	std::cout << "Construct of MultiPart done" << std::endl;
 }
 

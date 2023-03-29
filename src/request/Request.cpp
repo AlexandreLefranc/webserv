@@ -297,9 +297,7 @@ bool	Request::_process_body_chunk()
 void	Request::_parse_raw_body()
 {
 	std::vector<char>::const_iterator	start;
-	// std::vector<char>::const_iterator	stop;
 	std::vector<char>::const_iterator	next_bound;
-	// std::vector<char>					form;
 
 	_trim_body_end();
 	if (vec_find(_raw_body, "--" + _headers["boundary"]) != _raw_body.begin())
