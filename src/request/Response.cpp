@@ -50,10 +50,11 @@ const Status Status::HTTPVersionNotSupported = Status(505, "HTTP Version Not Sup
 								Constructors.
 ==============================================================================*/
 
-Response::Response(const Request& request, const ServerConfig& config)
+Response::Response(const Request& request)
 	: ready(false)
 	, request(request)
-	, config(config)
+	, config(NULL)
+	, location_addr(NULL)
 {
 	return ;
 }
@@ -63,15 +64,18 @@ Response::~Response()
 	return ;
 }
 
-/*==============================================================================
-							Public Member functions.
-==============================================================================*/
+// /*==============================================================================
+// 							Public Member functions.
+// ==============================================================================*/
 
 void	Response::create()
 {
 	std::string	target = request.get_target();
 	
-	location_addr = config.get_location_addr(target); // throws ResponseException();
+	if (config == NULL)
+		throw std::runtime_error("Config not set before creating response");
+
+	location_addr = config->get_location_addr(target); // throws ResponseException();
 	_add_header("Server", "Webserv42/1.0");
 	_add_header("Connection", "close");
 	std::cout << YEL << "[RESPONSE]location_match: " << location_addr->get_location_match() << CRESET << std::endl;
@@ -94,7 +98,7 @@ void	Response::create()
 	target = location_addr->get_root() + target;
 	std::cout << YEL << "[Response] Target: " << target << CRESET << std::endl;
 	_serve(target);
-	if (response_status.is_error() && config.get_error_page().count(response_status.code) == 1)
+	if (response_status.is_error() && config->get_error_page().count(response_status.code) == 1)
 		_get_predefined_error_page();
 	else if (response_status.is_error())
 		_get_default_error_page();
@@ -115,11 +119,24 @@ void	Response::create_error(int status_code)
 		response_status = Status::HTTPVersionNotSupported;
 	else
 		throw (ResponseException());
-	if (config.get_error_page().count(response_status.code) == 1)
+
+	if (config != NULL && config->get_error_page().count(response_status.code) == 1)
 		_get_predefined_error_page();
 	else
 		_get_default_error_page();
 	ready = true;
+}
+
+/*==============================================================================
+								Setters.
+==============================================================================*/
+
+void						Response::set_config(const ServerConfig* conf)
+{
+	if (config != NULL)
+		throw std::runtime_error("Config already set");
+	std::cout << "Setting config in Response" << std::endl;
+	config = conf;
 }
 
 /*==============================================================================
@@ -331,7 +348,7 @@ std::vector<char>	Response::build_response_vector() const
 
 void	Response::_get_predefined_error_page()
 {
-	std::ifstream		file(config.get_error_page().at(response_status.code).c_str());
+	std::ifstream		file(config->get_error_page().at(response_status.code).c_str());
 	std::stringstream	buffer;
 	
 	if (!file.is_open())
@@ -374,14 +391,14 @@ void	Response::_add_header(const std::string& key, const std::string& value)
 bool	Response::_is_cgi_file(const std::string& target) const
 {
 	if (target.find('.') != std::string::npos &&\
-			target.substr(target.find_last_of('.')) == config.get_cgi().first)
+			target.substr(target.find_last_of('.')) == config->get_cgi().first)
 		return true;
 	return false;
 }
 
 void	Response::_call_cgi()
 {
-	CGI cgi(config.get_cgi().second, location_addr->get_root(), config, request);
+	CGI cgi(config->get_cgi().second, location_addr->get_root(), *config, request);
 	cgi.process();
 
 	if (cgi.cgi_headers.find("status") != cgi.cgi_headers.end())

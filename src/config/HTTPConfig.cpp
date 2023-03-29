@@ -39,7 +39,7 @@ HTTPConfig::~HTTPConfig()
 	Getters.
 ==============================================================================*/
 
-const std::list<ServerConfig>&	HTTPConfig::get_virtual_server_config() const
+const std::vector<ServerConfig>&	HTTPConfig::get_virtual_server_config() const
 {
 	return (virtual_server_config);
 }
@@ -119,15 +119,36 @@ void	HTTPConfig::_insert_token(std::vector<std::string> tokens)
 		throw (ParsingException());
 }
 
+/*==============================================================================
+	Check.
+==============================================================================*/
+
 void	HTTPConfig::_check() const
 {
-	std::list<ServerConfig>::const_iterator it;
 
 	if (virtual_server_config.empty() == true)
 	{
 		std::cout << BRED << "Config check failed: No virtual server" << CRESET << std::endl;
 		throw ParsingException();
 	}
+
+	std::vector<ServerConfig>::const_iterator first;
+	for (first = virtual_server_config.begin(); first != virtual_server_config.end(); ++first)
+	{
+		std::vector<ServerConfig>::const_iterator next;
+		for (next = first + 1; next != virtual_server_config.end(); ++next)
+		{
+			if (first->get_ip() == next->get_ip() &&\
+				first->get_port() == next->get_port() &&\
+				first->get_server_name() == next->get_server_name())
+			{
+				std::cout << BRED << "Config check failed: Duplicate Server" << CRESET << std::endl;
+				throw ParsingException();
+			}
+		}
+	}
+
+	std::vector<ServerConfig>::const_iterator it;
 	for (it = virtual_server_config.begin(); it != virtual_server_config.end(); ++it)
 		it->check();
 }

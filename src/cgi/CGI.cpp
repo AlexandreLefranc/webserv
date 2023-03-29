@@ -100,12 +100,6 @@ void				CGI::_run_cgi()
 		close(STDIN_FILENO);
 		dup2(pipein[READ_END], STDIN_FILENO);
 
-		// std::ofstream	debug_out("debug_out");
-		// char	buf[_req._body.size() + 1];
-		// read(0, buf, _req._body.size());
-		// buf[_req._body.size()] = '\0';
-		// debug_out << buf;
-		// debug_out.close();
 		execve(_cmd[0], const_cast<char* const*>(_cmd), _envp);
 		std::cerr << "execve error" << std::endl;
 		std::cerr << strerror(errno) << std::endl;

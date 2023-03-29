@@ -12,6 +12,7 @@
 
 # include "webserv.hpp"
 # include "config/ServerConfig.hpp"
+# include "request/HTMLGenerator.hpp"
 # include "request/Request.hpp"
 # include "cgi/CGI.hpp"
 
@@ -56,7 +57,7 @@ private:
 	string_map				headers;
 	std::vector<char>		body;
 	const Request&			request;
-	const ServerConfig&		config;
+	const ServerConfig*		config;
 	const ServerLocation*	location_addr;
 
 	Response();
@@ -64,12 +65,14 @@ private:
 	Response&	operator=(const Response& other);
 
 public:
-	Response(const Request& request, const ServerConfig& config);
+	Response(const Request& request);
 	~Response();
 
 	void	create();
 	void	create_error(int status_code);
-	void	send(int fd) const;
+
+	// Setters
+	void						set_config(const ServerConfig* conf);
 
 	// Getters
 	const Status&				get_status() const;

@@ -1,12 +1,13 @@
 #include "client/Client.hpp"
 
-Client::Client(int server_fd, const HTTPConfig& httpconfig, const ServerConfig& config)
+Client::Client(int server_fd, const HTTPConfig& httpconfig, const VirtualServer& virtualserver)
 	: fd(-1)
+	, virtualserver(virtualserver)
 	, httpconfig(httpconfig)
-	, config(config)
-	, request(httpconfig, config)
+	, config(NULL)
+	, request(httpconfig)
 	, request_complete(false)
-	, response(request, config)
+	, response(request)
 {
 	std::cout << YEL << "[Client] Accept client" << CRESET << std::endl;
 	std::cout << YEL << "[Client] OPENING fd: " << CRESET;
@@ -38,6 +39,11 @@ void	Client::parse_request()
 	request_complete = request.parse_data(data); // can throw
 	if (request_complete == true)
 	{
+		std::string host = request.get_header("host");
+		
+		config = &virtualserver.get_config(host);
+		response.set_config(config);
+
 		std::cout << YEL << "[Request] Request complete!"<< CRESET << std::endl;
 	}
 }

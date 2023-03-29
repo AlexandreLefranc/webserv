@@ -3,7 +3,7 @@
 
 # include <fstream>
 # include <sstream>
-# include <list>
+# include <vector>
 
 # include "ServerConfig.hpp"
 # include "parse_utils.hpp"
@@ -14,9 +14,9 @@ class HTTPConfig
 {
 private:
 	//	Attributes
-	std::stringstream		content;
-	std::list<ServerConfig>	virtual_server_config;
-	size_t					client_max_body_size;
+	std::stringstream			content;
+	std::vector<ServerConfig>	virtual_server_config;
+	size_t						client_max_body_size;
 
 	//	Constructors
 	HTTPConfig();
@@ -30,7 +30,7 @@ public:
 	//		Destructor
 	~HTTPConfig();
 	//		Getters
-	const std::list<ServerConfig>&	get_virtual_server_config() const;
+	const std::vector<ServerConfig>&	get_virtual_server_config() const;
 	size_t							get_max_body_size() const;
 
 private:

@@ -1,9 +1,9 @@
 #include "core/HTTPServer.hpp"
 
 HTTPServer::HTTPServer(const std::string& config_file)
-	: _config(config_file)
+	: _httpconfig(config_file)
 	, _epoll()
-	, _server_manager(_config)
+	, _server_manager(_httpconfig)
 {
 	const std::vector<int>	serv_fds = _server_manager.getfds();
 	for (std::vector<int>::const_iterator it = serv_fds.begin(); it != serv_fds.end(); it++)
@@ -24,9 +24,10 @@ void	HTTPServer::_create_client(int server_fd)
 {
 	std::cout << CYN << "[HTTPServer] Client connection request!" << CRESET << std::endl;
 
-	const	ServerConfig&	config = _server_manager.get_server_config(server_fd);
+	// const	ServerConfig&	config = _server_manager.get_server_config(server_fd);
+	const VirtualServer& virtualserver = _server_manager.get_virtual_server(server_fd);
 
-	int client_fd = _client_manager.create_client(server_fd, _config, config); // can throw
+	int client_fd = _client_manager.create_client(server_fd, _httpconfig, virtualserver); // can throw
 	_fds[client_fd] = "CLIENT";
 	_epoll.add_fd(client_fd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET);
 }
@@ -71,7 +72,6 @@ int		HTTPServer::_communicate_with_client(const struct epoll_event& event)
 		{
 			std::cout << CYN << "[HTTPServer] " << e.what() << e.code << CRESET << std::endl;
 			client.response.create_error(e.code);
-			// _remove_client(client_fd);
 		}
 	}
 
@@ -109,7 +109,7 @@ void	HTTPServer::_internal_server_error(const struct epoll_event& event)
 }
 
 /*******************************************************************************
-                                PRIVATE METHODS
+                                PUBLIC METHODS
 *******************************************************************************/
 
 void	HTTPServer::run()
