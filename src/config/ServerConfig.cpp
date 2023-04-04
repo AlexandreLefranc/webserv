@@ -89,7 +89,7 @@ const std::string&	ServerConfig::get_root() const
 	return (root);
 }
 
-const string_pair&	ServerConfig::get_cgi() const
+const string_map&	ServerConfig::get_cgi() const
 {
 	return (cgi);
 }
@@ -140,12 +140,13 @@ void	ServerConfig::check() const
 	for (it2 = locations.begin(); it2 != locations.end(); ++it2)
 		it2->check();
 
-	if (cgi.second.empty() == false)
+	string_map::const_iterator	it3;
+	for (it3 = cgi.begin(); it3 != cgi.end(); ++it3)
 	{
-		if (access(cgi.second.c_str(), X_OK) != 0)
+		if (access((*it3).second.c_str(), X_OK) != 0)
 		{
 			std::cout	<< BRED << "Config check failed: "
-						<< cgi.second << " does not exist or is not executable" << CRESET << std::endl;
+						<< (*it3).second << " does not exist or is not executable" << CRESET << std::endl;
 			throw ParsingException();
 		}
 	}
@@ -233,11 +234,17 @@ void	ServerConfig::_insert_token(std::vector<std::string> tokens)
 		index = tokens[1];
 		std::cout << RED << "[Server]Got index: " << index << CRESET << std::endl;
 	}
-	else if (tokens.front() == "cgi" && tokens.size() == 3 && cgi.first.empty())
+	else if (tokens.front() == "cgi" && tokens.size() == 3)
 	{
-		cgi = std::make_pair(tokens[1], tokens[2]);
-		std::cout << RED << "[Server]Got CGI: " << cgi.first << " -> ";
-		std::cout << cgi.second << CRESET << std::endl;
+		std::pair<string_map::iterator, bool>	check;
+		check = cgi.insert(std::make_pair(tokens[1], tokens[2]));
+		if (check.second)
+		{
+			std::cout << RED << "[Server]Got CGI: " << tokens[1] << " -> ";
+			std::cout << cgi[tokens[1]] << CRESET << std::endl;
+		}
+		else
+			std::cout << RED << "[Server]CGI: " << tokens[1] << "already defined." << CRESET << std::endl;
 	}
 	else
 		throw (ParsingException());

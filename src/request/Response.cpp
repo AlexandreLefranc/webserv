@@ -200,8 +200,9 @@ void	Response::_serve_get(std::string& target)
 	
 	if (_is_cgi_file(target))
 	{
+		std::string	extension = target.substr(target.find_last_of('.'));
 		std::cout << YEL << "[Response] GET with CGI." << CRESET << std::endl;
-		_call_cgi();
+		_call_cgi(extension);
 	}
 	else
 	{
@@ -255,8 +256,9 @@ void	Response::_serve_post(const std::string& target)
 	else if (_is_cgi_file(target) &&\
 		(request._body_type == "urlencoded" || request._body_type == "form-data"))
 	{
+		std::string	extension = target.substr(target.find_last_of('.'));
 		std::cout << YEL << "[Response] POST with CGI." << CRESET << std::endl;
-		_call_cgi();
+		_call_cgi(extension);
 	}
 	else
 	{
@@ -373,14 +375,14 @@ void	Response::_add_header(const std::string& key, const std::string& value)
 bool	Response::_is_cgi_file(const std::string& target) const
 {
 	if (target.find('.') != std::string::npos &&\
-			target.substr(target.find_last_of('.')) == config->get_cgi().first)
-		return true;
-	return false;
+		config->get_cgi().count(target.substr(target.find_last_of('.'))) == 1)
+		return (true);
+	return (false);
 }
 
-void	Response::_call_cgi()
+void	Response::_call_cgi(const std::string& extension)
 {
-	CGI cgi(config->get_cgi().second, location_addr->get_root(), *config, request);
+	CGI cgi(config->get_cgi().at(extension), location_addr->get_root(), *config, request);
 	cgi.process();
 
 	if (cgi.cgi_headers.find("status") != cgi.cgi_headers.end())

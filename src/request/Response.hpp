@@ -98,9 +98,7 @@ private:
 	//	Utils
 	void				_add_header(const std::string& key, const std::string& value);
 	bool				_is_cgi_file(const std::string& target) const;
-	void				_call_cgi();
+	void				_call_cgi(const std::string& extension);
 };
-
-
 
 #endif

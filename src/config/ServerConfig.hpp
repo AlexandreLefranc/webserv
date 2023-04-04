@@ -22,7 +22,7 @@ private:
 	std::pair<int, short>				listen_port;
 	std::map<int, std::string>			error_page;
 	std::vector<ServerLocation>			locations;
-	string_pair							cgi;
+	string_map							cgi;
 
 	//	Constructors
 	ServerConfig();
@@ -44,7 +44,7 @@ public:
 	short								get_port() const;
 	const std::string&					get_server_name() const;
 	const std::string&					get_root() const;
-	const string_pair&					get_cgi() const;
+	const string_map&					get_cgi() const;
 	const std::map<int, std::string>&	get_error_page() const;
 	const ServerLocation*				get_location_addr(std::string target) const;
 
