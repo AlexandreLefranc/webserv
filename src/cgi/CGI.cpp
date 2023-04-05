@@ -23,7 +23,7 @@ void				CGI::_init_arrays()
 	_env.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	_env.push_back("REQUEST_METHOD=" + _req._method);
 	_env.push_back("REQUEST_URI=" + _req._target);
-	_env.push_back("SCRIPT_FILENAME=" + _root + _req._target);
+	_env.push_back("SCRIPT_FILENAME=" + _full_path_target);
 	_env.push_back("DOCUMENT_ROOT=" + _root);
 	_env.push_back("REDIRECT_STATUS=301");
 
@@ -61,9 +61,8 @@ void				CGI::_init_arrays()
 
 	display_cstyle_string_array(_envp, "_envp");
 
-	_fullpath = _root + _req._target;
 	_cmd[0] = const_cast<char*>(_exec.c_str());
-	_cmd[1] = const_cast<char*>(_fullpath.c_str());
+	_cmd[1] = const_cast<char*>(_full_path_target.c_str());
 	_cmd[2] = NULL;
 
 	display_cstyle_string_array(_cmd, "_cmd");
@@ -156,8 +155,9 @@ void				CGI::_format_output(std::vector<char>& res_d)
 }
 
 
-void		CGI::process()
+void		CGI::process(const std::string& full_path_target)
 {
+	this->_full_path_target = full_path_target;
 	_init_arrays();
-	_run_cgi();	
+	_run_cgi();
 }
