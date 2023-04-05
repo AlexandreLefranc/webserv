@@ -33,6 +33,7 @@ private:
 	const std::string			_root;
 	const ServerConfig&			_conf;
 	const Request&				_req;
+	std::string					_full_path_target;
 
 	// Temporary variables
 	std::string					_fullpath;
@@ -55,7 +56,7 @@ public:
 	CGI(const std::string& exec, const std::string& root, const ServerConfig& conf, const Request& req);
 	~CGI();
 
-	void	process();
+	void	process(const std::string& full_path_target);
 
 };
 

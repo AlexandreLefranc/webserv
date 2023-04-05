@@ -125,12 +125,14 @@ void	ServerLocation::fill_default(std::string serv_root, std::string serv_index)
 {
 	if (root.empty())
 	{
-		std::cout << RED << "[LOCATION]\"" << location_match << "\": setting default root." << CRESET << std::endl;
+		std::cout << RED << "[LOCATION]\"" << location_match << "\": setting default root: ";
+		std::cout << serv_root << "." << CRESET << std::endl;
 		root = serv_root;
 	}
 	if (index.empty() && autoindex == false)
 	{
-		std::cout << RED << "[LOCATION]\"" << location_match << "\"setting default index." << CRESET << std::endl;
+		std::cout << RED << "[LOCATION]\"" << location_match << "\": setting default index: ";
+		std::cout << serv_index << "." << CRESET << std::endl;
 		index = serv_index;
 	}
 }
@@ -233,7 +235,7 @@ void	ServerLocation::_parse_line(std::string& line)
 	else if (tokens.front() == "redirect" && redirect.empty())
 	{
 		redirect = tokens[1];
-		std::cout << RED << "[LOCATION]Got autoindex: " << autoindex << CRESET << std::endl;
+		std::cout << RED << "[LOCATION]Got redirection: " << redirect << CRESET << std::endl;
 	}
 	else
 		throw (ParsingException());
